@@ -68,7 +68,7 @@ export interface ApplicationData {
   researchScore: string;
 
   // Payment
-  draftNo: string;
+  utrNo: string; // Changed from draftNo
   draftDate: string;
   draftAmount: string;
   bankName: string;
@@ -134,7 +134,7 @@ export const INITIAL_DATA: ApplicationData = {
   commTimeTable: '',
   commSCBC: '',
   researchScore: '',
-  draftNo: '',
+  utrNo: '',
   draftDate: '',
   draftAmount: '',
   bankName: '',

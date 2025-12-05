@@ -206,7 +206,7 @@ export const generatePDF = (data: ApplicationData, shouldDownload: boolean = tru
   finalY = (doc as any).lastAutoTable.finalY + 15;
   doc.setLineWidth(0.5);
   doc.rect(14, finalY, pageWidth - 28, 30);
-  doc.text(`Bank Draft No: ${data.draftNo}`, 20, finalY + 10);
+  doc.text(`UTR No: ${data.utrNo}`, 20, finalY + 10);
   doc.text(`Date: ${data.draftDate}`, 100, finalY + 10);
   doc.text(`Amount: ${data.draftAmount}`, 160, finalY + 10);
   doc.text(`Name of Bank: ${data.bankName}`, 20, finalY + 20);

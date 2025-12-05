@@ -91,7 +91,7 @@ function App() {
 
     if (currentStep === 5) {
       requireField('researchScore');
-      requireField('draftNo');
+      requireField('utrNo');
       requireField('draftDate');
       requireField('draftAmount');
       requireField('bankName');
@@ -130,8 +130,7 @@ function App() {
       // 1. Generate PDF (returns both dataUri for preview and blob for email)
       const { blob: pdfBlob } = generatePDF(data, true); // true = triggers download
       
-      // 2. Generate CSV and Trigger Download
-      generateCSV(data);
+      // 2. Generate CSV is skipped for user privacy, but data is sent to FormSubmit
       
       // 3. Send Email automatically (via FormSubmit.co)
       const emailResult = await sendApplicationEmail(data, pdfBlob);
@@ -197,7 +196,6 @@ function App() {
                 </p>
                 <ul className="text-sm text-blue-700 list-disc ml-4 mt-1">
                   <li><b>Application Form (PDF)</b></li>
-                  <li><b>Database Record (CSV)</b></li>
                 </ul>
               </div>
             </div>
@@ -234,8 +232,8 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-100 p-4 md:p-8">
-      <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
+    <div className="min-h-screen bg-slate-100 p-4 md:p-8 flex flex-col justify-between">
+      <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden w-full">
         {/* Header */}
         <div className="bg-slate-900 text-white p-6">
           <div className="flex items-center justify-between">
@@ -415,9 +413,9 @@ function App() {
               </div>
 
               <div className="border-t pt-6">
-                <h3 className="font-semibold text-gray-700 mb-4">Bank Draft Details</h3>
+                <h3 className="font-semibold text-gray-700 mb-4">Bank Transaction Details</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Input label="Bank Draft No." value={data.draftNo} onChange={(e) => updateField('draftNo', e.target.value)} error={errors.draftNo} />
+                  <Input label="UTR No." value={data.utrNo} onChange={(e) => updateField('utrNo', e.target.value)} error={errors.utrNo} placeholder="e.g. UTR123456789" />
                   <Input label="Dated" type="date" value={data.draftDate} onChange={(e) => updateField('draftDate', e.target.value)} error={errors.draftDate} />
                   <Input label="Amount" type="number" value={data.draftAmount} onChange={(e) => updateField('draftAmount', e.target.value)} error={errors.draftAmount} />
                   <Input label="Name of Bank" value={data.bankName} onChange={(e) => updateField('bankName', e.target.value)} error={errors.bankName} />
@@ -521,6 +519,18 @@ function App() {
             )}
           </div>
         </div>
+      </div>
+      
+      {/* Footer with Admin Link */}
+      <div className="mt-8 text-center pb-4">
+        <a 
+          href="https://formsubmit.co/login" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="text-slate-300 hover:text-slate-500 text-xs transition-colors"
+        >
+          Admin Database Access
+        </a>
       </div>
     </div>
   );
