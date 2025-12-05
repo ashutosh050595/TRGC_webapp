@@ -324,10 +324,10 @@ function App() {
                     </tr>
                   </thead>
                   <tbody className="divide-y">
-                    <ScoreRow sNo="1." particulars="Above 55% marks in Master's degree" marksCriteria="0.5 marks for each % (max 5 marks)" value={data.academicMasters} onChange={(v) => updateField('academicMasters', v)} error={!!errors.academicMasters} />
-                    <ScoreRow sNo="2." particulars="Above 55% marks in Graduation" marksCriteria="0.4 marks for each % (max 5 marks)" value={data.academicGraduation} onChange={(v) => updateField('academicGraduation', v)} error={!!errors.academicGraduation} />
-                    <ScoreRow sNo="3." particulars="Above 55% marks in 10+2/Prep." marksCriteria="0.3 marks for each % (max 5 marks)" value={data.academic12th} onChange={(v) => updateField('academic12th', v)} error={!!errors.academic12th} />
-                    <ScoreRow sNo="4." particulars="Above 55% marks in Matriculation" marksCriteria="0.2 marks for each % (max 5 marks)" value={data.academicMatric} onChange={(v) => updateField('academicMatric', v)} error={!!errors.academicMatric} />
+                    <ScoreRow sNo="1." particulars="Above 55% marks in Master's degree" marksCriteria="0.5 marks for each % (max 5 marks)" value={data.academicMasters} onChange={(v) => updateField('academicMasters', v)} error={!!errors.academicMasters} max={5} />
+                    <ScoreRow sNo="2." particulars="Above 55% marks in Graduation" marksCriteria="0.4 marks for each % (max 5 marks)" value={data.academicGraduation} onChange={(v) => updateField('academicGraduation', v)} error={!!errors.academicGraduation} max={5} />
+                    <ScoreRow sNo="3." particulars="Above 55% marks in 10+2/Prep." marksCriteria="0.3 marks for each % (max 5 marks)" value={data.academic12th} onChange={(v) => updateField('academic12th', v)} error={!!errors.academic12th} max={5} />
+                    <ScoreRow sNo="4." particulars="Above 55% marks in Matriculation" marksCriteria="0.2 marks for each % (max 5 marks)" value={data.academicMatric} onChange={(v) => updateField('academicMatric', v)} error={!!errors.academicMatric} max={5} />
                   </tbody>
                 </table>
               </div>
@@ -344,7 +344,7 @@ function App() {
                 <table className="w-full text-left text-sm">
                   <thead className="bg-gray-100"><tr><th className="p-3">Particulars</th><th className="p-3">Criteria</th><th className="p-3 w-32 text-right">Marks</th></tr></thead>
                   <tbody>
-                    <ScoreRow sNo="1." particulars="Above 15 years teaching experience" marksCriteria="1 mark for each year" value={data.teachingExpAbove15} onChange={(v) => updateField('teachingExpAbove15', v)} error={!!errors.teachingExpAbove15} />
+                    <ScoreRow sNo="1." particulars="Above 15 years teaching experience" marksCriteria="1 mark for each year" value={data.teachingExpAbove15} onChange={(v) => updateField('teachingExpAbove15', v)} error={!!errors.teachingExpAbove15} max={10} />
                   </tbody>
                 </table>
               </div>
@@ -354,9 +354,9 @@ function App() {
                 <table className="w-full text-left text-sm">
                   <thead className="bg-gray-100"><tr><th className="p-3">Particulars</th><th className="p-3">Criteria</th><th className="p-3 w-32 text-right">Marks</th></tr></thead>
                   <tbody>
-                    <ScoreRow sNo="1." particulars="Exp. as Joint/Deputy/Assistant Director" marksCriteria="1 mark for each year" value={data.adminJointDirector} onChange={(v) => updateField('adminJointDirector', v)} error={!!errors.adminJointDirector} />
-                    <ScoreRow sNo="2." particulars="Exp. as Registrar or Admin post in University" marksCriteria="1 mark for each year" value={data.adminRegistrar} onChange={(v) => updateField('adminRegistrar', v)} error={!!errors.adminRegistrar} />
-                    <ScoreRow sNo="3." particulars="Exp. as Head of Higher Edu Inst (Principal/DDO)" marksCriteria="1 mark for each year" value={data.adminHead} onChange={(v) => updateField('adminHead', v)} error={!!errors.adminHead} />
+                    <ScoreRow sNo="1." particulars="Exp. as Joint/Deputy/Assistant Director" marksCriteria="1 mark for each year" value={data.adminJointDirector} onChange={(v) => updateField('adminJointDirector', v)} error={!!errors.adminJointDirector} max={25} />
+                    <ScoreRow sNo="2." particulars="Exp. as Registrar or Admin post in University" marksCriteria="1 mark for each year" value={data.adminRegistrar} onChange={(v) => updateField('adminRegistrar', v)} error={!!errors.adminRegistrar} max={25} />
+                    <ScoreRow sNo="3." particulars="Exp. as Head of Higher Edu Inst (Principal/DDO)" marksCriteria="1 mark for each year" value={data.adminHead} onChange={(v) => updateField('adminHead', v)} error={!!errors.adminHead} max={25} />
                   </tbody>
                 </table>
               </div>
@@ -373,14 +373,14 @@ function App() {
                 <table className="w-full text-left text-sm">
                   <thead className="bg-gray-100"><tr><th className="p-3 w-10">#</th><th className="p-3">Particulars</th><th className="p-3">Criteria</th><th className="p-3 w-28">Marks</th></tr></thead>
                   <tbody className="divide-y">
-                    <ScoreRow sNo="1" particulars="Staff Rep / V.C. Nominee" marksCriteria="1 mark/yr (max 3)" value={data.respStaffRep} onChange={(v) => updateField('respStaffRep', v)} error={!!errors.respStaffRep} />
-                    <ScoreRow sNo="2" particulars="Coordinator/Secy of Conference" marksCriteria="1 mark/yr (max 3)" value={data.respCoordinator} onChange={(v) => updateField('respCoordinator', v)} error={!!errors.respCoordinator} />
-                    <ScoreRow sNo="3" particulars="Bursar" marksCriteria="1 mark/yr (max 3)" value={data.respBursar} onChange={(v) => updateField('respBursar', v)} error={!!errors.respBursar} />
-                    <ScoreRow sNo="4" particulars="NSS Programme Officer" marksCriteria="1 mark/yr (max 3)" value={data.respNSS} onChange={(v) => updateField('respNSS', v)} error={!!errors.respNSS} />
-                    <ScoreRow sNo="5" particulars="YRC Counsellor" marksCriteria="1 mark/yr (max 3)" value={data.respYRC} onChange={(v) => updateField('respYRC', v)} error={!!errors.respYRC} />
-                    <ScoreRow sNo="6" particulars="Hostel Warden" marksCriteria="1 mark/yr (max 3)" value={data.respWarden} onChange={(v) => updateField('respWarden', v)} error={!!errors.respWarden} />
-                    <ScoreRow sNo="7" particulars="Member of Statutory Body" marksCriteria="1 mark/yr (max 2)" value={data.respStatutory} onChange={(v) => updateField('respStatutory', v)} error={!!errors.respStatutory} />
-                    <ScoreRow sNo="8" particulars="Associate NCC Officer" marksCriteria="1 mark/yr (max 3)" value={data.respNCC} onChange={(v) => updateField('respNCC', v)} error={!!errors.respNCC} />
+                    <ScoreRow sNo="1" particulars="Staff Rep / V.C. Nominee" marksCriteria="1 mark/yr (max 3)" value={data.respStaffRep} onChange={(v) => updateField('respStaffRep', v)} error={!!errors.respStaffRep} max={3} />
+                    <ScoreRow sNo="2" particulars="Coordinator/Secy of Conference" marksCriteria="1 mark/yr (max 3)" value={data.respCoordinator} onChange={(v) => updateField('respCoordinator', v)} error={!!errors.respCoordinator} max={3} />
+                    <ScoreRow sNo="3" particulars="Bursar" marksCriteria="1 mark/yr (max 3)" value={data.respBursar} onChange={(v) => updateField('respBursar', v)} error={!!errors.respBursar} max={3} />
+                    <ScoreRow sNo="4" particulars="NSS Programme Officer" marksCriteria="1 mark/yr (max 3)" value={data.respNSS} onChange={(v) => updateField('respNSS', v)} error={!!errors.respNSS} max={3} />
+                    <ScoreRow sNo="5" particulars="YRC Counsellor" marksCriteria="1 mark/yr (max 3)" value={data.respYRC} onChange={(v) => updateField('respYRC', v)} error={!!errors.respYRC} max={3} />
+                    <ScoreRow sNo="6" particulars="Hostel Warden" marksCriteria="1 mark/yr (max 3)" value={data.respWarden} onChange={(v) => updateField('respWarden', v)} error={!!errors.respWarden} max={3} />
+                    <ScoreRow sNo="7" particulars="Member of Statutory Body" marksCriteria="1 mark/yr (max 2)" value={data.respStatutory} onChange={(v) => updateField('respStatutory', v)} error={!!errors.respStatutory} max={2} />
+                    <ScoreRow sNo="8" particulars="Associate NCC Officer" marksCriteria="1 mark/yr (max 3)" value={data.respNCC} onChange={(v) => updateField('respNCC', v)} error={!!errors.respNCC} max={3} />
                   </tbody>
                 </table>
               </div>
@@ -390,23 +390,23 @@ function App() {
                 <table className="w-full text-left text-sm">
                    <thead className="bg-gray-100 sticky top-0"><tr><th className="p-3 w-10">#</th><th className="p-3">Particulars</th><th className="p-3">Criteria</th><th className="p-3 w-28">Marks</th></tr></thead>
                    <tbody className="divide-y">
-                    <ScoreRow sNo="1" particulars="Co-ordinator IQAC" marksCriteria="1 mark/yr (max 2)" value={data.commIQAC} onChange={(v) => updateField('commIQAC', v)} error={!!errors.commIQAC} />
-                    <ScoreRow sNo="2" particulars="Editor in Chief, Magazine" marksCriteria="1 mark/yr (max 2)" value={data.commEditor} onChange={(v) => updateField('commEditor', v)} error={!!errors.commEditor} />
-                    <ScoreRow sNo="3" particulars="Member, Advisory Council" marksCriteria="1 mark/yr (max 2)" value={data.commAdvisory} onChange={(v) => updateField('commAdvisory', v)} error={!!errors.commAdvisory} />
-                    <ScoreRow sNo="4" particulars="Convener, Work Committee" marksCriteria="1 mark/yr (max 2)" value={data.commWork} onChange={(v) => updateField('commWork', v)} error={!!errors.commWork} />
-                    <ScoreRow sNo="5" particulars="Convener, Cultural Affairs" marksCriteria="1 mark/yr (max 2)" value={data.commCultural} onChange={(v) => updateField('commCultural', v)} error={!!errors.commCultural} />
-                    <ScoreRow sNo="6" particulars="Convener, Purchase/Procurement" marksCriteria="1 mark/yr (max 2)" value={data.commPurchase} onChange={(v) => updateField('commPurchase', v)} error={!!errors.commPurchase} />
-                    <ScoreRow sNo="7" particulars="Convener, Building/Works" marksCriteria="1 mark/yr (max 2)" value={data.commBuilding} onChange={(v) => updateField('commBuilding', v)} error={!!errors.commBuilding} />
-                    <ScoreRow sNo="8" particulars="Convener, Sports" marksCriteria="1 mark/yr (max 2)" value={data.commSports} onChange={(v) => updateField('commSports', v)} error={!!errors.commSports} />
-                    <ScoreRow sNo="9" particulars="Convener, Discipline" marksCriteria="1 mark/yr (max 2)" value={data.commDiscipline} onChange={(v) => updateField('commDiscipline', v)} error={!!errors.commDiscipline} />
-                    <ScoreRow sNo="10" particulars="Convener, Internal Complaint" marksCriteria="1 mark/yr (max 2)" value={data.commInternal} onChange={(v) => updateField('commInternal', v)} error={!!errors.commInternal} />
-                    <ScoreRow sNo="11" particulars="Convener, Road Safety" marksCriteria="1 mark/yr (max 2)" value={data.commRoadSafety} onChange={(v) => updateField('commRoadSafety', v)} error={!!errors.commRoadSafety} />
-                    <ScoreRow sNo="12" particulars="Convener, Red Ribbon" marksCriteria="1 mark/yr (max 2)" value={data.commRedRibbon} onChange={(v) => updateField('commRedRibbon', v)} error={!!errors.commRedRibbon} />
-                    <ScoreRow sNo="13" particulars="Convener, Eco Club" marksCriteria="1 mark/yr (max 2)" value={data.commEco} onChange={(v) => updateField('commEco', v)} error={!!errors.commEco} />
-                    <ScoreRow sNo="14" particulars="In-charge, Placement Cell" marksCriteria="1 mark/yr (max 2)" value={data.commPlacement} onChange={(v) => updateField('commPlacement', v)} error={!!errors.commPlacement} />
-                    <ScoreRow sNo="15" particulars="Incharge, Women Cell" marksCriteria="1 mark/yr (max 2)" value={data.commWomen} onChange={(v) => updateField('commWomen', v)} error={!!errors.commWomen} />
-                    <ScoreRow sNo="16" particulars="In-charge, Time-table" marksCriteria="1 mark/yr (max 2)" value={data.commTimeTable} onChange={(v) => updateField('commTimeTable', v)} error={!!errors.commTimeTable} />
-                    <ScoreRow sNo="17" particulars="In-charge, SC/BC" marksCriteria="1 mark/yr (max 2)" value={data.commSCBC} onChange={(v) => updateField('commSCBC', v)} error={!!errors.commSCBC} />
+                    <ScoreRow sNo="1" particulars="Co-ordinator IQAC" marksCriteria="1 mark/yr (max 2)" value={data.commIQAC} onChange={(v) => updateField('commIQAC', v)} error={!!errors.commIQAC} max={2} />
+                    <ScoreRow sNo="2" particulars="Editor in Chief, Magazine" marksCriteria="1 mark/yr (max 2)" value={data.commEditor} onChange={(v) => updateField('commEditor', v)} error={!!errors.commEditor} max={2} />
+                    <ScoreRow sNo="3" particulars="Member, Advisory Council" marksCriteria="1 mark/yr (max 2)" value={data.commAdvisory} onChange={(v) => updateField('commAdvisory', v)} error={!!errors.commAdvisory} max={2} />
+                    <ScoreRow sNo="4" particulars="Convener, Work Committee" marksCriteria="1 mark/yr (max 2)" value={data.commWork} onChange={(v) => updateField('commWork', v)} error={!!errors.commWork} max={2} />
+                    <ScoreRow sNo="5" particulars="Convener, Cultural Affairs" marksCriteria="1 mark/yr (max 2)" value={data.commCultural} onChange={(v) => updateField('commCultural', v)} error={!!errors.commCultural} max={2} />
+                    <ScoreRow sNo="6" particulars="Convener, Purchase/Procurement" marksCriteria="1 mark/yr (max 2)" value={data.commPurchase} onChange={(v) => updateField('commPurchase', v)} error={!!errors.commPurchase} max={2} />
+                    <ScoreRow sNo="7" particulars="Convener, Building/Works" marksCriteria="1 mark/yr (max 2)" value={data.commBuilding} onChange={(v) => updateField('commBuilding', v)} error={!!errors.commBuilding} max={2} />
+                    <ScoreRow sNo="8" particulars="Convener, Sports" marksCriteria="1 mark/yr (max 2)" value={data.commSports} onChange={(v) => updateField('commSports', v)} error={!!errors.commSports} max={2} />
+                    <ScoreRow sNo="9" particulars="Convener, Discipline" marksCriteria="1 mark/yr (max 2)" value={data.commDiscipline} onChange={(v) => updateField('commDiscipline', v)} error={!!errors.commDiscipline} max={2} />
+                    <ScoreRow sNo="10" particulars="Convener, Internal Complaint" marksCriteria="1 mark/yr (max 2)" value={data.commInternal} onChange={(v) => updateField('commInternal', v)} error={!!errors.commInternal} max={2} />
+                    <ScoreRow sNo="11" particulars="Convener, Road Safety" marksCriteria="1 mark/yr (max 2)" value={data.commRoadSafety} onChange={(v) => updateField('commRoadSafety', v)} error={!!errors.commRoadSafety} max={2} />
+                    <ScoreRow sNo="12" particulars="Convener, Red Ribbon" marksCriteria="1 mark/yr (max 2)" value={data.commRedRibbon} onChange={(v) => updateField('commRedRibbon', v)} error={!!errors.commRedRibbon} max={2} />
+                    <ScoreRow sNo="13" particulars="Convener, Eco Club" marksCriteria="1 mark/yr (max 2)" value={data.commEco} onChange={(v) => updateField('commEco', v)} error={!!errors.commEco} max={2} />
+                    <ScoreRow sNo="14" particulars="In-charge, Placement Cell" marksCriteria="1 mark/yr (max 2)" value={data.commPlacement} onChange={(v) => updateField('commPlacement', v)} error={!!errors.commPlacement} max={2} />
+                    <ScoreRow sNo="15" particulars="Incharge, Women Cell" marksCriteria="1 mark/yr (max 2)" value={data.commWomen} onChange={(v) => updateField('commWomen', v)} error={!!errors.commWomen} max={2} />
+                    <ScoreRow sNo="16" particulars="In-charge, Time-table" marksCriteria="1 mark/yr (max 2)" value={data.commTimeTable} onChange={(v) => updateField('commTimeTable', v)} error={!!errors.commTimeTable} max={2} />
+                    <ScoreRow sNo="17" particulars="In-charge, SC/BC" marksCriteria="1 mark/yr (max 2)" value={data.commSCBC} onChange={(v) => updateField('commSCBC', v)} error={!!errors.commSCBC} max={2} />
                    </tbody>
                 </table>
               </div>
@@ -420,7 +420,7 @@ function App() {
               
               <div className="mb-8">
                 <h3 className="font-semibold text-gray-700 mb-2">III. Academic/Research Score (Max 32.5 marks)</h3>
-                <ScoreRow sNo="1" particulars="Research Score above 110 as per The criteria given in Appendix II, Table 2(See instructions)" marksCriteria="0.3 marks for each 1 Research Score above 110" value={data.researchScore} onChange={(v) => updateField('researchScore', v)} error={!!errors.researchScore} />
+                <ScoreRow sNo="1" particulars="Research Score above 110 as per The criteria given in Appendix II, Table 2(See instructions)" marksCriteria="0.3 marks for each 1 Research Score above 110" value={data.researchScore} onChange={(v) => updateField('researchScore', v)} error={!!errors.researchScore} max={32.5} />
                 <p className="text-xs text-gray-500 mt-2 p-2 bg-yellow-50 border border-yellow-100 rounded">
                   ** Attach copies as proof of documents for your calculated API score according to Annexure.
                 </p>
