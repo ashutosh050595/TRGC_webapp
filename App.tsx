@@ -202,10 +202,15 @@ function App() {
                 </h4>
                 <p className={`text-sm mt-1 ${emailStatus === 'sent' ? 'text-green-800' : 'text-yellow-800'}`}>
                   {emailStatus === 'sent' 
-                    ? `We have received your application in our database and sent a confirmation email to ${data.email}.`
+                    ? `We have received your application and sent a confirmation email with the PDF to ${data.email}.`
                     : "We could not automatically confirm the submission. Please email the downloaded PDF to principal.trgc@gmail.com manually."
                   }
                 </p>
+                {emailStatus === 'sent' && (
+                  <p className="text-xs mt-2 text-green-700 font-medium">
+                    * Please check your Spam/Junk folder if you do not see the email.
+                  </p>
+                )}
               </div>
             </div>
           </div>
