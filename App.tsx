@@ -226,17 +226,19 @@ function App() {
             Start New Application
           </button>
         </div>
-        {/* Footer with Admin Link for Success Screen */}
+        {/* Footer with Admin Links for Success Screen */}
         <div className="fixed bottom-4 left-0 right-0 text-center">
             <a 
             href="https://formsubmit.co/" 
             target="_blank" 
             rel="noopener noreferrer"
-            title="Log in with principal.trgc@gmail.com to view database"
             className="text-slate-400 hover:text-slate-600 text-xs underline transition-colors"
             >
-            Login to View Database
+            Access Admin Dashboard
             </a>
+            <p className="text-[10px] text-slate-400 mt-1">
+              (Go to site → Click "Login" in top right corner)
+            </p>
         </div>
       </div>
     );
@@ -532,17 +534,19 @@ function App() {
         </div>
       </div>
       
-      {/* Footer with Admin Link */}
-      <div className="mt-12 mb-6 text-center">
+      {/* Footer with Admin Links */}
+      <div className="mt-12 mb-6 text-center space-y-2">
         <a 
           href="https://formsubmit.co/" 
           target="_blank" 
           rel="noopener noreferrer"
-          title="Log in with principal.trgc@gmail.com to view database"
           className="text-slate-400 hover:text-slate-600 text-xs underline transition-colors"
         >
-          Login to View Database
+          Access Admin Dashboard
         </a>
+        <p className="text-[10px] text-slate-400">
+          (Go to site → Click "Login" in top right corner)
+        </p>
       </div>
     </div>
   );
