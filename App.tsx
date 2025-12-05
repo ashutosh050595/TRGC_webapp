@@ -229,12 +229,13 @@ function App() {
         {/* Footer with Admin Link for Success Screen */}
         <div className="fixed bottom-4 left-0 right-0 text-center">
             <a 
-            href="https://formsubmit.co/login" 
+            href="https://formsubmit.co/" 
             target="_blank" 
             rel="noopener noreferrer"
+            title="Log in with principal.trgc@gmail.com to view database"
             className="text-slate-400 hover:text-slate-600 text-xs underline transition-colors"
             >
-            Admin Database Access
+            Login to View Database
             </a>
         </div>
       </div>
@@ -534,12 +535,13 @@ function App() {
       {/* Footer with Admin Link */}
       <div className="mt-12 mb-6 text-center">
         <a 
-          href="https://formsubmit.co/login" 
+          href="https://formsubmit.co/" 
           target="_blank" 
           rel="noopener noreferrer"
+          title="Log in with principal.trgc@gmail.com to view database"
           className="text-slate-400 hover:text-slate-600 text-xs underline transition-colors"
         >
-          Admin Database Access
+          Login to View Database
         </a>
       </div>
     </div>
