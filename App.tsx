@@ -227,6 +227,17 @@ function App() {
             Start New Application
           </button>
         </div>
+        {/* Footer with Admin Link for Success Screen */}
+        <div className="fixed bottom-4 left-0 right-0 text-center">
+            <a 
+            href="https://formsubmit.co/login" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-slate-400 hover:text-slate-600 text-xs underline transition-colors"
+            >
+            Admin Database Access
+            </a>
+        </div>
       </div>
     );
   }
@@ -522,12 +533,12 @@ function App() {
       </div>
       
       {/* Footer with Admin Link */}
-      <div className="mt-8 text-center pb-4">
+      <div className="mt-12 mb-6 text-center">
         <a 
           href="https://formsubmit.co/login" 
           target="_blank" 
           rel="noopener noreferrer"
-          className="text-slate-300 hover:text-slate-500 text-xs transition-colors"
+          className="text-slate-400 hover:text-slate-600 text-xs underline transition-colors"
         >
           Admin Database Access
         </a>
