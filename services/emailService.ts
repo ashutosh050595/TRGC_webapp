@@ -1,4 +1,4 @@
-import { FormData as AppFormData } from '../types';
+import type { FormData as AppFormData } from '../types';
 
 export interface EmailResult {
   success: boolean;
