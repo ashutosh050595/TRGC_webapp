@@ -1,4 +1,4 @@
-import { PDFDocument } from 'pdf-lib';
+import { PDFDocument, PDFPage } from 'pdf-lib';
 
 export const mergePDFs = async (generatedPdfBlob: Blob): Promise<{ base64: string; blob: Blob }> => {
   try {
@@ -9,7 +9,7 @@ export const mergePDFs = async (generatedPdfBlob: Blob): Promise<{ base64: strin
     const genPdfBytes = await generatedPdfBlob.arrayBuffer();
     const genPdf = await PDFDocument.load(genPdfBytes);
     const genPages = await mergedPdf.copyPages(genPdf, genPdf.getPageIndices());
-    genPages.forEach((page) => mergedPdf.addPage(page));
+    genPages.forEach((page: PDFPage) => mergedPdf.addPage(page));
 
     // 3. Fetch the Instructions PDF (Must be in public/instructions.pdf)
     // If running on Vite/Vercel, files in 'public' are served at root '/'
@@ -20,7 +20,7 @@ export const mergePDFs = async (generatedPdfBlob: Blob): Promise<{ base64: strin
       const instPdf = await PDFDocument.load(instPdfBytes);
       const instPages = await mergedPdf.copyPages(instPdf, instPdf.getPageIndices());
       
-      instPages.forEach((page) => mergedPdf.addPage(page));
+      instPages.forEach((page: PDFPage) => mergedPdf.addPage(page));
       console.log("Merged instructions.pdf successfully.");
     } else {
       console.warn("Could not find 'instructions.pdf' in the public folder. Skipping merge.");
