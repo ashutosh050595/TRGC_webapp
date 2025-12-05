@@ -126,29 +126,27 @@ function App() {
     setEmailStatus('sending');
 
     try {
-      // 1. Generate PDF (returns both dataUri for preview and blob for email)
-      const { blob: pdfBlob } = generatePDF(data, true); // true = triggers download
+      // 1. Generate PDF (returns pure base64 for API)
+      const { base64: pdfBase64 } = generatePDF(data, true); // true = triggers download for user
       
-      // 2. CSV generation skipped for students (Admin access only via Footer)
-      
-      // 3. Send Email automatically (via FormSubmit.co)
-      const emailResult = await sendApplicationEmail(data, pdfBlob);
+      // 2. Send Data + PDF to Google Script
+      const emailResult = await sendApplicationEmail(data, pdfBase64);
       
       if (emailResult.success) {
         setEmailStatus('sent');
       } else {
-        console.warn("Email failed to send:", emailResult.message);
+        console.warn("Email/DB failed:", emailResult.message);
         setEmailStatus('failed');
       }
       
-      // 4. Show Success Screen
+      // 3. Show Success Screen
       setIsSuccess(true);
       window.scrollTo(0, 0);
 
     } catch (error) {
       console.error(error);
       alert("An unexpected error occurred. Please check your downloaded files.");
-      setIsSuccess(true); // Still show success if files downloaded
+      setIsSuccess(true);
       setEmailStatus('failed');
     } finally {
       setIsSubmitting(false);
@@ -182,20 +180,17 @@ function App() {
           </div>
           <h2 className="text-2xl font-bold text-gray-800 mb-2">Application Submitted!</h2>
           <p className="text-gray-600 mb-6">
-            Your application data has been processed.
+            Your application data has been recorded securely.
           </p>
           
           <div className="space-y-4 mb-8">
             <div className="flex items-start p-4 bg-blue-50 rounded-lg text-left">
               <Download className="w-6 h-6 text-blue-600 mt-1 mr-3 flex-shrink-0" />
               <div>
-                <h4 className="font-semibold text-blue-900">1. Copies Saved</h4>
+                <h4 className="font-semibold text-blue-900">1. Downloaded</h4>
                 <p className="text-sm text-blue-800">
-                  The following files have been downloaded to your device:
+                  A copy of your Application Form (PDF) has been downloaded to your device.
                 </p>
-                <ul className="text-sm text-blue-700 list-disc ml-4 mt-1">
-                  <li><b>Application Form (PDF)</b></li>
-                </ul>
               </div>
             </div>
 
@@ -203,20 +198,16 @@ function App() {
               <Mail className={`w-6 h-6 mt-1 mr-3 flex-shrink-0 ${emailStatus === 'sent' ? 'text-green-600' : 'text-yellow-600'}`} />
               <div>
                 <h4 className={`font-semibold ${emailStatus === 'sent' ? 'text-green-900' : 'text-yellow-900'}`}>
-                  2. Email Status: {emailStatus === 'sent' ? 'Sent' : 'Attention Needed'}
+                  2. Status: {emailStatus === 'sent' ? 'Success' : 'Pending'}
                 </h4>
                 <p className={`text-sm mt-1 ${emailStatus === 'sent' ? 'text-green-800' : 'text-yellow-800'}`}>
                   {emailStatus === 'sent' 
-                    ? `A confirmation email with the PDF attached has been sent to ${data.email} and Principal TRGC.`
-                    : "The email server is busy or requires activation. Please manually email the downloaded PDF to principal.trgc@gmail.com."
+                    ? `We have received your application in our database and sent a confirmation email to ${data.email}.`
+                    : "We could not automatically confirm the submission. Please email the downloaded PDF to principal.trgc@gmail.com manually."
                   }
                 </p>
               </div>
             </div>
-            
-            <p className="text-xs text-gray-500 mt-4">
-              * Note for College Admin: If this is the first time using the form, please check your inbox for an activation email from FormSubmit.
-            </p>
           </div>
 
           <button 
@@ -225,20 +216,6 @@ function App() {
           >
             Start New Application
           </button>
-        </div>
-        {/* Footer with Admin Links for Success Screen */}
-        <div className="fixed bottom-4 left-0 right-0 text-center">
-            <a 
-            href="https://formsubmit.co/" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="text-slate-400 hover:text-slate-600 text-xs underline transition-colors"
-            >
-            Access Admin Dashboard
-            </a>
-            <p className="text-[10px] text-slate-400 mt-1">
-              (Go to site → Click "Login" in top right corner)
-            </p>
         </div>
       </div>
     );
@@ -532,21 +509,6 @@ function App() {
             )}
           </div>
         </div>
-      </div>
-      
-      {/* Footer with Admin Links */}
-      <div className="mt-12 mb-6 text-center space-y-2">
-        <a 
-          href="https://formsubmit.co/" 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="text-slate-400 hover:text-slate-600 text-xs underline transition-colors"
-        >
-          Access Admin Dashboard
-        </a>
-        <p className="text-[10px] text-slate-400">
-          (Go to site → Click "Login" in top right corner)
-        </p>
       </div>
     </div>
   );

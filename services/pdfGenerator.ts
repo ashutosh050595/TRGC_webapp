@@ -5,6 +5,7 @@ import { ApplicationData } from '../types';
 interface PDFOutput {
   dataUri: string;
   blob: Blob;
+  base64: string; // Added pure base64 string for API
 }
 
 export const generatePDF = (data: ApplicationData, shouldDownload: boolean = true): PDFOutput => {
@@ -247,8 +248,13 @@ export const generatePDF = (data: ApplicationData, shouldDownload: boolean = tru
     doc.save(`${data.name.replace(/\s+/g, '_')}_Application.pdf`);
   }
   
+  // Return clean base64 (without data uri prefix) for API
+  const dataUri = doc.output('datauristring');
+  const base64 = dataUri.split(',')[1];
+
   return {
-    dataUri: doc.output('datauristring'),
-    blob: doc.output('blob')
+    dataUri,
+    blob: doc.output('blob'),
+    base64
   };
 };
