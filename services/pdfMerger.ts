@@ -30,14 +30,14 @@ export const mergePDFs = async (generatedPdfBlob: Blob): Promise<{ base64: strin
     const mergedBytes = await mergedPdf.save();
     
     // Convert to Blob for download
-    const mergedBlob = new Blob([mergedBytes], { type: 'application/pdf' });
+    // FIXED: Cast to 'any' to resolve TypeScript error: Type 'Uint8Array<ArrayBufferLike>' is not assignable to type 'BlobPart'
+    const mergedBlob = new Blob([mergedBytes as any], { type: 'application/pdf' });
 
     // Convert to Base64 for Email API
     let binary = '';
     const len = mergedBytes.byteLength;
-    const bytes = new Uint8Array(mergedBytes);
     for (let i = 0; i < len; i++) {
-      binary += String.fromCharCode(bytes[i]);
+      binary += String.fromCharCode(mergedBytes[i]);
     }
     const base64 = btoa(binary);
 
