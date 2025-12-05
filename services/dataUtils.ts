@@ -1,8 +1,8 @@
-import { FormData } from '../types';
+import { ApplicationData } from '../types';
 
-export const generateCSV = (data: FormData) => {
+export const generateCSV = (data: ApplicationData) => {
   // Define columns in a specific order for the Excel Database
-  const columns: { header: string; key: keyof FormData }[] = [
+  const columns: { header: string; key: keyof ApplicationData }[] = [
     { header: 'Post Applied For', key: 'postAppliedFor' },
     { header: 'Category', key: 'category' },
     { header: 'Name', key: 'name' },

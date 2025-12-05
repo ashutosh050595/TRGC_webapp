@@ -1,13 +1,13 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { FormData } from '../types';
+import { ApplicationData } from '../types';
 
 interface PDFOutput {
   dataUri: string;
   blob: Blob;
 }
 
-export const generatePDF = (data: FormData, shouldDownload: boolean = true): PDFOutput => {
+export const generatePDF = (data: ApplicationData, shouldDownload: boolean = true): PDFOutput => {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.width;
   

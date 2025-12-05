@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Upload, ChevronRight, ChevronLeft, CheckCircle, FileText, Send, AlertCircle, Download, Mail, Loader2 } from 'lucide-react';
-import { INITIAL_DATA, FormData } from './types';
+import { INITIAL_DATA, ApplicationData } from './types';
 import { Input } from './components/Input';
 import { ScoreRow } from './components/ScoreRow';
 import { SectionHeader } from './components/SectionHeader';
@@ -10,13 +10,13 @@ import { sendApplicationEmail } from './services/emailService';
 
 function App() {
   const [step, setStep] = useState(1);
-  const [data, setData] = useState<FormData>(INITIAL_DATA);
-  const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
+  const [data, setData] = useState<ApplicationData>(INITIAL_DATA);
+  const [errors, setErrors] = useState<Partial<Record<keyof ApplicationData, string>>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [emailStatus, setEmailStatus] = useState<'idle' | 'sending' | 'sent' | 'failed'>('idle');
 
-  const updateField = (field: keyof FormData, value: string) => {
+  const updateField = (field: keyof ApplicationData, value: string) => {
     setData(prev => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
@@ -39,10 +39,10 @@ function App() {
   };
 
   const validateStep = (currentStep: number): boolean => {
-    const newErrors: Partial<Record<keyof FormData, string>> = {};
+    const newErrors: Partial<Record<keyof ApplicationData, string>> = {};
     let isValid = true;
 
-    const requireField = (field: keyof FormData, message = "This field is required") => {
+    const requireField = (field: keyof ApplicationData, message = "This field is required") => {
       if (!data[field] || (typeof data[field] === 'string' && !data[field].trim())) {
         newErrors[field] = message;
         isValid = false;
@@ -79,7 +79,7 @@ function App() {
     }
 
     if (currentStep === 4) {
-      const fields: (keyof FormData)[] = [
+      const fields: (keyof ApplicationData)[] = [
         'respStaffRep', 'respCoordinator', 'respBursar', 'respNSS', 'respYRC', 
         'respWarden', 'respStatutory', 'respNCC', 'commIQAC', 'commEditor', 
         'commAdvisory', 'commWork', 'commCultural', 'commPurchase', 'commBuilding', 

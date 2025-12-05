@@ -5,7 +5,7 @@ export interface ScoreItem {
   selfAppraisal: string; // string to allow empty state
 }
 
-export interface FormData {
+export interface ApplicationData {
   // Personal Info
   postAppliedFor: string;
   category: string;
@@ -86,7 +86,7 @@ export interface FormData {
   empNoticePeriod: string;
 }
 
-export const INITIAL_DATA: FormData = {
+export const INITIAL_DATA: ApplicationData = {
   postAppliedFor: '',
   category: '',
   advertisementRef: '',
