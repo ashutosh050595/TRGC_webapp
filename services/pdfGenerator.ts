@@ -5,7 +5,7 @@ import { ApplicationData } from '../types';
 interface PDFOutput {
   dataUri: string;
   blob: Blob;
-  base64: string; // Added pure base64 string for API
+  base64: string; 
 }
 
 export const generatePDF = (data: ApplicationData, shouldDownload: boolean = true): PDFOutput => {
@@ -32,10 +32,9 @@ export const generatePDF = (data: ApplicationData, shouldDownload: boolean = tru
 
   // --- PHOTO ---
   if (data.photo) {
-    // Add placeholder box or actual image
     doc.addImage(data.photo, 'JPEG', pageWidth - 50, 40, 35, 45);
   } else {
-    doc.rect(pageWidth - 50, 40, 35, 45); // Placeholder rectangle
+    doc.rect(pageWidth - 50, 40, 35, 45);
     doc.text("Latest Photograph", pageWidth - 32.5, 60, { align: 'center', maxWidth: 30 });
   }
 
@@ -73,7 +72,6 @@ export const generatePDF = (data: ApplicationData, shouldDownload: boolean = tru
     doc.text(`•  ${field.label}`, 20, startY + (i * gap));
     doc.text(":", 70, startY + (i * gap));
     doc.text(field.val || "", 75, startY + (i * gap));
-    // Underline value
     doc.line(75, startY + (i * gap) + 1, pageWidth - 20, startY + (i * gap) + 1);
   });
 
@@ -198,7 +196,12 @@ export const generatePDF = (data: ApplicationData, shouldDownload: boolean = tru
     startY: 20,
     head: [['S.No', 'Particulars', 'Marks Criteria', 'Self-appraisal Marks']],
     body: [
-      ["1.", "Research Score above 110", "0.3 mark per score > 110", data.researchScore]
+      [
+        "1.", 
+        "Research Score above 110 as per\nThe criteria given in Appendix II,\nTable 2(See instructions)", 
+        "0.3 mark per score > 110", 
+        data.researchScore
+      ]
     ],
     theme: 'grid',
     headStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0] },
@@ -210,10 +213,16 @@ export const generatePDF = (data: ApplicationData, shouldDownload: boolean = tru
   doc.text(`UTR No: ${data.utrNo}`, 20, finalY + 10);
   doc.text(`Date: ${data.draftDate}`, 100, finalY + 10);
   doc.text(`Amount: ${data.draftAmount}`, 160, finalY + 10);
-  doc.text(`Name of Bank: ${data.bankName}`, 20, finalY + 20);
+  doc.text(`Bank Name/UPI Provider: ${data.bankName}`, 20, finalY + 20);
+
+  finalY += 35;
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'italic');
+  const noteText = "Note: The candidate is to attach the relevant documents in support of his/her claim mentioned in the application form, criteria, Table-2 (Appendix Il contd.) and the same documents are also to be sent with the copies to Dean College Development Council, M.D. University Rohtak and D.G.H.E., Shiksha Sadan, Sector-5, Panchkula Haryana.";
+  doc.text(doc.splitTextToSize(noteText, pageWidth - 30), 15, finalY);
 
   // --- DECLARATION ---
-  finalY += 40;
+  finalY += 30;
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(10);
   const declarationText = `I ${data.name} D/o S/o W/o ${data.parentName} hereby declare that all the entries made by me in this application form are true and correct to the best of my knowledge and I have attached related proof of documents in form of self attested copies. If anything is found false or incorrect at any stage, my candidature/appointment is liable to be cancelled.`;
@@ -244,11 +253,12 @@ export const generatePDF = (data: ApplicationData, shouldDownload: boolean = tru
   doc.text("Signature of the Head of Institute", pageWidth - 80, 70);
   doc.text("(Seal of the office)", pageWidth - 80, 75);
 
+  // Note: We do NOT trigger download here anymore if we want to merge. 
+  // We handle download in App.tsx after merging.
   if (shouldDownload) {
     doc.save(`${data.name.replace(/\s+/g, '_')}_Application.pdf`);
   }
   
-  // Return clean base64 (without data uri prefix) for API
   const dataUri = doc.output('datauristring');
   const base64 = dataUri.split(',')[1];
 

@@ -6,6 +6,7 @@ import { ScoreRow } from './components/ScoreRow';
 import { SectionHeader } from './components/SectionHeader';
 import { generatePDF } from './services/pdfGenerator';
 import { sendApplicationEmail } from './services/emailService';
+import { mergePDFs } from './services/pdfMerger';
 
 function App() {
   const [step, setStep] = useState(1);
@@ -14,6 +15,7 @@ function App() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [emailStatus, setEmailStatus] = useState<'idle' | 'sending' | 'sent' | 'failed'>('idle');
+  const [isInstructionConfirmed, setIsInstructionConfirmed] = useState(false);
 
   const updateField = (field: keyof ApplicationData, value: string) => {
     setData(prev => ({ ...prev, [field]: value }));
@@ -94,6 +96,12 @@ function App() {
       requireField('draftDate');
       requireField('draftAmount');
       requireField('bankName');
+      
+      if (!isInstructionConfirmed) {
+        newErrors['utrNo'] = "You must read and accept the instructions below."; // Generic error attachment
+        alert("Please acknowledge that you have read the instructions by checking the box.");
+        isValid = false;
+      }
     }
 
     if (currentStep === 6) {
@@ -126,11 +134,22 @@ function App() {
     setEmailStatus('sending');
 
     try {
-      // 1. Generate PDF (returns pure base64 for API)
-      const { base64: pdfBase64 } = generatePDF(data, true); // true = triggers download for user
+      // 1. Generate Basic PDF (Do not download yet)
+      const { blob: appPdfBlob } = generatePDF(data, false);
       
-      // 2. Send Data + PDF to Google Script
-      const emailResult = await sendApplicationEmail(data, pdfBase64);
+      // 2. Merge with Instructions PDF (if available)
+      const { base64: mergedBase64, blob: mergedBlob } = await mergePDFs(appPdfBlob);
+
+      // 3. Trigger Download of the MERGED PDF
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(mergedBlob);
+      link.download = `${data.name.replace(/\s+/g, '_')}_Application_Complete.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // 4. Send Merged Data to Google Script
+      const emailResult = await sendApplicationEmail(data, mergedBase64);
       
       if (emailResult.success) {
         setEmailStatus('sent');
@@ -139,7 +158,7 @@ function App() {
         setEmailStatus('failed');
       }
       
-      // 3. Show Success Screen
+      // 5. Show Success Screen
       setIsSuccess(true);
       window.scrollTo(0, 0);
 
@@ -189,7 +208,7 @@ function App() {
               <div>
                 <h4 className="font-semibold text-blue-900">1. Downloaded</h4>
                 <p className="text-sm text-blue-800">
-                  A copy of your Application Form (PDF) has been downloaded to your device.
+                  Your complete Application Form (including instructions) has been downloaded to your device.
                 </p>
               </div>
             </div>
@@ -401,7 +420,7 @@ function App() {
               
               <div className="mb-8">
                 <h3 className="font-semibold text-gray-700 mb-2">III. Academic/Research Score (Max 32.5 marks)</h3>
-                <ScoreRow sNo="1" particulars="Research Score above 110 (See Appendix II, Table 2)" marksCriteria="0.3 marks for each 1 Research Score above 110" value={data.researchScore} onChange={(v) => updateField('researchScore', v)} error={!!errors.researchScore} />
+                <ScoreRow sNo="1" particulars="Research Score above 110 as per The criteria given in Appendix II, Table 2(See instructions)" marksCriteria="0.3 marks for each 1 Research Score above 110" value={data.researchScore} onChange={(v) => updateField('researchScore', v)} error={!!errors.researchScore} />
                 <p className="text-xs text-gray-500 mt-2 p-2 bg-yellow-50 border border-yellow-100 rounded">
                   ** Attach copies as proof of documents for your calculated API score according to Annexure.
                 </p>
@@ -413,7 +432,25 @@ function App() {
                   <Input label="UTR No." value={data.utrNo} onChange={(e) => updateField('utrNo', e.target.value)} error={errors.utrNo} placeholder="e.g. UTR123456789" />
                   <Input label="Dated" type="date" value={data.draftDate} onChange={(e) => updateField('draftDate', e.target.value)} error={errors.draftDate} />
                   <Input label="Amount" type="number" value={data.draftAmount} onChange={(e) => updateField('draftAmount', e.target.value)} error={errors.draftAmount} />
-                  <Input label="Name of Bank" value={data.bankName} onChange={(e) => updateField('bankName', e.target.value)} error={errors.bankName} />
+                  <Input label="Bank Name/UPI Provider" value={data.bankName} onChange={(e) => updateField('bankName', e.target.value)} error={errors.bankName} />
+                </div>
+              </div>
+
+              <div className="mt-6 p-4 bg-slate-50 border border-slate-200 rounded-lg">
+                <p className="text-sm text-slate-700 font-medium leading-relaxed italic mb-4">
+                  Note: The candidate is to attach the relevant documents in support of his/her claim mentioned in the application form, criteria, Table-2 (Appendix Il contd.) and the same documents are also to be sent with the copies to Dean College Development Council, M.D. University Rohtak and D.G.H.E., Shiksha Sadan, Sector-5, Panchkula Haryana.
+                </p>
+                <div className="flex items-start">
+                  <input 
+                    type="checkbox" 
+                    id="instructionsRead"
+                    className="mt-1 h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                    checked={isInstructionConfirmed}
+                    onChange={(e) => setIsInstructionConfirmed(e.target.checked)}
+                  />
+                  <label htmlFor="instructionsRead" className="ml-2 block text-sm text-gray-900 font-semibold cursor-pointer">
+                    I have read the above instructions. <span className="text-red-500">*</span>
+                  </label>
                 </div>
               </div>
             </div>
