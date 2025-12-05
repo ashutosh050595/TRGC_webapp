@@ -188,68 +188,71 @@ const generateAppendixPDF = (): ArrayBuffer => {
 
 export const mergePDFs = async (generatedPdfBlob: Blob): Promise<{ base64: string; blob: Blob }> => {
   try {
-    // 1. Create a new PDF document to hold the merged content
     const mergedPdf = await PDFDocument.create();
-    
-    // 2. Load the Application Form PDF (Generated client-side)
-    const genPdfBytes = await generatedPdfBlob.arrayBuffer();
-    const genPdf = await PDFDocument.load(genPdfBytes);
+
+    // 1. Load generated PDF (From Form)
+    const genBuffer = await generatedPdfBlob.arrayBuffer();
+    const genPdf = await PDFDocument.load(genBuffer);
     const genPages = await mergedPdf.copyPages(genPdf, genPdf.getPageIndices());
     genPages.forEach((page: PDFPage) => mergedPdf.addPage(page));
 
-    // 3. Try to fetch external instructions.pdf, if fails, generate programmatically
+    // 2. Fetch external instructions.pdf
+    let appendixLoaded = false;
     try {
-      // NOTE: This fetch will likely fail if the file is not hosted.
-      // We use a short timeout or just proceed to fallback immediately if 404.
-      const response = await fetch('/instructions.pdf', { method: 'HEAD' });
+      // Use relative path 'instructions.pdf' instead of absolute '/instructions.pdf'
+      // This is crucial for GitHub Pages or subfolder deployments
+      const response = await fetch('instructions.pdf');
       
       if (response.ok) {
-        const fullResponse = await fetch('/instructions.pdf');
-        const instPdfBytes = await fullResponse.arrayBuffer();
-        const instPdf = await PDFDocument.load(instPdfBytes);
+        const instBuffer = await response.arrayBuffer();
+        const instPdf = await PDFDocument.load(instBuffer);
         const instPages = await mergedPdf.copyPages(instPdf, instPdf.getPageIndices());
         instPages.forEach((page: PDFPage) => mergedPdf.addPage(page));
+        appendixLoaded = true;
         console.log("Merged external instructions.pdf successfully.");
       } else {
-        throw new Error("File not found");
+        console.warn("instructions.pdf not found (404).");
       }
     } catch (e) {
-      console.warn("External instructions.pdf not found. Generating Appendix programmatically.");
-      
-      // FALLBACK: Generate Appendix PDF in-memory
-      const appendixBuffer = generateAppendixPDF();
-      const appendixPdf = await PDFDocument.load(appendixBuffer);
-      const appPages = await mergedPdf.copyPages(appendixPdf, appendixPdf.getPageIndices());
-      
-      appPages.forEach((page: PDFPage) => mergedPdf.addPage(page));
+      console.warn("Could not fetch instructions.pdf, using fallback.", e);
     }
 
-    // 4. Save and return
+    // 3. Fallback if file missing
+    if (!appendixLoaded) {
+      console.log("Using programmatic fallback for Appendix.");
+      const fallbackBuffer = generateAppendixPDF();
+      const fallbackPdf = await PDFDocument.load(fallbackBuffer);
+      const fbPages = await mergedPdf.copyPages(fallbackPdf, fallbackPdf.getPageIndices());
+      fbPages.forEach((page: PDFPage) => mergedPdf.addPage(page));
+    }
+
+    // 4. Save merged PDF
     const mergedBytes = await mergedPdf.save();
-    
-    // Cast to any to avoid TypeScript Blob/Uint8Array conflict
     const mergedBlob = new Blob([mergedBytes as any], { type: 'application/pdf' });
 
-    // Convert to Base64
-    let binary = '';
-    const len = mergedBytes.byteLength;
-    for (let i = 0; i < len; i++) {
-      binary += String.fromCharCode(mergedBytes[i]);
-    }
-    const base64 = btoa(binary);
+    // 5. Safe Base64 Conversion (FileReader prevents stack overflow on large files)
+    const base64 = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result as string;
+        // Remove data URL prefix (e.g. "data:application/pdf;base64,")
+        const base64String = result.split(',')[1];
+        resolve(base64String);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(mergedBlob);
+    });
 
     return { base64, blob: mergedBlob };
 
   } catch (error) {
     console.error("PDF Merge Failed:", error);
-    // Fallback: return the original generated PDF if merge completely fails
-    const reader = new FileReader();
-    return new Promise((resolve) => {
+    // Ultimate Fallback: return the original generated PDF
+    const base64 = await new Promise<string>((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve((reader.result as string).split(',')[1]);
       reader.readAsDataURL(generatedPdfBlob);
-      reader.onloadend = () => {
-        const base64 = (reader.result as string).split(',')[1];
-        resolve({ base64, blob: generatedPdfBlob });
-      };
     });
+    return { base64, blob: generatedPdfBlob };
   }
 };
