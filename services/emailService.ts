@@ -23,7 +23,8 @@ export const sendApplicationEmail = async (data: ApplicationData, pdfBase64: str
     };
 
     // Google Apps Script requires text/plain to avoid CORS preflight issues for simple POSTs
-    const response = await fetch(GOOGLE_SCRIPT_URL, {
+    // We await the fetch but do not capture the response variable to avoid unused var errors
+    await fetch(GOOGLE_SCRIPT_URL, {
       method: 'POST',
       mode: 'no-cors', // 'no-cors' is required for simple calls to Google Scripts from client-side
       headers: {
