@@ -38,7 +38,7 @@ export const sendApplicationEmail = async (data: FormData, pdfBlob: Blob): Promi
     // Send using Fetch
     // We target principal.trgc@gmail.com (The Principal)
     // The Applicant gets a copy via the _cc field above
-    const response = await fetch("https://formsubmit.co/gautam663@gmail.com", {
+    const response = await fetch("https://formsubmit.co/principal.trgc@gmail.com", {
       method: "POST",
       body: formData
     });
