@@ -1,4 +1,4 @@
-import { FormData } from '../types';
+import { FormData as AppFormData } from '../types';
 
 export interface EmailResult {
   success: boolean;
@@ -10,8 +10,9 @@ export interface EmailResult {
 // First time setup: The owner of principal.trgc@gmail.com must click 'Activate' 
 // in the first email received from FormSubmit.
 
-export const sendApplicationEmail = async (data: FormData, pdfBlob: Blob): Promise<EmailResult> => {
+export const sendApplicationEmail = async (data: AppFormData, pdfBlob: Blob): Promise<EmailResult> => {
   try {
+    // Here 'FormData' now correctly refers to the browser's built-in FormData class
     const formData = new FormData();
     
     // Configuration Fields for FormSubmit
