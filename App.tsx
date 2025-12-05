@@ -5,7 +5,6 @@ import { Input } from './components/Input';
 import { ScoreRow } from './components/ScoreRow';
 import { SectionHeader } from './components/SectionHeader';
 import { generatePDF } from './services/pdfGenerator';
-import { generateCSV } from './services/dataUtils';
 import { sendApplicationEmail } from './services/emailService';
 
 function App() {
@@ -130,7 +129,7 @@ function App() {
       // 1. Generate PDF (returns both dataUri for preview and blob for email)
       const { blob: pdfBlob } = generatePDF(data, true); // true = triggers download
       
-      // 2. Generate CSV is skipped for user privacy, but data is sent to FormSubmit
+      // 2. CSV generation skipped for students (Admin access only via Footer)
       
       // 3. Send Email automatically (via FormSubmit.co)
       const emailResult = await sendApplicationEmail(data, pdfBlob);
