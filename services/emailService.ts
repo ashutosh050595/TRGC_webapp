@@ -13,7 +13,7 @@ export interface EmailResult {
 export const sendApplicationEmail = async (data: ApplicationData, pdfBlob: Blob): Promise<EmailResult> => {
   try {
     // Here 'FormData' now correctly refers to the browser's built-in FormData class
-    // because we renamed the interface to ApplicationData
+    // because we renamed the interface to ApplicationData in types.ts
     const formData = new FormData();
     
     // Configuration Fields for FormSubmit
