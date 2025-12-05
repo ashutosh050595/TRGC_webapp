@@ -1,0 +1,5 @@
+{
+  "name": "TRGC Job Application Portal",
+  "description": "Digital application form for Tika Ram Girls College, Sonepat. Converts submissions to PDF.",
+  "requestFramePermissions": []
+}
