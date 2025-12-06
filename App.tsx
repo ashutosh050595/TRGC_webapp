@@ -33,7 +33,7 @@ function App() {
     }));
   };
 
-  const handleFileUpload = (field: keyof ApplicationData, e: React.ChangeEvent<HTMLInputElement>, isPdf = false) => {
+  const handleFileUpload = (field: keyof ApplicationData, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       // 2MB for General Docs/Images, 10MB for Research PDF
@@ -356,7 +356,7 @@ function App() {
                 </div>
                 <div className="bg-slate-50 p-4 rounded border border-dashed border-slate-300">
                     <label className="block text-sm font-medium text-slate-700 mb-2">Upload Academic Documents (PDF, Max 2MB)</label>
-                    <input type="file" accept="application/pdf" onChange={(e) => handleFileUpload('fileAcademic', e, true)} className="block w-full text-sm"/>
+                    <input type="file" accept="application/pdf" onChange={(e) => handleFileUpload('fileAcademic', e)} className="block w-full text-sm"/>
                     {data.fileAcademic && <span className="text-xs text-green-600 flex items-center mt-1"><CheckCircle className="w-3 h-3 mr-1"/> File Selected</span>}
                 </div>
              </div>
@@ -372,7 +372,7 @@ function App() {
                 </table>
                 <div className="bg-slate-50 p-4 rounded border border-dashed border-slate-300 mb-6">
                     <label className="block text-sm font-medium text-slate-700 mb-2">Upload Teaching Exp Documents (PDF, Max 2MB)</label>
-                    <input type="file" accept="application/pdf" onChange={(e) => handleFileUpload('fileTeaching', e, true)} className="block w-full text-sm"/>
+                    <input type="file" accept="application/pdf" onChange={(e) => handleFileUpload('fileTeaching', e)} className="block w-full text-sm"/>
                 </div>
 
                 <h3 className="font-semibold text-slate-700 mb-2">B. Administrative Skill</h3>
@@ -429,7 +429,7 @@ function App() {
                 </table>
                 <div className="bg-slate-50 p-4 rounded border border-dashed border-slate-300">
                     <label className="block text-sm font-medium text-slate-700 mb-2">Upload Admin/Committee Documents (PDF, Max 2MB)</label>
-                    <input type="file" accept="application/pdf" onChange={(e) => handleFileUpload('fileAdmin', e, true)} className="block w-full text-sm"/>
+                    <input type="file" accept="application/pdf" onChange={(e) => handleFileUpload('fileAdmin', e)} className="block w-full text-sm"/>
                 </div>
              </div>
           )}
@@ -504,7 +504,7 @@ function App() {
                
                <div className="bg-slate-50 p-4 rounded border border-dashed border-slate-300 mb-8">
                     <label className="block text-sm font-medium text-slate-700 mb-2">Upload Research Documents (PDF, Max 10MB)</label>
-                    <input type="file" accept="application/pdf" onChange={(e) => handleFileUpload('fileResearch', e, true)} className="block w-full text-sm mb-4"/>
+                    <input type="file" accept="application/pdf" onChange={(e) => handleFileUpload('fileResearch', e)} className="block w-full text-sm mb-4"/>
                     {data.fileResearch && <span className="text-xs text-green-600 flex items-center mt-1 mb-2"><CheckCircle className="w-3 h-3 mr-1"/> File Selected</span>}
                     
                     {/* Google Drive Link Option */}
@@ -580,7 +580,7 @@ function App() {
                  </div>
                  <div className="bg-slate-50 p-4 rounded border border-dashed border-slate-300">
                     <label className="block text-sm font-medium text-slate-700 mb-2">Upload NOC Document (PDF, Max 2MB)</label>
-                    <input type="file" accept="application/pdf" onChange={(e) => handleFileUpload('fileNOC', e, true)} className="block w-full text-sm"/>
+                    <input type="file" accept="application/pdf" onChange={(e) => handleFileUpload('fileNOC', e)} className="block w-full text-sm"/>
                 </div>
                </div>
             </div>
