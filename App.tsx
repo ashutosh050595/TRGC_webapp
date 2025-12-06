@@ -489,7 +489,7 @@ function App() {
                     </tr>
                   </thead>
                   <tbody>
-                    <ScoreRow sNo="1." particulars="Above 15 years teaching experience" marksCriteria="1 mark for each year" value={data.teachingExpAbove15} onChange={(v) => updateField('teachingExpAbove15', v)} error={!!errors.teachingExpAbove15} />
+                    <ScoreRow sNo="1." particulars="Above 15 years teaching experience" marksCriteria="1 mark for each year" value={data.teachingExpAbove15} onChange={(v) => updateField('teachingExpAbove15', v)} error={!!errors.teachingExpAbove15} max={10} />
                   </tbody>
                 </table>
               </div>
