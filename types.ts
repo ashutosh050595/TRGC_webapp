@@ -5,6 +5,46 @@ export interface ScoreItem {
   selfAppraisal: string; // string to allow empty state
 }
 
+// Detailed breakdown for Table 2
+export interface ResearchData {
+  resPapers: string;
+  resBooksInt: string;
+  resBooksNat: string;
+  resChapter: string;
+  resEditorInt: string;
+  resEditorNat: string;
+  resTransChapter: string;
+  resTransBook: string;
+  resIctPedagogy: string;
+  resIctCurricula: string;
+  resMoocs4Quad: string;
+  resMoocsModule: string;
+  resMoocsContent: string;
+  resMoocsCoord: string;
+  resEcontentComplete: string;
+  resEcontentModule: string;
+  resEcontentContrib: string;
+  resEcontentEditor: string;
+  resPhd: string;
+  resMphil: string;
+  resProjMore10: string;
+  resProjLess10: string;
+  resProjOngoingMore10: string;
+  resProjOngoingLess10: string;
+  resConsultancy: string;
+  resPatentInt: string;
+  resPatentNat: string;
+  resPolicyInt: string;
+  resPolicyNat: string;
+  resPolicyState: string;
+  resAwardInt: string;
+  resAwardNat: string;
+  resInvitedIntAbroad: string;
+  resInvitedIntWithin: string;
+  resInvitedNat: string;
+  resInvitedState: string;
+}
+
 export interface ApplicationData {
   // Personal Info
   postAppliedFor: string;
@@ -20,16 +60,18 @@ export interface ApplicationData {
   email: string;
   confirmEmail: string; // Field for verification only
   presentEmployer: string;
-  photo: string | null; // Base64
+  photo: string | null; // Base64 Image
   
-  // Academic Record (Page 2)
-  academicMasters: string; // Self appraisal marks
+  // I. Academic Record (Page 2)
+  academicMasters: string; 
   academicGraduation: string;
   academic12th: string;
   academicMatric: string;
+  fileAcademic: string | null; // Base64 PDF
 
-  // Teaching Experience (Page 2)
+  // II. Teaching Experience (Page 2)
   teachingExpAbove15: string;
+  fileTeaching: string | null; // Base64 PDF
 
   // Admin Skills (Page 2 - B.i)
   adminJointDirector: string;
@@ -64,12 +106,14 @@ export interface ApplicationData {
   commWomen: string;
   commTimeTable: string;
   commSCBC: string;
+  fileAdmin: string | null; // Base64 PDF
 
-  // Research (Page 4)
-  researchScore: string;
+  // III. Research (Table 2)
+  research: ResearchData;
+  fileResearch: string | null; // Base64 PDF
 
   // Payment
-  utrNo: string; // Changed from draftNo
+  utrNo: string; 
   draftDate: string;
   draftAmount: string;
   bankName: string;
@@ -78,14 +122,54 @@ export interface ApplicationData {
   parentName: string; // D/o, S/o, W/o
   place: string;
   date: string;
-  signature: string | null; // Base64
+  signature: string | null; // Base64 Image
   
-  // Employer Cert
+  // Employer / NOC
+  fileNOC: string | null; // Base64 PDF (Replaces generated page)
   empName: string;
   empDesignation: string;
   empDept: string;
   empNoticePeriod: string;
 }
+
+export const INITIAL_RESEARCH: ResearchData = {
+  resPapers: '',
+  resBooksInt: '',
+  resBooksNat: '',
+  resChapter: '',
+  resEditorInt: '',
+  resEditorNat: '',
+  resTransChapter: '',
+  resTransBook: '',
+  resIctPedagogy: '',
+  resIctCurricula: '',
+  resMoocs4Quad: '',
+  resMoocsModule: '',
+  resMoocsContent: '',
+  resMoocsCoord: '',
+  resEcontentComplete: '',
+  resEcontentModule: '',
+  resEcontentContrib: '',
+  resEcontentEditor: '',
+  resPhd: '',
+  resMphil: '',
+  resProjMore10: '',
+  resProjLess10: '',
+  resProjOngoingMore10: '',
+  resProjOngoingLess10: '',
+  resConsultancy: '',
+  resPatentInt: '',
+  resPatentNat: '',
+  resPolicyInt: '',
+  resPolicyNat: '',
+  resPolicyState: '',
+  resAwardInt: '',
+  resAwardNat: '',
+  resInvitedIntAbroad: '',
+  resInvitedIntWithin: '',
+  resInvitedNat: '',
+  resInvitedState: '',
+};
 
 export const INITIAL_DATA: ApplicationData = {
   postAppliedFor: '',
@@ -106,7 +190,9 @@ export const INITIAL_DATA: ApplicationData = {
   academicGraduation: '',
   academic12th: '',
   academicMatric: '',
+  fileAcademic: null,
   teachingExpAbove15: '',
+  fileTeaching: null,
   adminJointDirector: '',
   adminRegistrar: '',
   adminHead: '',
@@ -135,7 +221,9 @@ export const INITIAL_DATA: ApplicationData = {
   commWomen: '',
   commTimeTable: '',
   commSCBC: '',
-  researchScore: '',
+  fileAdmin: null,
+  research: INITIAL_RESEARCH,
+  fileResearch: null,
   utrNo: '',
   draftDate: '',
   draftAmount: '',
@@ -144,6 +232,7 @@ export const INITIAL_DATA: ApplicationData = {
   place: '',
   date: new Date().toISOString().split('T')[0],
   signature: null,
+  fileNOC: null,
   empName: '',
   empDesignation: '',
   empDept: '',

@@ -16,7 +16,7 @@ export const generateCSV = (data: ApplicationData) => {
     { header: 'Graduation Score', key: 'academicGraduation' },
     { header: '12th Score', key: 'academic12th' },
     { header: 'Teaching Exp Score', key: 'teachingExpAbove15' },
-    { header: 'Research Score', key: 'researchScore' },
+    { header: 'Research Score', key: 'research' },
     { header: 'UTR No', key: 'utrNo' },
     { header: 'Draft Amount', key: 'draftAmount' },
     { header: 'Draft Date', key: 'draftDate' },
@@ -27,6 +27,11 @@ export const generateCSV = (data: ApplicationData) => {
   const headers = columns.map(c => c.header).join(',');
   const values = columns.map(c => {
     const val = data[c.key];
+
+    if (c.key === 'research') {
+      return '"See PDF for details"';
+    }
+
     const stringValue = String(val || '');
     // Escape quotes and wrap in quotes to handle commas
     return `"${stringValue.replace(/"/g, '""')}"`;

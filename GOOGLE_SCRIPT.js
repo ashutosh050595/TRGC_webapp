@@ -4,7 +4,7 @@
 // 3. Paste this code entirely
 // 4. Click 'Deploy' > 'New Deployment'
 // 5. Select type: 'Web app'
-// 6. Description: 'TRGC Backend'
+// 6. Description: 'TRGC Backend V2'
 // 7. Execute as: 'Me' (your email)
 // 8. Who has access: 'Anyone' (IMPORTANT)
 // 9. Deploy and copy the URL.
@@ -19,67 +19,49 @@ function doPost(e) {
     // --- 1. SAVE TO SHEET ---
     var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
     
-    // Create Header Row if sheet is empty
     if (sheet.getLastRow() === 0) {
       sheet.appendRow([
-        "Timestamp",
-        "Post Applied For",
-        "Category",
-        "Name",
-        "Father's Name",
-        "DOB",
-        "Email",
-        "Mobile 1",
-        "Mobile 2",
-        "UTR No",
-        "Amount",
-        "Date",
-        "Bank",
-        "Academic Score (Masters)",
-        "Academic Score (Grad)",
-        "Total Research Score",
-        "Address"
+        "Timestamp", "Post Applied For", "Category", "Name", "Father's Name", 
+        "DOB", "Email", "Mobile", "UTR No", "Amount", "Academic Score", "Research Score Summary"
       ]);
     }
 
-    // Append Data
     sheet.appendRow([
-      new Date(),
-      data.postAppliedFor,
-      data.category,
-      data.name,
-      data.fatherName,
-      data.dob,
-      data.email,
-      data.contactNo1,
-      data.contactNo2,
-      data.utrNo,
-      data.draftAmount,
-      data.draftDate,
-      data.bankName,
-      data.academicMasters,
-      data.academicGraduation,
-      data.researchScore,
-      data.correspondenceAddress
+      new Date(), data.postAppliedFor, data.category, data.name, data.fatherName,
+      data.dob, data.email, data.contactNo1, data.utrNo, data.draftAmount,
+      data.academicMasters, "See PDF for details"
     ]);
 
-    // --- 2. SEND EMAIL WITH PDF ---
-    // Decode the Base64 PDF string passed from the React app
+    // --- 2. CREATE PDF BLOB ---
+    // Decode the Base64 PDF string (Merged document)
     var pdfBlob = Utilities.newBlob(Utilities.base64Decode(data.pdfBase64), 'application/pdf', data.fileName);
 
-    // Email to Principal
+    // --- 3. SAVE TO GOOGLE DRIVE ---
+    var folderName = "TRGC_Applications";
+    var folders = DriveApp.getFoldersByName(folderName);
+    var folder;
+    
+    if (folders.hasNext()) {
+      folder = folders.next();
+    } else {
+      folder = DriveApp.createFolder(folderName);
+    }
+    
+    var file = folder.createFile(pdfBlob);
+    var fileUrl = file.getUrl();
+
+    // --- 4. SEND EMAIL ---
     GmailApp.sendEmail("principal.trgc@gmail.com", "New Application: " + data.name, 
-      "A new application has been submitted by " + data.name + " for the post of " + data.postAppliedFor + ".\n\nPlease find the application PDF attached.\n\nDatabase: " + SpreadsheetApp.getActiveSpreadsheet().getUrl(), 
+      "A new application has been submitted by " + data.name + ".\n\nThe document has been saved to Drive: " + fileUrl + "\n\nPlease find the application PDF attached.", 
       {
         attachments: [pdfBlob],
         name: 'TRGC Recruitment Portal'
       }
     );
 
-    // Email to Applicant (CC)
     if (data.email) {
       GmailApp.sendEmail(data.email, "Application Received: TRGC Sonepat", 
-        "Dear " + data.name + ",\n\nYour application for the post of " + data.postAppliedFor + " has been successfully received.\n\nPlease find your generated application form attached for your records.\n\nRegards,\nTika Ram Girls College, Sonepat", 
+        "Dear " + data.name + ",\n\nYour application has been received successfully.\n\nRegards,\nTika Ram Girls College, Sonepat", 
         {
           attachments: [pdfBlob],
           name: 'TRGC Recruitment Portal'
@@ -87,8 +69,7 @@ function doPost(e) {
       );
     }
 
-    // Return Success
-    return ContentService.createTextOutput(JSON.stringify({ 'result': 'success' })).setMimeType(ContentService.MimeType.JSON);
+    return ContentService.createTextOutput(JSON.stringify({ 'result': 'success', 'driveUrl': fileUrl })).setMimeType(ContentService.MimeType.JSON);
 
   } catch (e) {
     return ContentService.createTextOutput(JSON.stringify({ 'result': 'error', 'error': e.toString() })).setMimeType(ContentService.MimeType.JSON);

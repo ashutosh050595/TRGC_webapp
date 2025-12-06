@@ -82,7 +82,7 @@ export const generatePDF = (data: ApplicationData, shouldDownload: boolean = tru
   centerText("SCORE SHEETS", 15, 12, 'helvetica', 'bold');
   centerText("(As supplied from DGHE vide dated 18.04.2023)", 22, 10);
   doc.setFont('helvetica', 'bold');
-  doc.text("1. Academic Record: Maximum 20 marks", 14, 30);
+  doc.text("I. Academic Record: Maximum 20 marks", 14, 30);
   
   const academicData = [
     ["1.", "Above 55% marks in Master's degree", "0.5 marks for each % (max 5)", data.academicMasters],
@@ -101,7 +101,7 @@ export const generatePDF = (data: ApplicationData, shouldDownload: boolean = tru
 
   // --- PAGE 2: TEACHING & ADMIN ---
   let finalY = (doc as any).lastAutoTable.finalY + 10;
-  doc.text("2. Teaching Experience and Assessment of Administrative Skill: Maximum 35 marks", 14, finalY);
+  doc.text("II. Teaching Experience and Assessment of Administrative Skill: Maximum 35 marks", 14, finalY);
   finalY += 6;
   doc.text("A. Teaching Experience: Maximum 10 marks", 14, finalY);
 
@@ -188,23 +188,84 @@ export const generatePDF = (data: ApplicationData, shouldDownload: boolean = tru
     margin: { bottom: 20 }
   });
 
-  // --- PAGE 4: RESEARCH & PAYMENT ---
+  // --- PAGE 4: RESEARCH (FULL TABLE 2) ---
   doc.addPage();
-  doc.text("III. Academic/Research Score: Maximum 32.5 marks", 14, 15);
+  doc.text("III. Academic/Research Score (Table 2)", 14, 15);
   
+  // Helper to format bold text in cells
+  const r = data.research;
+  const table2Body = [
+    // 1. Research Papers
+    [{ content: "1.", rowSpan: 2 }, { content: "Research Papers in Peer-reviewed / UGC Journals", styles: { fontStyle: 'bold' } }, "8/10", r.resPapers],
+    [{ content: "For Direct Recruitment: Papers upto 13.06.2019...\nFor CAS: Papers upto 02.07.2023...", colSpan: 3, styles: { fontSize: 8 } }],
+    
+    // 2. Publications
+    ["2.", { content: "Publications (other than Research papers)", styles: { fontStyle: 'bold' } }, "", ""],
+    ["", "(a) Books authored which are published by;", "", ""],
+    ["", "International publishers", "12", r.resBooksInt],
+    ["", "National Publishers", "10", r.resBooksNat],
+    ["", "Chapter in Edited Book", "05", r.resChapter],
+    ["", "Editor of Book by International Publisher", "10", r.resEditorInt],
+    ["", "Editor of Book by National Publisher", "08", r.resEditorNat],
+    
+    ["", "(b) Translation works in Indian/Foreign Languages", "", ""],
+    ["", "Chapter or Research paper", "03", r.resTransChapter],
+    ["", "Book", "08", r.resTransBook],
+
+    // 3. ICT
+    ["3.", { content: "Creation of ICT mediated Teaching Learning pedagogy...", styles: { fontStyle: 'bold' } }, "", ""],
+    ["", "(a) Development of Innovative pedagogy", "05", r.resIctPedagogy],
+    ["", "(b) Design of new curricula and courses", "02/curr", r.resIctCurricula],
+    ["", "(c) MOOCs", "", ""],
+    ["", "Dev of complete MOOCs (4 quadrants)", "20", r.resMoocs4Quad],
+    ["", "MOOCs (developed in 4 quadrant) per module", "05", r.resMoocsModule],
+    ["", "Content writer/subject matter expert", "02", r.resMoocsContent],
+    ["", "Course Coordinator for MOOCs", "08", r.resMoocsCoord],
+    ["", "(d) E-Content", "", ""],
+    ["", "Dev of e-Content in 4 quadrants for complete course", "12", r.resEcontentComplete],
+    ["", "e-Content (developed in 4 quadrants) per module", "05", r.resEcontentModule],
+    ["", "Contribution to dev of e-content module", "02", r.resEcontentContrib],
+    ["", "Editor of e-content for complete course", "10", r.resEcontentEditor],
+
+    // 4. Guidance
+    ["4.", { content: "(a) Research guidance", styles: { fontStyle: 'bold' } }, "", ""],
+    ["", "Ph.D.", "10 / 05", r.resPhd],
+    ["", "M.Phil./P.G dissertation", "02", r.resMphil],
+    ["", "(b) Research Projects Completed", "", ""],
+    ["", "More than 10 lakhs", "10", r.resProjMore10],
+    ["", "Less than 10 lakhs", "05", r.resProjLess10],
+    ["", "(c) Research Projects Ongoing", "", ""],
+    ["", "More than 10 lakhs", "05", r.resProjOngoingMore10],
+    ["", "Less than 10 lakhs", "02", r.resProjOngoingLess10],
+    ["", "(d) Consultancy", "03", r.resConsultancy],
+
+    // 5. Patents
+    ["5.", { content: "(a) Patents", styles: { fontStyle: 'bold' } }, "", ""],
+    ["", "International", "10", r.resPatentInt],
+    ["", "National", "07", r.resPatentNat],
+    ["", "(b) Policy Document", "", ""],
+    ["", "International", "10", r.resPolicyInt],
+    ["", "National", "07", r.resPolicyNat],
+    ["", "State", "04", r.resPolicyState],
+    ["", "(c) Awards/Fellowship", "", ""],
+    ["", "International", "07", r.resAwardInt],
+    ["", "National", "05", r.resAwardNat],
+
+    // 6. Invited Lectures
+    ["6.", { content: "*Invited lectures / Resource Person / Paper presentation...", styles: { fontStyle: 'bold' } }, "", ""],
+    ["", "International (Abroad)", "07", r.resInvitedIntAbroad],
+    ["", "International (within country)", "05", r.resInvitedIntWithin],
+    ["", "National", "03", r.resInvitedNat],
+    ["", "State/University", "02", r.resInvitedState],
+  ];
+
   autoTable(doc, {
     startY: 20,
     head: [['S.No', 'Particulars', 'Marks Criteria', 'Self-appraisal Marks']],
-    body: [
-      [
-        "1.", 
-        "Research Score above 110 as per\nThe criteria given in Appendix II,\nTable 2(See instructions)", 
-        "0.3 mark per score > 110", 
-        data.researchScore
-      ]
-    ],
+    body: table2Body as any,
     theme: 'grid',
     headStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0] },
+    styles: { fontSize: 8, cellPadding: 2 }
   });
 
   finalY = (doc as any).lastAutoTable.finalY + 15;
@@ -216,6 +277,10 @@ export const generatePDF = (data: ApplicationData, shouldDownload: boolean = tru
   doc.text(`Bank Name/UPI Provider: ${data.bankName}`, 20, finalY + 20);
 
   finalY += 35;
+  
+  // Note Section
+  if (finalY > 250) { doc.addPage(); finalY = 20; }
+
   doc.setFontSize(8);
   doc.setFont('helvetica', 'italic');
   const noteText = "Note: The candidate is to attach the relevant documents in support of his/her claim mentioned in the application form, criteria, Table-2 (Appendix Il contd.) and the same documents are also to be sent with the copies to Dean College Development Council, M.D. University Rohtak and D.G.H.E., Shiksha Sadan, Sector-5, Panchkula Haryana.";
@@ -223,6 +288,8 @@ export const generatePDF = (data: ApplicationData, shouldDownload: boolean = tru
 
   // --- DECLARATION ---
   finalY += 30;
+  if (finalY > 250) { doc.addPage(); finalY = 20; }
+  
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(10);
   const declarationText = `I ${data.name} D/o S/o W/o ${data.parentName} hereby declare that all the entries made by me in this application form are true and correct to the best of my knowledge and I have attached related proof of documents in form of self attested copies. If anything is found false or incorrect at any stage, my candidature/appointment is liable to be cancelled.`;
@@ -238,23 +305,6 @@ export const generatePDF = (data: ApplicationData, shouldDownload: boolean = tru
   }
   doc.text("(Signature of Applicant)", pageWidth - 60, finalY + 10);
 
-  // --- EMPLOYER CERT ---
-  doc.addPage();
-  centerText("CERTIFICATE FROM THE EMPLOYER, IF ANY", 15, 14, 'helvetica', 'bold');
-  
-  const empText = `The application of ${data.name} who is at present working as ${data.empDesignation} in ${data.empDept} is forwarded and recommended for consideration. In case he/she is selected in Tika Ram Girls College, Sonepat, he/she will be relieved from his/her present position on ${data.empNoticePeriod} notice.`;
-  
-  doc.setFont('helvetica', 'normal');
-  doc.text(doc.splitTextToSize(empText, pageWidth - 40), 20, 30);
-  
-  doc.text("Place: ________________", 20, 70);
-  doc.text("Date: _________________", 20, 80);
-  
-  doc.text("Signature of the Head of Institute", pageWidth - 80, 70);
-  doc.text("(Seal of the office)", pageWidth - 80, 75);
-
-  // Note: We do NOT trigger download here anymore if we want to merge. 
-  // We handle download in App.tsx after merging.
   if (shouldDownload) {
     doc.save(`${data.name.replace(/\s+/g, '_')}_Application.pdf`);
   }
