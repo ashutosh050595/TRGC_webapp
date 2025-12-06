@@ -111,6 +111,7 @@ export interface ApplicationData {
   // III. Research (Table 2)
   research: ResearchData;
   fileResearch: string | null; // Base64 PDF
+  googleDriveLink: string; // New Field
 
   // Payment
   utrNo: string; 
@@ -224,6 +225,7 @@ export const INITIAL_DATA: ApplicationData = {
   fileAdmin: null,
   research: INITIAL_RESEARCH,
   fileResearch: null,
+  googleDriveLink: '',
   utrNo: '',
   draftDate: '',
   draftAmount: '',

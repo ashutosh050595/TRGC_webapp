@@ -270,13 +270,20 @@ export const generatePDF = (data: ApplicationData, shouldDownload: boolean = tru
 
   finalY = (doc as any).lastAutoTable.finalY + 15;
   doc.setLineWidth(0.5);
-  doc.rect(14, finalY, pageWidth - 28, 30);
+  doc.rect(14, finalY, pageWidth - 28, 40);
   doc.text(`UTR No: ${data.utrNo}`, 20, finalY + 10);
   doc.text(`Date: ${data.draftDate}`, 100, finalY + 10);
   doc.text(`Amount: ${data.draftAmount}`, 160, finalY + 10);
   doc.text(`Bank Name/UPI Provider: ${data.bankName}`, 20, finalY + 20);
+  
+  // Google Drive Link
+  if (data.googleDriveLink) {
+    doc.setTextColor(0, 0, 255);
+    doc.text(`Google Drive Documents: ${data.googleDriveLink}`, 20, finalY + 30);
+    doc.setTextColor(0, 0, 0);
+  }
 
-  finalY += 35;
+  finalY += 45;
   
   // Note Section
   if (finalY > 250) { doc.addPage(); finalY = 20; }

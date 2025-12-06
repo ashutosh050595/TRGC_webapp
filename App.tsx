@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronRight, CheckCircle, Download, Mail, Loader2 } from 'lucide-react';
+import { ChevronRight, CheckCircle, Download, Mail, Loader2, Link as LinkIcon } from 'lucide-react';
 import { INITIAL_DATA, ApplicationData } from './types';
 import { Input } from './components/Input';
 import { ScoreRow } from './components/ScoreRow';
@@ -36,17 +36,18 @@ function App() {
   const handleFileUpload = (field: keyof ApplicationData, e: React.ChangeEvent<HTMLInputElement>, isPdf = false) => {
     const file = e.target.files?.[0];
     if (file) {
-      // 2MB for images, 5MB for PDF sections, 50MB for Research (handled by specific check)
-      const limit = isPdf ? 50000000 : 2000000; 
+      // 2MB for General Docs/Images, 10MB for Research PDF
+      const isResearch = field === 'fileResearch';
+      const limit = isResearch ? 10 * 1024 * 1024 : 2 * 1024 * 1024; 
       
       if (file.size > limit) {
-        alert(`File size too large. Limit is ${isPdf ? '50MB' : '2MB'}. Note: Very large files may fail to email.`);
+        alert(`File size too large. Limit is ${isResearch ? '10MB' : '2MB'}. Please use the Google Drive link option for larger files.`);
+        e.target.value = ''; // Reset input
         return;
       }
 
       const reader = new FileReader();
       reader.onloadend = () => {
-        // For PDFs, we strictly want DataURL to handle in logic
         updateField(field, reader.result as string);
       };
       reader.readAsDataURL(file);
@@ -100,12 +101,9 @@ function App() {
 
     if (currentStep === 4) {
       // Validation for Responsibilities & Committees
-      // (Optional validation logic can be added here if needed strictly)
     }
 
     if (currentStep === 5) {
-      // Research Section - Table 2 is largely self-appraisal, maybe not strictly mandatory for every single row
-      // But Payment is mandatory
       requireField('utrNo');
       requireField('draftDate');
       requireField('draftAmount');
@@ -197,10 +195,7 @@ function App() {
     }
   };
 
-  // ... (Render logic similar to before, but with updated steps)
-
   if (isSuccess) {
-    // ... (Success Screen same as before)
     return (
       <div className="min-h-screen bg-slate-100 p-4 flex items-center justify-center">
         <div className="bg-white p-8 rounded-xl shadow-lg max-w-lg w-full text-center">
@@ -247,15 +242,46 @@ function App() {
         </div>
 
         <div className="p-6 md:p-8">
-            {/* Steps & Error Banner */}
-          {/* STEP 0: INSTRUCTIONS (Same as before) */}
+          
+          {/* STEP 0: INSTRUCTIONS */}
           {step === 0 && (
              <div className="space-y-6">
-              <SectionHeader title="Application Guidelines" subtitle="Please read carefully" />
-              <div className="bg-blue-50 p-4 rounded text-sm text-blue-900 mb-4">
-                  <strong>New:</strong> You can now upload your supporting documents (PDFs) directly in the form. They will be merged into a single file. 
-                  <br/>Max file size for documents: <strong>5MB</strong> (50MB for Research). 
-                  <br/>Total attachment size should be kept reasonable for email delivery.
+              <SectionHeader title="Instructions to the Candidates" subtitle="Please read the following guidelines carefully before proceeding." />
+              
+              <div className="bg-white rounded-lg border border-slate-200 p-5 shadow-sm text-sm text-slate-700 space-y-4">
+                <div>
+                  <h4 className="font-bold text-slate-900 mb-1">1. Submission of Hard Copy</h4>
+                  <p>A copy of the filled application form along with all relevant documents must be sent to the following addresses:</p>
+                  <ul className="list-disc pl-5 mt-1 space-y-1">
+                    <li><strong>The Dean</strong>, College Development Council, M.D. University, Rohtak – 124001</li>
+                    <li><strong>Director General</strong>, Higher Education, Haryana, Shiksha Sadan, Sector-5, Panchkula</li>
+                  </ul>
+                </div>
+
+                <div>
+                  <h4 className="font-bold text-slate-900 mb-1">2. Payment & Fees</h4>
+                  <p>The candidate must pay the requisite fee via Demand Draft/NEFT/UPI. You will be required to enter the <strong>UTR No / Draft Number</strong>, Date, and Amount in this form.</p>
+                </div>
+
+                <div>
+                   <h4 className="font-bold text-slate-900 mb-1">3. Document Uploads</h4>
+                   <p>You can upload supporting documents directly in this form (PDF format). The system will merge them into a single application file.</p>
+                   <ul className="list-disc pl-5 mt-1 text-slate-600">
+                     <li>General Documents (Academic, Teaching, NOC): Max <strong>2 MB</strong> each.</li>
+                     <li>Research Documents (Table 2): Max <strong>10 MB</strong>.</li>
+                     <li><strong>Alternative:</strong> If your research files are very large, you may provide a Google Drive link in the Research section.</li>
+                   </ul>
+                </div>
+
+                <div>
+                  <h4 className="font-bold text-slate-900 mb-1">4. Self-Attestation</h4>
+                  <p>All attached documents and the final printout must be self-attested by the candidate.</p>
+                </div>
+
+                <div>
+                   <h4 className="font-bold text-slate-900 mb-1">5. NOC Requirement</h4>
+                   <p>Applicants already in employment must submit a "No Objection Certificate" (NOC) from their present employer.</p>
+                </div>
               </div>
               
               <div className="mt-6">
@@ -263,19 +289,19 @@ function App() {
                     href="instructions.pdf" 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="inline-flex items-center px-4 py-2 bg-white border border-blue-300 rounded-md text-blue-700 hover:bg-blue-50 transition-colors shadow-sm font-medium text-sm"
+                    className="inline-flex items-center px-4 py-2 bg-slate-100 border border-slate-300 rounded-md text-slate-700 hover:bg-slate-200 transition-colors shadow-sm font-medium text-sm"
                     >
                     <Download className="w-4 h-4 mr-2" />
                     Download Detailed Instructions PDF
                     </a>
                 </div>
 
-               <div className="mt-8 flex items-start space-x-3 p-4 border-2 border-slate-200 rounded-lg bg-white hover:border-blue-300 transition-colors cursor-pointer" onClick={() => setIsStartInstructionsRead(!isStartInstructionsRead)}>
+               <div className="mt-8 flex items-start space-x-3 p-4 border-2 border-slate-200 rounded-lg bg-blue-50 hover:border-blue-300 transition-colors cursor-pointer" onClick={() => setIsStartInstructionsRead(!isStartInstructionsRead)}>
                 <div className="flex h-5 items-center">
                   <input type="checkbox" className="h-4 w-4 rounded cursor-pointer" checked={isStartInstructionsRead} onChange={(e) => setIsStartInstructionsRead(e.target.checked)} />
                 </div>
                 <div className="text-sm">
-                  <label className="font-medium text-gray-800 cursor-pointer select-none">I have read the instructions.</label>
+                  <label className="font-bold text-gray-800 cursor-pointer select-none">I have read all the instructions carefully and am ready to proceed.</label>
                 </div>
               </div>
               <div className="flex justify-end pt-4">
@@ -286,7 +312,7 @@ function App() {
              </div>
           )}
 
-          {/* STEP 1: Personal Info (Same fields) */}
+          {/* STEP 1: Personal Info */}
           {step === 1 && (
              <div className="space-y-6">
                <SectionHeader title="Personal Information" />
@@ -307,7 +333,7 @@ function App() {
                <Input label="Present Employer" value={data.presentEmployer} onChange={(e) => updateField('presentEmployer', e.target.value)} />
 
                <div className="mt-4">
-                  <label className="block text-sm font-semibold mb-2">Upload Photograph *</label>
+                  <label className="block text-sm font-semibold mb-2">Upload Photograph * (Max 2MB)</label>
                   <input type="file" accept="image/*" onChange={(e) => handleFileUpload('photo', e)} className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"/>
                </div>
              </div>
@@ -329,7 +355,7 @@ function App() {
                     </table>
                 </div>
                 <div className="bg-slate-50 p-4 rounded border border-dashed border-slate-300">
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Upload Academic Documents (PDF, Max 5MB)</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Upload Academic Documents (PDF, Max 2MB)</label>
                     <input type="file" accept="application/pdf" onChange={(e) => handleFileUpload('fileAcademic', e, true)} className="block w-full text-sm"/>
                     {data.fileAcademic && <span className="text-xs text-green-600 flex items-center mt-1"><CheckCircle className="w-3 h-3 mr-1"/> File Selected</span>}
                 </div>
@@ -345,7 +371,7 @@ function App() {
                     <tbody><ScoreRow sNo="1." particulars="Above 15 years teaching experience" marksCriteria="1 mark for each year" value={data.teachingExpAbove15} onChange={(v) => updateField('teachingExpAbove15', v)} max={10} /></tbody>
                 </table>
                 <div className="bg-slate-50 p-4 rounded border border-dashed border-slate-300 mb-6">
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Upload Teaching Exp Documents (PDF, Max 5MB)</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Upload Teaching Exp Documents (PDF, Max 2MB)</label>
                     <input type="file" accept="application/pdf" onChange={(e) => handleFileUpload('fileTeaching', e, true)} className="block w-full text-sm"/>
                 </div>
 
@@ -402,7 +428,7 @@ function App() {
                   </tbody>
                 </table>
                 <div className="bg-slate-50 p-4 rounded border border-dashed border-slate-300">
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Upload Admin/Committee Documents (PDF, Max 5MB)</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Upload Admin/Committee Documents (PDF, Max 2MB)</label>
                     <input type="file" accept="application/pdf" onChange={(e) => handleFileUpload('fileAdmin', e, true)} className="block w-full text-sm"/>
                 </div>
              </div>
@@ -477,9 +503,25 @@ function App() {
                </div>
                
                <div className="bg-slate-50 p-4 rounded border border-dashed border-slate-300 mb-8">
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Upload Research Documents (PDF, Max 50MB)</label>
-                    <input type="file" accept="application/pdf" onChange={(e) => handleFileUpload('fileResearch', e, true)} className="block w-full text-sm"/>
-                    {data.fileResearch && <span className="text-xs text-green-600 flex items-center mt-1"><CheckCircle className="w-3 h-3 mr-1"/> File Selected</span>}
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Upload Research Documents (PDF, Max 10MB)</label>
+                    <input type="file" accept="application/pdf" onChange={(e) => handleFileUpload('fileResearch', e, true)} className="block w-full text-sm mb-4"/>
+                    {data.fileResearch && <span className="text-xs text-green-600 flex items-center mt-1 mb-2"><CheckCircle className="w-3 h-3 mr-1"/> File Selected</span>}
+                    
+                    {/* Google Drive Link Option */}
+                    <div className="pt-2 border-t border-slate-200">
+                      <div className="flex items-center mb-2">
+                        <LinkIcon className="w-4 h-4 text-slate-500 mr-2"/>
+                        <label className="text-sm font-medium text-slate-700">Alternative: Google Drive Link (For Large Files)</label>
+                      </div>
+                      <Input 
+                        label="" 
+                        placeholder="Paste your Google Drive folder/file link here..." 
+                        value={data.googleDriveLink} 
+                        onChange={(e) => updateField('googleDriveLink', e.target.value)} 
+                        helperText="Ensure access is set to 'Anyone with the link can view'."
+                        className="mb-0"
+                      />
+                    </div>
                 </div>
 
                {/* Payment */}
@@ -537,7 +579,7 @@ function App() {
                   <Input label="Designation" value={data.empDesignation} onChange={(e) => updateField('empDesignation', e.target.value)} required={false} />
                  </div>
                  <div className="bg-slate-50 p-4 rounded border border-dashed border-slate-300">
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Upload NOC Document (PDF)</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Upload NOC Document (PDF, Max 2MB)</label>
                     <input type="file" accept="application/pdf" onChange={(e) => handleFileUpload('fileNOC', e, true)} className="block w-full text-sm"/>
                 </div>
                </div>

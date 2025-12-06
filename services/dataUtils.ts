@@ -17,6 +17,7 @@ export const generateCSV = (data: ApplicationData) => {
     { header: '12th Score', key: 'academic12th' },
     { header: 'Teaching Exp Score', key: 'teachingExpAbove15' },
     { header: 'Research Score', key: 'research' },
+    { header: 'Drive Link', key: 'googleDriveLink' },
     { header: 'UTR No', key: 'utrNo' },
     { header: 'Draft Amount', key: 'draftAmount' },
     { header: 'Draft Date', key: 'draftDate' },
