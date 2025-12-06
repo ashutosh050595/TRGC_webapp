@@ -18,6 +18,7 @@ export interface ApplicationData {
   contactNo1: string;
   contactNo2: string;
   email: string;
+  confirmEmail: string; // Field for verification only
   presentEmployer: string;
   photo: string | null; // Base64
   
@@ -98,6 +99,7 @@ export const INITIAL_DATA: ApplicationData = {
   contactNo1: '',
   contactNo2: '',
   email: '',
+  confirmEmail: '',
   presentEmployer: '',
   photo: null,
   academicMasters: '',
