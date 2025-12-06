@@ -134,7 +134,7 @@ const generateAppendixPDF = (): ArrayBuffer => {
       { content: "Faculty of Sciences / Engineering / Agriculture / Medical / Veterinary Sciences", styles: { halign: 'center' } },
       { content: "Faculty of Languages / Humanities / Arts / Social Sciences / Library / Education / Commerce / Management & other related disciplines", styles: { halign: 'center' } }
     ]],
-    body: bodyData,
+    body: bodyData as any, // Cast to any to resolve TS strict typing for mixed content
     theme: 'grid',
     styles: { fontSize: 8, cellPadding: 2 },
     headStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0], fontSize: 8, fontStyle: 'bold', lineWidth: 0.1 },
