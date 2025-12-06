@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Upload, ChevronRight, ChevronLeft, CheckCircle, FileText, Download, Mail, Loader2, AlertCircle, Send, Info, DollarSign, FileCheck, Printer } from 'lucide-react';
+import { ChevronRight, CheckCircle, Download, Mail, Loader2 } from 'lucide-react';
 import { INITIAL_DATA, ApplicationData } from './types';
 import { Input } from './components/Input';
 import { ScoreRow } from './components/ScoreRow';
