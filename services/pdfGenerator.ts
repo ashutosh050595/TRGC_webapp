@@ -89,7 +89,7 @@ export const generatePDF = (data: ApplicationData, shouldDownload: boolean = tru
   centerText("SCORE SHEETS", 15, 12, 'helvetica', 'bold');
   centerText("(As supplied from DGHE vide dated 18.04.2023-Attached with this form in last)", 22, 10);
   doc.setFont('helvetica', 'bold');
-  doc.text("1. Academic Record: Maximum 20 marks", 14, 30);
+  doc.text("I. Academic Record: Maximum 20 marks", 14, 30);
   
   const academicData = [
     ["1.", "Above 55% marks in Master's degree", "0.5 marks for each percentage (maximum 5 marks)", data.academicMasters],
@@ -109,7 +109,7 @@ export const generatePDF = (data: ApplicationData, shouldDownload: boolean = tru
 
   // --- PAGE 2: TEACHING & ADMIN ---
   let finalY = (doc as any).lastAutoTable.finalY + 10;
-  doc.text("2. Teaching Experience and Assessment of Administrative Skill: Maximum 35 marks", 14, finalY);
+  doc.text("II. Teaching Experience and Assessment of Administrative Skill: Maximum 35 marks", 14, finalY);
   finalY += 6;
   doc.text("A. Teaching Experience: Maximum 10 marks", 14, finalY);
 
@@ -202,82 +202,92 @@ export const generatePDF = (data: ApplicationData, shouldDownload: boolean = tru
 
   // --- PAGE 4: RESEARCH (FULL TABLE 2) ---
   doc.addPage();
-  doc.text("III. Academic/Research Score: Maximum 32.5 marks", 14, 15);
+  doc.text("TABLE 2: Methodology for University and College Teachers for Calculating Academic/Research Score", 14, 15);
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'normal');
+  doc.text("(Assessment must be based on evidence produced by the teacher such as : copy of publications, project sanction letter, utilization and completion certificates issued by University and acknowledgements for patent filing and approval letters, students Ph.D. award letter etc.)", 14, 20, { maxWidth: pageWidth - 28 });
   
   // Helper to format bold text in cells
   const r = data.research;
   const table2Body = [
     // 1. Research Papers
-    [{ content: "1.", rowSpan: 2 }, { content: "Research Papers in Peer-reviewed / UGC Journals upto 13.06.2019 and UGC CARE Listed Journals w.e.f. 14.06.2019", styles: { fontStyle: 'bold' } }, "8", r.resPapers],
-    [{ content: "For Career Advancement Scheme:\nResearch Papers in Peer-reviewed / UGC Journals upto 02.07.2023 and UGC CARE Listed Journals w.e.f. 03.07.2023", colSpan: 3, styles: { fontSize: 8 } }],
+    [{ content: "1.", rowSpan: 2 }, { content: "For Direct Recruitment:\nResearch Papers in Peer-reviewed / UGC Journals upto 13.06.2019 and UGC CARE Listed Journals w.e.f. 14.06.2019", styles: { fontStyle: 'bold' } }, "8", "10", r.resPapers],
+    [{ content: "For Career Advancement Scheme:\nResearch Papers in Peer-reviewed / UGC Journals upto 02.07.2023 and UGC CARE Listed Journals w.e.f. 03.07.2023", colSpan: 1, styles: { fontSize: 8 } }, {colSpan: 1, content: ""}, {colSpan: 1, content: ""}, {colSpan: 1, content: ""}],
     
     // 2. Publications
-    ["2.", { content: "Publications (other than Research papers)", styles: { fontStyle: 'bold' } }, "", ""],
-    ["", "(a) Books authored which are published by;", "", ""],
-    ["", "International publishers", "12", r.resBooksInt],
-    ["", "National Publishers", "10", r.resBooksNat],
-    ["", "Chapter in Edited Book", "05", r.resChapter],
-    ["", "Editor of Book by International Publisher", "10", r.resEditorInt],
-    ["", "Editor of Book by National Publisher", "08", r.resEditorNat],
+    ["2.", { content: "Publications (other than Research papers)", styles: { fontStyle: 'bold' } }, "", "", ""],
+    ["", "(a) Books authored which are published by;", "", "", ""],
+    ["", "International publishers", "12", "12", r.resBooksInt],
+    ["", "National Publishers", "10", "10", r.resBooksNat],
+    ["", "Chapter in Edited Book", "05", "05", r.resChapter],
+    ["", "Editor of Book by International Publisher", "10", "10", r.resEditorInt],
+    ["", "Editor of Book by National Publisher", "08", "08", r.resEditorNat],
     
-    ["", "(b) Translation works in Indian and Foreign Languages by qualified faculties", "", ""],
-    ["", "Chapter or Research paper", "03", r.resTransChapter],
-    ["", "Book", "08", r.resTransBook],
+    ["", "(b) Translation works in Indian and Foreign Languages by qualified faculties", "", "", ""],
+    ["", "Chapter or Research paper", "03", "03", r.resTransChapter],
+    ["", "Book", "08", "08", r.resTransBook],
 
     // 3. ICT
-    ["3.", { content: "Creation of ICT mediated Teaching Learning pedagogy and content and development of new and innovative courses and curricula", styles: { fontStyle: 'bold' } }, "", ""],
-    ["", "(a) Development of Innovative pedagogy", "05", r.resIctPedagogy],
-    ["", "(b) Design of new curricula and courses", "02 per curricula/course", r.resIctCurricula],
-    ["", "(c) MOOCs", "", ""],
-    ["", "Development of complete MOOCs in 4 quadrants (4 credit course)(In case of MOOCs of lesser credits 05 marks/credit)", "20", r.resMoocs4Quad],
-    ["", "MOOCs (developed in 4 quadrant) per module/lecture", "05", r.resMoocsModule],
-    ["", "Contentwriter/subject matter expert for each moduleof MOOCs (at least one quadrant)", "02", r.resMoocsContent],
-    ["", "Course Coordinator for MOOCs (4 credit course)(In case of MOOCs of lesser credits 02 marks/credit)", "08", r.resMoocsCoord],
-    ["", "(d) E-Content", "", ""],
-    ["", "Development of e-Content in 4 quadrants for a complete course/e-book", "12", r.resEcontentComplete],
-    ["", "e-Content (developed in 4 quadrants) per module", "05", r.resEcontentModule],
-    ["", "Contribution to development of e-content module in complete course/paper/e-book (at least one quadrant)", "02", r.resEcontentContrib],
-    ["", "Editor of e-content for complete course/ paper /e-book", "10", r.resEcontentEditor],
+    ["3.", { content: "Creation of ICT mediated Teaching Learning pedagogy and content and development of new and innovative courses and curricula", styles: { fontStyle: 'bold' } }, "", "", ""],
+    ["", "(a) Development of Innovative pedagogy", "05", "05", r.resIctPedagogy],
+    ["", "(b) Design of new curricula and courses", "02/curr", "02/curr", r.resIctCurricula],
+    ["", "(c) MOOCs", "", "", ""],
+    ["", "Development of complete MOOCs in 4 quadrants (4 credit course)(In case of MOOCs of lesser credits 05 marks/credit)", "20", "20", r.resMoocs4Quad],
+    ["", "MOOCs (developed in 4 quadrant) per module/lecture", "05", "05", r.resMoocsModule],
+    ["", "Contentwriter/subject matter expert for each moduleof MOOCs (at least one quadrant)", "02", "02", r.resMoocsContent],
+    ["", "Course Coordinator for MOOCs (4 credit course)(In case of MOOCs of lesser credits 02 marks/credit)", "08", "08", r.resMoocsCoord],
+    ["", "(d) E-Content", "", "", ""],
+    ["", "Development of e-Content in 4 quadrants for a complete course/e-book", "12", "12", r.resEcontentComplete],
+    ["", "e-Content (developed in 4 quadrants) per module", "05", "05", r.resEcontentModule],
+    ["", "Contribution to development of e-content module in complete course/paper/e-book (at least one quadrant)", "02", "02", r.resEcontentContrib],
+    ["", "Editor of e-content for complete course/ paper /e-book", "10", "10", r.resEcontentEditor],
 
     // 4. Guidance
-    ["4.", { content: "(a) Research guidance", styles: { fontStyle: 'bold' } }, "", ""],
-    ["", "Ph.D.", "10 per degree awarded\n05 per thesis submitted", r.resPhd],
-    ["", "M.Phil./P.G dissertation", "02 per degree awarded", r.resMphil],
-    ["", "(b) Research Projects Completed", "", ""],
-    ["", "More than 10 lakhs", "10", r.resProjMore10],
-    ["", "Less than 10 lakhs", "05", r.resProjLess10],
-    ["", "(c) Research Projects Ongoing :", "", ""],
-    ["", "More than 10 lakhs", "05", r.resProjOngoingMore10],
-    ["", "Less than 10 lakhs", "02", r.resProjOngoingLess10],
-    ["", "(d) Consultancy", "03", r.resConsultancy],
+    ["4.", { content: "(a) Research guidance", styles: { fontStyle: 'bold' } }, "", "", ""],
+    ["", "Ph.D. (10 per degree awarded / 05 per thesis submitted)", "10", "10", r.resPhd],
+    ["", "M.Phil./P.G dissertation (02 per degree awarded)", "02", "02", r.resMphil],
+    ["", "(b) Research Projects Completed", "", "", ""],
+    ["", "More than 10 lakhs", "10", "10", r.resProjMore10],
+    ["", "Less than 10 lakhs", "05", "05", r.resProjLess10],
+    ["", "(c) Research Projects Ongoing :", "", "", ""],
+    ["", "More than 10 lakhs", "05", "05", r.resProjOngoingMore10],
+    ["", "Less than 10 lakhs", "02", "02", r.resProjOngoingLess10],
+    ["", "(d) Consultancy", "03", "03", r.resConsultancy],
 
     // 5. Patents
-    ["5.", { content: "(a) Patents", styles: { fontStyle: 'bold' } }, "", ""],
-    ["", "International", "10", r.resPatentInt],
-    ["", "National", "07", r.resPatentNat],
-    ["", "(b) *Policy Document (Submitted to an International body/organisation like UNO/UNESCO/World Bank/International Monetary Fund etc. or Central Government or State Government)", "", ""],
-    ["", "International", "10", r.resPolicyInt],
-    ["", "National", "07", r.resPolicyNat],
-    ["", "State", "04", r.resPolicyState],
-    ["", "(c) Awards/Fellowship", "", ""],
-    ["", "International", "07", r.resAwardInt],
-    ["", "National", "05", r.resAwardNat],
+    ["5.", { content: "(a) Patents", styles: { fontStyle: 'bold' } }, "", "", ""],
+    ["", "International", "10", "0", r.resPatentInt],
+    ["", "National", "07", "0", r.resPatentNat],
+    ["", "(b) *Policy Document (Submitted to an International body/organisation like UNO/UNESCO/World Bank/International Monetary Fund etc. or Central Government or State Government)", "", "", ""],
+    ["", "International", "10", "10", r.resPolicyInt],
+    ["", "National", "07", "07", r.resPolicyNat],
+    ["", "State", "04", "04", r.resPolicyState],
+    ["", "(c) Awards/Fellowship", "", "", ""],
+    ["", "International", "07", "07", r.resAwardInt],
+    ["", "National", "05", "05", r.resAwardNat],
 
     // 6. Invited Lectures
-    ["6.", { content: "*Invited lectures / Resource Person/ paper presentation in Seminars/ Conferences/full paper in Conference Proceedings (Paper presented in Seminars/Conferences and also published as full paper in Conference Proceedings will be counted only once)", styles: { fontStyle: 'bold' } }, "", ""],
-    ["", "International (Abroad)", "07", r.resInvitedIntAbroad],
-    ["", "International (within country)", "05", r.resInvitedIntWithin],
-    ["", "National", "03", r.resInvitedNat],
-    ["", "State/University", "02", r.resInvitedState],
+    ["6.", { content: "*Invited lectures / Resource Person/ paper presentation in Seminars/ Conferences/full paper in Conference Proceedings (Paper presented in Seminars/Conferences and also published as full paper in Conference Proceedings will be counted only once)", styles: { fontStyle: 'bold' } }, "", "", ""],
+    ["", "International (Abroad)", "07", "0", r.resInvitedIntAbroad],
+    ["", "International (Within Country)", "05", "0", r.resInvitedIntWithin],
+    ["", "National", "03", "0", r.resInvitedNat],
+    ["", "State/University", "02", "0", r.resInvitedState],
   ];
 
   autoTable(doc, {
-    startY: 20,
-    head: [['S.N.', 'Academic/Research Activity', 'Faculty of Sciences/Engineering/Agriculture/Medical/Veterinary Sciences', 'Faculty of Languages/Humanities/Arts/Social Sciences/Library/Education/Physical Education/Commerce/Management & other related disciplines']],
+    startY: 35,
+    head: [['S.N.', 'Academic/Research Activity', 'Faculty of Sciences/Engineering/Agriculture/Medical/Veterinary Sciences', 'Faculty of Languages/Humanities/Arts/Social Sciences/Library/Education/Physical Education/Commerce/Management & other related disciplines', 'Self Appraisal Marks']],
     body: table2Body as any,
     theme: 'grid',
     headStyles: { fillColor: [255, 255, 255], textColor: [0, 0, 0], lineWidth: 0.1, lineColor: [0,0,0] },
-    styles: { fontSize: 8, cellPadding: 2, lineWidth: 0.1, lineColor: [0,0,0], textColor: [0,0,0] }
+    styles: { fontSize: 8, cellPadding: 2, lineWidth: 0.1, lineColor: [0,0,0], textColor: [0,0,0], valign: 'middle' },
+    columnStyles: {
+      0: { cellWidth: 10 },
+      1: { cellWidth: 'auto' },
+      2: { cellWidth: 25, halign: 'center' },
+      3: { cellWidth: 25, halign: 'center' },
+      4: { cellWidth: 25, halign: 'center' }
+    }
   });
 
   // Table at the end of Section III

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronRight, CheckCircle, Download, Mail, Loader2, Link as LinkIcon } from 'lucide-react';
+import { ChevronRight, CheckCircle, Download, Mail, Loader2, Link as LinkIcon, ChevronLeft } from 'lucide-react';
 import { INITIAL_DATA, ApplicationData } from './types';
 import { Input } from './components/Input';
 import { ScoreRow } from './components/ScoreRow';
@@ -7,6 +7,78 @@ import { SectionHeader } from './components/SectionHeader';
 import { generatePDF } from './services/pdfGenerator';
 import { sendApplicationEmail } from './services/emailService';
 import { mergePDFs } from './services/pdfMerger';
+
+// Helper component for Table 2 Rows
+const Table2Row = ({ 
+  sn, 
+  activity, 
+  capScience, 
+  capArts, 
+  value, 
+  onChange, 
+  isHeader = false, 
+  isSubHeader = false 
+}: { 
+  sn: string, 
+  activity: string | React.ReactNode, 
+  capScience: string, 
+  capArts: string, 
+  value?: string, 
+  onChange?: (val: string) => void,
+  isHeader?: boolean,
+  isSubHeader?: boolean
+}) => {
+  if (isHeader) {
+    return (
+      <tr className="bg-slate-100 font-bold text-sm">
+        <td className="border p-2">{sn}</td>
+        <td className="border p-2" colSpan={4}>{activity}</td>
+      </tr>
+    );
+  }
+
+  // Calculate max for validation (taking the higher of the two if both exist)
+  const maxVal = Math.max(
+    parseFloat(capScience) || 0, 
+    parseFloat(capArts) || 0
+  );
+
+  return (
+    <tr className={`border-b ${isSubHeader ? 'bg-slate-50' : 'hover:bg-slate-50'}`}>
+      <td className="border p-2 text-xs md:text-sm align-top">{sn}</td>
+      <td className={`border p-2 text-xs md:text-sm align-top ${isSubHeader ? 'font-semibold pl-6' : ''}`}>
+        {activity}
+      </td>
+      <td className="border p-2 text-center text-xs md:text-sm text-gray-600 align-top w-24">
+        {capScience}
+      </td>
+      <td className="border p-2 text-center text-xs md:text-sm text-gray-600 align-top w-24">
+        {capArts}
+      </td>
+      <td className="border p-2 w-24 align-top">
+        {onChange && (
+          <div className="flex flex-col">
+            <input
+              type="number"
+              className="w-full px-2 py-1 border rounded text-right text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+              value={value}
+              onChange={(e) => {
+                const val = parseFloat(e.target.value);
+                // Basic validation: Don't allow negative or insanely high numbers relative to cap
+                // We allow a bit of buffer or exact match depending on requirement, 
+                // here strict to max of the row if numeric
+                if (maxVal > 0 && val > maxVal) return; 
+                if (val < 0) return;
+                onChange(e.target.value);
+              }}
+            />
+             {maxVal > 0 && <span className="text-[10px] text-gray-400 text-right">Max: {maxVal}</span>}
+          </div>
+        )}
+      </td>
+    </tr>
+  );
+};
 
 function App() {
   const [step, setStep] = useState(0); 
@@ -97,10 +169,6 @@ function App() {
       requireField('adminJointDirector');
       requireField('adminRegistrar');
       requireField('adminHead');
-    }
-
-    if (currentStep === 4) {
-      // Validation for Responsibilities & Committees
     }
 
     if (currentStep === 5) {
@@ -219,7 +287,7 @@ function App() {
                    Status: {emailStatus === 'sent' ? 'Sent' : 'Pending'}
                 </h4>
                 <p className="text-sm mt-1">
-                   {emailStatus === 'sent' ? 'Sent to Principal & You.' : 'Please email the downloaded PDF manually to principal.trgc@gmail.com'}
+                   {emailStatus === 'sent' ? 'Sent to Principal & You. (Check Spam Folder)' : 'Please email the downloaded PDF manually to principal.trgc@gmail.com'}
                 </p>
               </div>
             </div>
@@ -434,71 +502,91 @@ function App() {
              </div>
           )}
 
-          {/* STEP 5: III. Research (Full Table 2) */}
+          {/* STEP 5: Table 2 (Detailed) */}
           {step === 5 && (
              <div>
-               <SectionHeader title="III. Academic/Research Score (Table 2)" />
+               <SectionHeader title="Table 2: Academic/Research Score" subtitle="Fill exactly as per Table 2 criteria" />
                <div className="overflow-x-auto mb-6">
-                 <table className="w-full text-left border-collapse border text-sm">
-                   <thead>
-                     <tr className="bg-slate-100"><th className="border p-2 w-10">SN</th><th className="border p-2">Activity</th><th className="border p-2 w-24">Cap</th><th className="border p-2 w-24">Self Score</th></tr>
-                   </thead>
-                   <tbody>
-                      {/* 1. Papers */}
-                      <ScoreRow sNo="1." particulars="Research Papers in Peer-reviewed/UGC Journals" marksCriteria="8 / 10" value={data.research.resPapers} onChange={(v) => updateResearch('resPapers', v)} labelClass="font-bold" />
-                      
+                 <table className="w-full text-left border-collapse text-sm border">
+                    <thead>
+                      <tr className="bg-slate-200">
+                        <th className="border p-2 w-12">S.N.</th>
+                        <th className="border p-2">Academic/Research Activity</th>
+                        <th className="border p-2 w-24">Faculty of Sciences/ Engg/ Ag/ Med/ Vet</th>
+                        <th className="border p-2 w-24">Faculty of Lang/ Arts/ Soc Sci/ Edu/ Comm/ Mgmt</th>
+                        <th className="border p-2 w-24 bg-blue-50">Self Appraisal Marks</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {/* 1. Research Papers */}
+                      <Table2Row sn="1." activity={<div>For Direct Recruitment: Research Papers in Peer-reviewed / UGC Journals upto 13.06.2019 and UGC CARE Listed Journals w.e.f. 14.06.2019<br/><br/>For Career Advancement Scheme: Research Papers in Peer-reviewed / UGC Journals upto 02.07.2023 and UGC CARE Listed Journals w.e.f. 03.07.2023</div>} capScience="8" capArts="10" value={data.research.resPapers} onChange={(v) => updateResearch('resPapers', v)} />
+
                       {/* 2. Publications */}
-                      <tr><td colSpan={4} className="bg-slate-50 border p-2 font-bold">2. Publications (other than Research papers)</td></tr>
-                      <ScoreRow sNo="" particulars="(a) Books authored: International Publishers" marksCriteria="12" value={data.research.resBooksInt} onChange={(v) => updateResearch('resBooksInt', v)} />
-                      <ScoreRow sNo="" particulars="National Publishers" marksCriteria="10" value={data.research.resBooksNat} onChange={(v) => updateResearch('resBooksNat', v)} />
-                      <ScoreRow sNo="" particulars="Chapter in Edited Book" marksCriteria="05" value={data.research.resChapter} onChange={(v) => updateResearch('resChapter', v)} />
-                      <ScoreRow sNo="" particulars="Editor of Book by International" marksCriteria="10" value={data.research.resEditorInt} onChange={(v) => updateResearch('resEditorInt', v)} />
-                      <ScoreRow sNo="" particulars="Editor of Book by National" marksCriteria="08" value={data.research.resEditorNat} onChange={(v) => updateResearch('resEditorNat', v)} />
+                      <Table2Row sn="2." activity="Publications (other than Research papers)" capScience="" capArts="" isHeader />
+                      <Table2Row sn="" activity="(a) Books authored which are published by;" capScience="" capArts="" isSubHeader />
+                      <Table2Row sn="" activity="International publishers" capScience="12" capArts="12" value={data.research.resBooksInt} onChange={(v) => updateResearch('resBooksInt', v)} />
+                      <Table2Row sn="" activity="National Publishers" capScience="10" capArts="10" value={data.research.resBooksNat} onChange={(v) => updateResearch('resBooksNat', v)} />
+                      <Table2Row sn="" activity="Chapter in Edited Book" capScience="05" capArts="05" value={data.research.resChapter} onChange={(v) => updateResearch('resChapter', v)} />
+                      <Table2Row sn="" activity="Editor of Book by International Publisher" capScience="10" capArts="10" value={data.research.resEditorInt} onChange={(v) => updateResearch('resEditorInt', v)} />
+                      <Table2Row sn="" activity="Editor of Book by National Publisher" capScience="08" capArts="08" value={data.research.resEditorNat} onChange={(v) => updateResearch('resEditorNat', v)} />
                       
-                      <ScoreRow sNo="" particulars="(b) Translation works: Chapter/Paper" marksCriteria="03" value={data.research.resTransChapter} onChange={(v) => updateResearch('resTransChapter', v)} />
-                      <ScoreRow sNo="" particulars="Translation: Book" marksCriteria="08" value={data.research.resTransBook} onChange={(v) => updateResearch('resTransBook', v)} />
+                      <Table2Row sn="" activity="(b) Translation works in Indian and Foreign Languages by qualified faculties" capScience="" capArts="" isSubHeader />
+                      <Table2Row sn="" activity="Chapter or Research paper" capScience="03" capArts="03" value={data.research.resTransChapter} onChange={(v) => updateResearch('resTransChapter', v)} />
+                      <Table2Row sn="" activity="Book" capScience="08" capArts="08" value={data.research.resTransBook} onChange={(v) => updateResearch('resTransBook', v)} />
 
                       {/* 3. ICT */}
-                      <tr><td colSpan={4} className="bg-slate-50 border p-2 font-bold">3. Creation of ICT mediated Teaching Learning pedagogy</td></tr>
-                      <ScoreRow sNo="" particulars="(a) Dev of Innovative pedagogy" marksCriteria="05" value={data.research.resIctPedagogy} onChange={(v) => updateResearch('resIctPedagogy', v)} />
-                      <ScoreRow sNo="" particulars="(b) Design of new curricula" marksCriteria="02/curr" value={data.research.resIctCurricula} onChange={(v) => updateResearch('resIctCurricula', v)} />
-                      <ScoreRow sNo="" particulars="(c) MOOCs (4 quadrants)" marksCriteria="20" value={data.research.resMoocs4Quad} onChange={(v) => updateResearch('resMoocs4Quad', v)} />
-                      <ScoreRow sNo="" particulars="MOOCs per module" marksCriteria="05" value={data.research.resMoocsModule} onChange={(v) => updateResearch('resMoocsModule', v)} />
-                      <ScoreRow sNo="" particulars="Content writer for MOOCs" marksCriteria="02" value={data.research.resMoocsContent} onChange={(v) => updateResearch('resMoocsContent', v)} />
-                      <ScoreRow sNo="" particulars="Course Coordinator MOOCs" marksCriteria="08" value={data.research.resMoocsCoord} onChange={(v) => updateResearch('resMoocsCoord', v)} />
+                      <Table2Row sn="3." activity="Creation of ICT mediated Teaching Learning pedagogy and content and development of new and innovative courses and curricula" capScience="" capArts="" isHeader />
+                      <Table2Row sn="" activity="(a) Development of Innovative pedagogy" capScience="05" capArts="05" value={data.research.resIctPedagogy} onChange={(v) => updateResearch('resIctPedagogy', v)} />
+                      <Table2Row sn="" activity="(b) Design of new curricula and courses" capScience="02" capArts="02" value={data.research.resIctCurricula} onChange={(v) => updateResearch('resIctCurricula', v)} />
                       
-                      <ScoreRow sNo="" particulars="(d) E-Content (Complete Course)" marksCriteria="12" value={data.research.resEcontentComplete} onChange={(v) => updateResearch('resEcontentComplete', v)} />
-                      <ScoreRow sNo="" particulars="E-Content (Per Module)" marksCriteria="05" value={data.research.resEcontentModule} onChange={(v) => updateResearch('resEcontentModule', v)} />
-                      <ScoreRow sNo="" particulars="Contribution to E-Content" marksCriteria="02" value={data.research.resEcontentContrib} onChange={(v) => updateResearch('resEcontentContrib', v)} />
-                      <ScoreRow sNo="" particulars="Editor of E-Content" marksCriteria="10" value={data.research.resEcontentEditor} onChange={(v) => updateResearch('resEcontentEditor', v)} />
+                      <Table2Row sn="" activity="(c) MOOCs" capScience="" capArts="" isSubHeader />
+                      <Table2Row sn="" activity="Development of complete MOOCs in 4 quadrants (4 credit course)(In case of MOOCs of lesser credits 05 marks/credit)" capScience="20" capArts="20" value={data.research.resMoocs4Quad} onChange={(v) => updateResearch('resMoocs4Quad', v)} />
+                      <Table2Row sn="" activity="MOOCs (developed in 4 quadrant) per module/lecture" capScience="05" capArts="05" value={data.research.resMoocsModule} onChange={(v) => updateResearch('resMoocsModule', v)} />
+                      <Table2Row sn="" activity="Contentwriter/subject matter expert for each moduleof MOOCs (at least one quadrant)" capScience="02" capArts="02" value={data.research.resMoocsContent} onChange={(v) => updateResearch('resMoocsContent', v)} />
+                      <Table2Row sn="" activity="Course Coordinator for MOOCs (4 credit course)(In case of MOOCs of lesser credits 02 marks/credit)" capScience="08" capArts="08" value={data.research.resMoocsCoord} onChange={(v) => updateResearch('resMoocsCoord', v)} />
 
-                      {/* 4. Guidance */}
-                      <tr><td colSpan={4} className="bg-slate-50 border p-2 font-bold">4. Research Guidance & Projects</td></tr>
-                      <ScoreRow sNo="" particulars="(a) Ph.D." marksCriteria="10/5" value={data.research.resPhd} onChange={(v) => updateResearch('resPhd', v)} />
-                      <ScoreRow sNo="" particulars="M.Phil./P.G" marksCriteria="02" value={data.research.resMphil} onChange={(v) => updateResearch('resMphil', v)} />
-                      <ScoreRow sNo="" particulars="(b) Projects Completed > 10L" marksCriteria="10" value={data.research.resProjMore10} onChange={(v) => updateResearch('resProjMore10', v)} />
-                      <ScoreRow sNo="" particulars="Projects Completed < 10L" marksCriteria="05" value={data.research.resProjLess10} onChange={(v) => updateResearch('resProjLess10', v)} />
-                      <ScoreRow sNo="" particulars="(c) Projects Ongoing > 10L" marksCriteria="05" value={data.research.resProjOngoingMore10} onChange={(v) => updateResearch('resProjOngoingMore10', v)} />
-                      <ScoreRow sNo="" particulars="Projects Ongoing < 10L" marksCriteria="02" value={data.research.resProjOngoingLess10} onChange={(v) => updateResearch('resProjOngoingLess10', v)} />
-                      <ScoreRow sNo="" particulars="(d) Consultancy" marksCriteria="03" value={data.research.resConsultancy} onChange={(v) => updateResearch('resConsultancy', v)} />
+                      <Table2Row sn="" activity="(d) E-Content" capScience="" capArts="" isSubHeader />
+                      <Table2Row sn="" activity="Development of e-Content in 4 quadrants for a complete course/e-book" capScience="12" capArts="12" value={data.research.resEcontentComplete} onChange={(v) => updateResearch('resEcontentComplete', v)} />
+                      <Table2Row sn="" activity="e-Content (developed in 4 quadrants) per module" capScience="05" capArts="05" value={data.research.resEcontentModule} onChange={(v) => updateResearch('resEcontentModule', v)} />
+                      <Table2Row sn="" activity="Contribution to development of e-content module in complete course/paper/e-book (at least one quadrant)" capScience="02" capArts="02" value={data.research.resEcontentContrib} onChange={(v) => updateResearch('resEcontentContrib', v)} />
+                      <Table2Row sn="" activity="Editor of e-content for complete course/ paper /e-book" capScience="10" capArts="10" value={data.research.resEcontentEditor} onChange={(v) => updateResearch('resEcontentEditor', v)} />
+
+                      {/* 4. Research Guidance */}
+                      <Table2Row sn="4." activity="(a) Research guidance" capScience="" capArts="" isHeader />
+                      <Table2Row sn="" activity="Ph.D. (10 per degree / 05 per thesis)" capScience="10" capArts="10" value={data.research.resPhd} onChange={(v) => updateResearch('resPhd', v)} />
+                      <Table2Row sn="" activity="M.Phil./P.G dissertation (02 per degree)" capScience="02" capArts="02" value={data.research.resMphil} onChange={(v) => updateResearch('resMphil', v)} />
+
+                      <Table2Row sn="" activity="(b) Research Projects Completed" capScience="" capArts="" isSubHeader />
+                      <Table2Row sn="" activity="More than 10 lakhs" capScience="10" capArts="10" value={data.research.resProjMore10} onChange={(v) => updateResearch('resProjMore10', v)} />
+                      <Table2Row sn="" activity="Less than 10 lakhs" capScience="05" capArts="05" value={data.research.resProjLess10} onChange={(v) => updateResearch('resProjLess10', v)} />
+
+                      <Table2Row sn="" activity="(c) Research Projects Ongoing :" capScience="" capArts="" isSubHeader />
+                      <Table2Row sn="" activity="More than 10 lakhs" capScience="05" capArts="05" value={data.research.resProjOngoingMore10} onChange={(v) => updateResearch('resProjOngoingMore10', v)} />
+                      <Table2Row sn="" activity="Less than 10 lakhs" capScience="02" capArts="02" value={data.research.resProjOngoingLess10} onChange={(v) => updateResearch('resProjOngoingLess10', v)} />
+
+                      <Table2Row sn="" activity="(d) Consultancy" capScience="03" capArts="03" value={data.research.resConsultancy} onChange={(v) => updateResearch('resConsultancy', v)} />
 
                       {/* 5. Patents */}
-                      <tr><td colSpan={4} className="bg-slate-50 border p-2 font-bold">5. Patents & Policy</td></tr>
-                      <ScoreRow sNo="" particulars="(a) Patents (International)" marksCriteria="10" value={data.research.resPatentInt} onChange={(v) => updateResearch('resPatentInt', v)} />
-                      <ScoreRow sNo="" particulars="Patents (National)" marksCriteria="07" value={data.research.resPatentNat} onChange={(v) => updateResearch('resPatentNat', v)} />
-                      <ScoreRow sNo="" particulars="(b) Policy (International)" marksCriteria="10" value={data.research.resPolicyInt} onChange={(v) => updateResearch('resPolicyInt', v)} />
-                      <ScoreRow sNo="" particulars="Policy (National)" marksCriteria="07" value={data.research.resPolicyNat} onChange={(v) => updateResearch('resPolicyNat', v)} />
-                      <ScoreRow sNo="" particulars="Policy (State)" marksCriteria="04" value={data.research.resPolicyState} onChange={(v) => updateResearch('resPolicyState', v)} />
-                      <ScoreRow sNo="" particulars="(c) Awards (International)" marksCriteria="07" value={data.research.resAwardInt} onChange={(v) => updateResearch('resAwardInt', v)} />
-                      <ScoreRow sNo="" particulars="Awards (National)" marksCriteria="05" value={data.research.resAwardNat} onChange={(v) => updateResearch('resAwardNat', v)} />
+                      <Table2Row sn="5." activity="(a) Patents" capScience="" capArts="" isHeader />
+                      <Table2Row sn="" activity="International" capScience="10" capArts="0" value={data.research.resPatentInt} onChange={(v) => updateResearch('resPatentInt', v)} />
+                      <Table2Row sn="" activity="National" capScience="07" capArts="0" value={data.research.resPatentNat} onChange={(v) => updateResearch('resPatentNat', v)} />
+
+                      <Table2Row sn="" activity="(b) *Policy Document (Submitted to an International body/organisation like UNO/UNESCO/World Bank/International Monetary Fund etc. or Central Government or State Government)" capScience="" capArts="" isSubHeader />
+                      <Table2Row sn="" activity="International" capScience="10" capArts="10" value={data.research.resPolicyInt} onChange={(v) => updateResearch('resPolicyInt', v)} />
+                      <Table2Row sn="" activity="National" capScience="07" capArts="07" value={data.research.resPolicyNat} onChange={(v) => updateResearch('resPolicyNat', v)} />
+                      <Table2Row sn="" activity="State" capScience="04" capArts="04" value={data.research.resPolicyState} onChange={(v) => updateResearch('resPolicyState', v)} />
+
+                      <Table2Row sn="" activity="(c) Awards/Fellowship" capScience="" capArts="" isSubHeader />
+                      <Table2Row sn="" activity="International" capScience="07" capArts="07" value={data.research.resAwardInt} onChange={(v) => updateResearch('resAwardInt', v)} />
+                      <Table2Row sn="" activity="National" capScience="05" capArts="05" value={data.research.resAwardNat} onChange={(v) => updateResearch('resAwardNat', v)} />
 
                       {/* 6. Invited */}
-                      <tr><td colSpan={4} className="bg-slate-50 border p-2 font-bold">6. Invited Lectures / Papers</td></tr>
-                      <ScoreRow sNo="" particulars="International (Abroad)" marksCriteria="07" value={data.research.resInvitedIntAbroad} onChange={(v) => updateResearch('resInvitedIntAbroad', v)} />
-                      <ScoreRow sNo="" particulars="International (Within Country)" marksCriteria="05" value={data.research.resInvitedIntWithin} onChange={(v) => updateResearch('resInvitedIntWithin', v)} />
-                      <ScoreRow sNo="" particulars="National" marksCriteria="03" value={data.research.resInvitedNat} onChange={(v) => updateResearch('resInvitedNat', v)} />
-                      <ScoreRow sNo="" particulars="State/University" marksCriteria="02" value={data.research.resInvitedState} onChange={(v) => updateResearch('resInvitedState', v)} />
-                   </tbody>
+                      <Table2Row sn="6." activity="*Invited lectures / Resource Person/ paper presentation in Seminars/ Conferences/full paper in Conference Proceedings (Paper presented in Seminars/Conferences and also published as full paper in Conference Proceedings will be counted only once)" capScience="" capArts="" isHeader />
+                      <Table2Row sn="" activity="International (Abroad)" capScience="07" capArts="0" value={data.research.resInvitedIntAbroad} onChange={(v) => updateResearch('resInvitedIntAbroad', v)} />
+                      <Table2Row sn="" activity="International (within country)" capScience="05" capArts="0" value={data.research.resInvitedIntWithin} onChange={(v) => updateResearch('resInvitedIntWithin', v)} />
+                      <Table2Row sn="" activity="National" capScience="03" capArts="0" value={data.research.resInvitedNat} onChange={(v) => updateResearch('resInvitedNat', v)} />
+                      <Table2Row sn="" activity="State/University" capScience="02" capArts="0" value={data.research.resInvitedState} onChange={(v) => updateResearch('resInvitedState', v)} />
+                    </tbody>
                  </table>
                </div>
                
@@ -589,9 +677,9 @@ function App() {
           {/* Navigation Buttons (Same as before) */}
            {step > 0 && (
             <div className="flex justify-between mt-8 pt-6 border-t">
-              <button onClick={handleBack} disabled={isSubmitting} className="px-4 py-2 border rounded hover:bg-slate-50">Back</button>
+              <button onClick={handleBack} disabled={isSubmitting} className="flex items-center px-4 py-2 border rounded hover:bg-slate-50"> <ChevronLeft className="w-4 h-4 mr-2" /> Back</button>
               {step < 6 ? (
-                <button onClick={handleNext} className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Next</button>
+                <button onClick={handleNext} className="flex items-center px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Next <ChevronRight className="w-4 h-4 ml-2" /></button>
               ) : (
                 <button onClick={handleSubmit} disabled={isSubmitting} className="flex items-center px-8 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50">
                   {isSubmitting ? <><Loader2 className="animate-spin mr-2"/> Submitting</> : 'Submit Application'}
