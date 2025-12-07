@@ -766,11 +766,11 @@ function App() {
                  <div className="mb-4">
                    <div className="flex gap-4">
                      <label className="flex items-center">
-                       <input type="radio" name="hasNOC" value="yes" checked={data.hasNOC === 'yes'} onChange={(e) => updateField('hasNOC', 'yes')} className="mr-2" />
+                       <input type="radio" name="hasNOC" value="yes" checked={data.hasNOC === 'yes'} onChange={() => updateField('hasNOC', 'yes')} className="mr-2" />
                        Yes, I have an NOC
                      </label>
                      <label className="flex items-center">
-                       <input type="radio" name="hasNOC" value="no" checked={data.hasNOC === 'no'} onChange={(e) => updateField('hasNOC', 'no')} className="mr-2" />
+                       <input type="radio" name="hasNOC" value="no" checked={data.hasNOC === 'no'} onChange={() => updateField('hasNOC', 'no')} className="mr-2" />
                        No
                      </label>
                    </div>
