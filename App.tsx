@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { ChevronRight, CheckCircle, Download, Mail, Loader2, Link as LinkIcon, ChevronLeft } from 'lucide-react';
+import { ChevronRight, CheckCircle, Download, Mail, Loader2, Link as LinkIcon, ChevronLeft, Eye, CheckSquare, FileText } from 'lucide-react';
 import { INITIAL_DATA, ApplicationData } from './types';
 import { Input } from './components/Input';
 import { ScoreRow } from './components/ScoreRow';
@@ -83,11 +83,26 @@ function App() {
   const [data, setData] = useState<ApplicationData>(INITIAL_DATA);
   const [errors, setErrors] = useState<Partial<Record<keyof ApplicationData, string>>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submissionStage, setSubmissionStage] = useState<string>("");
   const [isSuccess, setIsSuccess] = useState(false);
   const [emailStatus, setEmailStatus] = useState<'idle' | 'sending' | 'sent' | 'failed'>('idle');
   
   const [isStartInstructionsRead, setIsStartInstructionsRead] = useState(false); 
   const [isFinalNoteConfirmed, setIsFinalNoteConfirmed] = useState(false); 
+
+  // Final Verification State
+  const [verificationChecks, setVerificationChecks] = useState({
+    name: false,
+    fatherName: false,
+    post: false,
+    dob: false,
+    category: false,
+    photo: false,
+    signature: false,
+    documents: false,
+    table2: false,
+    payment: false
+  });
 
   const updateField = (field: keyof ApplicationData, value: string) => {
     setData(prev => ({ ...prev, [field]: value }));
@@ -186,7 +201,6 @@ function App() {
       requireField('bankName');
       
       // 2. Validate Research Table - All inputs mandatory
-      // Check if any field in data.research is empty
       const researchKeys = Object.keys(data.research) as Array<keyof typeof data.research>;
       let researchMissing = false;
       researchKeys.forEach(key => {
@@ -246,30 +260,54 @@ function App() {
     window.scrollTo(0, 0);
   };
 
+  const handlePreview = () => {
+    // Generate only the form PDF (fast) for preview
+    const { blob } = generatePDF(data, false);
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank');
+  };
+
+  const toggleVerification = (key: keyof typeof verificationChecks) => {
+    setVerificationChecks(prev => ({
+      ...prev,
+      [key]: !prev[key]
+    }));
+  };
+
+  const isVerified = Object.values(verificationChecks).every(Boolean);
+
   const handleSubmit = async () => {
     if (!validateStep(6)) return;
+    if (!isVerified) {
+      alert("Please complete the verification checklist.");
+      return;
+    }
 
     setIsSubmitting(true);
     setEmailStatus('sending');
 
     try {
-      // 1. Generate Form PDF
+      // 1. Generate Form
+      setSubmissionStage("Generating Application PDF...");
       const { blob: formPdfBlob } = generatePDF(data, false);
       
-      // 2. Gather all attachments
+      // 2. Gather Attachments
+      setSubmissionStage("Processing Attachments...");
       const attachments = [
         data.fileAcademic,
         data.fileTeaching,
-        data.fileAdminSkill, // Added Admin Skill doc
-        data.fileAdmin,      // Resp & Committee doc
+        data.fileAdminSkill,
+        data.fileAdmin,
         data.fileResearch,
-        data.hasNOC === 'yes' ? data.fileNOC : null // Only include NOC if they have it
+        data.hasNOC === 'yes' ? data.fileNOC : null
       ];
 
-      // 3. Merge Files
+      // 3. Merge
+      setSubmissionStage("Merging Documents (This may take a moment)...");
       const { base64: mergedBase64, blob: mergedBlob } = await mergePDFs(formPdfBlob, attachments);
 
       // 4. Download
+      setSubmissionStage("Downloading Copy...");
       const link = document.createElement('a');
       link.href = URL.createObjectURL(mergedBlob);
       link.download = `${data.name.replace(/\s+/g, '_')}_Complete_App.pdf`;
@@ -277,7 +315,8 @@ function App() {
       link.click();
       document.body.removeChild(link);
       
-      // 5. Email / Drive Save
+      // 5. Send Email
+      setSubmissionStage("Sending Email to Server...");
       const emailResult = await sendApplicationEmail(data, mergedBase64);
       
       if (emailResult.success) {
@@ -296,6 +335,7 @@ function App() {
       setEmailStatus('failed');
     } finally {
       setIsSubmitting(false);
+      setSubmissionStage("");
     }
   };
 
@@ -685,23 +725,34 @@ function App() {
              </div>
           )}
 
-          {/* STEP 6: Declaration (Updated for NOC upload) */}
+          {/* STEP 6: Final Verification & Submit */}
           {step === 6 && (
             <div>
-               <SectionHeader title="Declaration" subtitle="Finalize and Submit" />
-               {/* Declaration Text ... */}
-               <div className="prose text-sm text-gray-600 mb-6">
-                <p>I hereby declare that all entries are true...</p>
-               </div>
+               <SectionHeader title="Final Verification & Declaration" subtitle="Review your details before submitting." />
                
-               {/* Place/Date/Sign ... */}
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+               {/* 1. Preview Section */}
+               <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-5 mb-8 flex flex-col md:flex-row items-center justify-between">
+                 <div>
+                   <h3 className="font-semibold text-indigo-900">Preview Application Form</h3>
+                   <p className="text-sm text-indigo-700 mt-1">Generate a PDF preview of your data to ensure everything is correct.</p>
+                 </div>
+                 <button 
+                  onClick={handlePreview}
+                  className="mt-4 md:mt-0 flex items-center px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors shadow-sm"
+                 >
+                   <Eye className="w-4 h-4 mr-2" />
+                   Preview Form
+                 </button>
+               </div>
+
+               {/* 2. Declaration Inputs */}
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 border-b pb-6">
                  <Input label="Parent's Name" value={data.parentName} onChange={(e) => updateField('parentName', e.target.value)} error={errors.parentName} />
                  <Input label="Place" value={data.place} onChange={(e) => updateField('place', e.target.value)} error={errors.place} />
                  <Input label="Date" type="date" value={data.date} onChange={(e) => updateField('date', e.target.value)} error={errors.date} />
                </div>
 
-               <div className="mb-8">
+               <div className="mb-6 border-b pb-6">
                  <label className="block text-sm font-medium mb-2">Signature *</label>
                  <div className="w-full md:w-1/2 h-24 border-2 border-dashed rounded flex items-center justify-center bg-gray-50">
                    {data.signature ? <img src={data.signature} className="h-full p-2 object-contain"/> : <span className="text-gray-400 text-xs">Upload Signature</span>}
@@ -710,15 +761,13 @@ function App() {
                  {errors.signature && <p className="text-red-500 text-xs">{errors.signature}</p>}
                </div>
 
-               <div className="border-t pt-6">
-                 <h3 className="font-semibold text-gray-700 mb-4">Employer NOC</h3>
-                 
+               <div className="mb-8 border-b pb-6">
+                 <h3 className="font-semibold text-gray-700 mb-4">Employer NOC (If Applicable)</h3>
                  <div className="mb-4">
-                   <label className="block text-sm font-medium mb-2">Do you have a No Objection Certificate (NOC)?</label>
                    <div className="flex gap-4">
                      <label className="flex items-center">
                        <input type="radio" name="hasNOC" value="yes" checked={data.hasNOC === 'yes'} onChange={(e) => updateField('hasNOC', 'yes')} className="mr-2" />
-                       Yes
+                       Yes, I have an NOC
                      </label>
                      <label className="flex items-center">
                        <input type="radio" name="hasNOC" value="no" checked={data.hasNOC === 'no'} onChange={(e) => updateField('hasNOC', 'no')} className="mr-2" />
@@ -743,24 +792,102 @@ function App() {
                    </div>
                  )}
                </div>
+
+               {/* 3. Mandatory Checklist */}
+               <div className="mb-8">
+                  <h3 className="font-bold text-gray-800 mb-3 flex items-center">
+                    <CheckSquare className="w-5 h-5 mr-2 text-blue-600"/> 
+                    Final Verification Checklist
+                  </h3>
+                  <p className="text-sm text-gray-500 mb-4">Please verify the following details one by one to enable submission.</p>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 bg-gray-50 p-4 rounded-lg border">
+                    {[
+                      { key: 'name', label: `Name: ${data.name}` },
+                      { key: 'fatherName', label: `Father's Name: ${data.fatherName}` },
+                      { key: 'post', label: `Post: ${data.postAppliedFor}` },
+                      { key: 'dob', label: `DOB: ${data.dob}` },
+                      { key: 'category', label: `Category: ${data.category}` },
+                      { key: 'photo', label: 'Photograph is visible' },
+                      { key: 'signature', label: 'Signature is uploaded' },
+                      { key: 'documents', label: 'All Documents (Academic, Exp, Research) Uploaded' },
+                      { key: 'table2', label: 'Table 2 Data is Correct' },
+                      { key: 'payment', label: `Payment: ${data.utrNo} (${data.bankName})` },
+                    ].map((item) => (
+                      <label key={item.key} className={`flex items-start p-2 rounded cursor-pointer border ${verificationChecks[item.key as keyof typeof verificationChecks] ? 'bg-green-50 border-green-200' : 'bg-white border-gray-200 hover:bg-gray-100'}`}>
+                        <input 
+                          type="checkbox" 
+                          className="mt-1 h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                          checked={verificationChecks[item.key as keyof typeof verificationChecks]}
+                          onChange={() => toggleVerification(item.key as keyof typeof verificationChecks)}
+                        />
+                        <span className="ml-2 text-sm text-gray-700">{item.label}</span>
+                      </label>
+                    ))}
+                  </div>
+               </div>
+
+               <div className="flex flex-col items-center justify-center mt-8">
+                  <button 
+                    onClick={handleSubmit} 
+                    disabled={isSubmitting || !isVerified} 
+                    className={`w-full md:w-auto px-12 py-4 text-lg font-bold rounded-lg shadow-lg flex items-center justify-center transition-all transform hover:-translate-y-1
+                      ${isSubmitting || !isVerified 
+                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed shadow-none' 
+                        : 'bg-green-600 text-white hover:bg-green-700 hover:shadow-green-200'
+                      }
+                    `}
+                  >
+                    {isSubmitting ? <Loader2 className="animate-spin mr-3 h-6 w-6"/> : <FileText className="mr-3 h-6 w-6"/>}
+                    {isSubmitting ? 'Processing Application...' : 'Final Submit'}
+                  </button>
+
+                  {/* Submission Progress Indicator */}
+                  {isSubmitting && (
+                    <div className="mt-4 w-full max-w-md bg-blue-50 border border-blue-200 rounded p-3 text-center">
+                      <p className="text-blue-800 text-sm font-semibold animate-pulse">
+                        {submissionStage || "Initializing..."}
+                      </p>
+                      <div className="w-full bg-blue-200 h-1.5 rounded-full mt-2 overflow-hidden">
+                        <div className="bg-blue-600 h-1.5 rounded-full animate-progress"></div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {!isVerified && !isSubmitting && (
+                    <p className="text-red-500 text-sm mt-3 font-medium">
+                      * Please check all boxes in the checklist above to proceed.
+                    </p>
+                  )}
+               </div>
             </div>
           )}
 
-          {/* Navigation Buttons (Same as before) */}
-           {step > 0 && (
+          {/* Navigation Buttons (Step 1-5 only) */}
+           {step > 0 && step < 6 && (
             <div className="flex justify-between mt-8 pt-6 border-t">
-              <button onClick={handleBack} disabled={isSubmitting} className="flex items-center px-4 py-2 border rounded hover:bg-slate-50"> <ChevronLeft className="w-4 h-4 mr-2" /> Back</button>
-              {step < 6 ? (
-                <button onClick={handleNext} className="flex items-center px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Next <ChevronRight className="w-4 h-4 ml-2" /></button>
-              ) : (
-                <button onClick={handleSubmit} disabled={isSubmitting} className="flex items-center px-8 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50">
-                  {isSubmitting ? <><Loader2 className="animate-spin mr-2"/> Submitting</> : 'Submit Application'}
-                </button>
-              )}
+              <button onClick={handleBack} className="flex items-center px-4 py-2 border rounded hover:bg-slate-50"> <ChevronLeft className="w-4 h-4 mr-2" /> Back</button>
+              <button onClick={handleNext} className="flex items-center px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Next <ChevronRight className="w-4 h-4 ml-2" /></button>
             </div>
           )}
+           {/* Special Navigation for Step 6 Back Button */}
+           {step === 6 && !isSuccess && (
+             <div className="flex justify-start mt-8 pt-6 border-t">
+               <button onClick={handleBack} disabled={isSubmitting} className="flex items-center px-4 py-2 border rounded hover:bg-slate-50"> <ChevronLeft className="w-4 h-4 mr-2" /> Back to Edit</button>
+             </div>
+           )}
         </div>
       </div>
+      <style>{`
+        @keyframes progress {
+          0% { width: 0%; }
+          50% { width: 70%; }
+          100% { width: 95%; }
+        }
+        .animate-progress {
+          animation: progress 8s ease-out forwards;
+        }
+      `}</style>
     </div>
   );
 }
