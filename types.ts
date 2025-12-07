@@ -1,3 +1,4 @@
+
 export interface ScoreItem {
   id: string;
   label: string;
@@ -77,6 +78,7 @@ export interface ApplicationData {
   adminJointDirector: string;
   adminRegistrar: string;
   adminHead: string;
+  fileAdminSkill: string | null; // New field for Admin Skill Docs
 
   // Key Responsibilities (Page 3 - B.ii)
   respStaffRep: string;
@@ -106,7 +108,7 @@ export interface ApplicationData {
   commWomen: string;
   commTimeTable: string;
   commSCBC: string;
-  fileAdmin: string | null; // Base64 PDF
+  fileAdmin: string | null; // Base64 PDF (Committees/Resp)
 
   // III. Research (Table 2)
   research: ResearchData;
@@ -126,6 +128,7 @@ export interface ApplicationData {
   signature: string | null; // Base64 Image
   
   // Employer / NOC
+  hasNOC: string; // 'yes' or 'no'
   fileNOC: string | null; // Base64 PDF (Replaces generated page)
   empName: string;
   empDesignation: string;
@@ -197,6 +200,7 @@ export const INITIAL_DATA: ApplicationData = {
   adminJointDirector: '',
   adminRegistrar: '',
   adminHead: '',
+  fileAdminSkill: null,
   respStaffRep: '',
   respCoordinator: '',
   respBursar: '',
@@ -234,6 +238,7 @@ export const INITIAL_DATA: ApplicationData = {
   place: '',
   date: new Date().toISOString().split('T')[0],
   signature: null,
+  hasNOC: 'no',
   fileNOC: null,
   empName: '',
   empDesignation: '',

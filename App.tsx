@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { ChevronRight, CheckCircle, Download, Mail, Loader2, Link as LinkIcon, ChevronLeft } from 'lucide-react';
 import { INITIAL_DATA, ApplicationData } from './types';
@@ -60,13 +61,10 @@ const Table2Row = ({
           <div className="flex flex-col">
             <input
               type="number"
-              className="w-full px-2 py-1 border rounded text-right text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+              className="w-full px-2 py-1 border rounded text-right text-sm focus:ring-2 focus:ring-blue-500 outline-none border-gray-300"
               value={value}
               onChange={(e) => {
                 const val = parseFloat(e.target.value);
-                // Basic validation: Don't allow negative or insanely high numbers relative to cap
-                // We allow a bit of buffer or exact match depending on requirement, 
-                // here strict to max of the row if numeric
                 if (maxVal > 0 && val > maxVal) return; 
                 if (val < 0) return;
                 onChange(e.target.value);
@@ -162,21 +160,50 @@ function App() {
       requireField('academicGraduation');
       requireField('academic12th');
       requireField('academicMatric');
+      requireField('fileAcademic', "Academic document is required");
     }
 
     if (currentStep === 3) {
       requireField('teachingExpAbove15');
+      requireField('fileTeaching', "Teaching experience document is required");
+      
       requireField('adminJointDirector');
       requireField('adminRegistrar');
       requireField('adminHead');
+      requireField('fileAdminSkill', "Administrative skill document is required");
+    }
+
+    if (currentStep === 4) {
+      // Ensure fileAdmin is uploaded for Responsibilities/Committees
+      requireField('fileAdmin', "Responsibilities/Committees document is required");
     }
 
     if (currentStep === 5) {
+      // 1. Validate Payment
       requireField('utrNo');
       requireField('draftDate');
       requireField('draftAmount');
       requireField('bankName');
       
+      // 2. Validate Research Table - All inputs mandatory
+      // Check if any field in data.research is empty
+      const researchKeys = Object.keys(data.research) as Array<keyof typeof data.research>;
+      let researchMissing = false;
+      researchKeys.forEach(key => {
+        if (!data.research[key] || data.research[key].trim() === '') {
+          researchMissing = true;
+        }
+      });
+
+      if (researchMissing) {
+        alert("All fields in Table 2 (Research Score) are mandatory. Please enter '0' if not applicable.");
+        isValid = false;
+      }
+
+      // 3. Validate Research File
+      requireField('fileResearch', "Research document is required");
+
+      // 4. Checkbox
       if (!isFinalNoteConfirmed) {
         alert("Please acknowledge that you have read the instructions by checking the box.");
         return false;
@@ -188,6 +215,14 @@ function App() {
       requireField('place');
       requireField('date');
       requireField('signature', "Signature is required");
+      
+      // NOC Validation
+      if (data.hasNOC === 'yes') {
+        requireField('empName');
+        requireField('empDesignation');
+        requireField('empDept');
+        requireField('fileNOC', "NOC Document is required");
+      }
     }
 
     setErrors(newErrors);
@@ -225,9 +260,10 @@ function App() {
       const attachments = [
         data.fileAcademic,
         data.fileTeaching,
-        data.fileAdmin,
+        data.fileAdminSkill, // Added Admin Skill doc
+        data.fileAdmin,      // Resp & Committee doc
         data.fileResearch,
-        data.fileNOC
+        data.hasNOC === 'yes' ? data.fileNOC : null // Only include NOC if they have it
       ];
 
       // 3. Merge Files
@@ -270,29 +306,30 @@ function App() {
           <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
             <CheckCircle className="w-10 h-10 text-green-600" />
           </div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">Application Submitted!</h2>
-          <p className="text-gray-600 mb-6">Your application has been merged and recorded.</p>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">Application Submitted Successfully!</h2>
+          <p className="text-gray-600 mb-6">Your form and all attached documents have been merged and submitted.</p>
           <div className="space-y-4 mb-8">
              <div className="flex items-start p-4 bg-blue-50 rounded-lg text-left">
               <Download className="w-6 h-6 text-blue-600 mt-1 mr-3 flex-shrink-0" />
               <div>
                 <h4 className="font-semibold text-blue-900">1. Downloaded</h4>
-                <p className="text-sm text-blue-800">Complete merged PDF downloaded.</p>
+                <p className="text-sm text-blue-800">Complete merged PDF downloaded to your device.</p>
               </div>
             </div>
              <div className={`flex items-start p-4 rounded-lg text-left border ${emailStatus === 'sent' ? 'bg-green-50 border-green-200' : 'bg-yellow-50 border-yellow-200'}`}>
               <Mail className={`w-6 h-6 mt-1 mr-3 flex-shrink-0 ${emailStatus === 'sent' ? 'text-green-600' : 'text-yellow-600'}`} />
               <div>
                 <h4 className={`font-semibold ${emailStatus === 'sent' ? 'text-green-900' : 'text-yellow-900'}`}>
-                   Status: {emailStatus === 'sent' ? 'Sent' : 'Pending'}
+                   2. Email Sent
                 </h4>
                 <p className="text-sm mt-1">
-                   {emailStatus === 'sent' ? 'Sent to Principal & You. (Check Spam Folder)' : 'Please email the downloaded PDF manually to principal.trgc@gmail.com'}
+                   A copy of the form along with all documents attached has been sent to your email id ({data.email}) and the Principal.
+                   <br/><span className="text-xs font-bold">(Check Spam/Junk folder if not received in Inbox)</span>
                 </p>
               </div>
             </div>
           </div>
-          <button onClick={() => window.location.reload()} className="text-gray-500 hover:text-gray-700 text-sm">Start New</button>
+          <button onClick={() => window.location.reload()} className="text-gray-500 hover:text-gray-700 text-sm">Start New Application</button>
         </div>
       </div>
     );
@@ -403,6 +440,7 @@ function App() {
                <div className="mt-4">
                   <label className="block text-sm font-semibold mb-2">Upload Photograph * (Max 2MB)</label>
                   <input type="file" accept="image/*" onChange={(e) => handleFileUpload('photo', e)} className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"/>
+                  {errors.photo && <p className="text-red-500 text-xs mt-1">{errors.photo}</p>}
                </div>
              </div>
           )}
@@ -423,9 +461,10 @@ function App() {
                     </table>
                 </div>
                 <div className="bg-slate-50 p-4 rounded border border-dashed border-slate-300">
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Upload Academic Documents (PDF, Max 2MB)</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Upload Academic Documents * (PDF, Max 2MB)</label>
                     <input type="file" accept="application/pdf" onChange={(e) => handleFileUpload('fileAcademic', e)} className="block w-full text-sm"/>
                     {data.fileAcademic && <span className="text-xs text-green-600 flex items-center mt-1"><CheckCircle className="w-3 h-3 mr-1"/> File Selected</span>}
+                    {errors.fileAcademic && <p className="text-red-500 text-xs mt-1">{errors.fileAcademic}</p>}
                 </div>
              </div>
           )}
@@ -439,19 +478,27 @@ function App() {
                     <tbody><ScoreRow sNo="1." particulars="Above 15 years teaching experience" marksCriteria="1 mark for each year" value={data.teachingExpAbove15} onChange={(v) => updateField('teachingExpAbove15', v)} max={10} /></tbody>
                 </table>
                 <div className="bg-slate-50 p-4 rounded border border-dashed border-slate-300 mb-6">
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Upload Teaching Exp Documents (PDF, Max 2MB)</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Upload Teaching Exp Documents * (PDF, Max 2MB)</label>
                     <input type="file" accept="application/pdf" onChange={(e) => handleFileUpload('fileTeaching', e)} className="block w-full text-sm"/>
+                    {data.fileTeaching && <span className="text-xs text-green-600 flex items-center mt-1"><CheckCircle className="w-3 h-3 mr-1"/> File Selected</span>}
+                    {errors.fileTeaching && <p className="text-red-500 text-xs mt-1">{errors.fileTeaching}</p>}
                 </div>
 
                 <h3 className="font-semibold text-slate-700 mb-2">B. Administrative Skill</h3>
                 <p className="text-sm text-slate-500 mb-2">(i) Administrative Responsibilities</p>
-                <table className="w-full text-left border-collapse">
+                <table className="w-full text-left border-collapse mb-4">
                   <tbody>
-                    <ScoreRow sNo="1." particulars="Exp as Joint/Deputy/Assistant Director" marksCriteria="1 mark/year" value={data.adminJointDirector} onChange={(v) => updateField('adminJointDirector', v)} />
-                    <ScoreRow sNo="2." particulars="Exp as Registrar/Admin post in Univ" marksCriteria="1 mark/year" value={data.adminRegistrar} onChange={(v) => updateField('adminRegistrar', v)} />
-                    <ScoreRow sNo="3." particulars="Exp as Head of Higher Edu Inst" marksCriteria="1 mark/year" value={data.adminHead} onChange={(v) => updateField('adminHead', v)} />
+                    <ScoreRow sNo="1." particulars="Exp as Joint/Deputy/Assistant Director" marksCriteria="1 mark/year" value={data.adminJointDirector} onChange={(v) => updateField('adminJointDirector', v)} max={25} />
+                    <ScoreRow sNo="2." particulars="Exp as Registrar/Admin post in Univ" marksCriteria="1 mark/year" value={data.adminRegistrar} onChange={(v) => updateField('adminRegistrar', v)} max={25} />
+                    <ScoreRow sNo="3." particulars="Exp as Head of Higher Edu Inst" marksCriteria="1 mark/year" value={data.adminHead} onChange={(v) => updateField('adminHead', v)} max={25} />
                   </tbody>
                 </table>
+                <div className="bg-slate-50 p-4 rounded border border-dashed border-slate-300">
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Upload Administrative Skill Documents * (PDF, Max 2MB)</label>
+                    <input type="file" accept="application/pdf" onChange={(e) => handleFileUpload('fileAdminSkill', e)} className="block w-full text-sm"/>
+                    {data.fileAdminSkill && <span className="text-xs text-green-600 flex items-center mt-1"><CheckCircle className="w-3 h-3 mr-1"/> File Selected</span>}
+                    {errors.fileAdminSkill && <p className="text-red-500 text-xs mt-1">{errors.fileAdminSkill}</p>}
+                </div>
             </div>
           )}
 
@@ -496,8 +543,10 @@ function App() {
                   </tbody>
                 </table>
                 <div className="bg-slate-50 p-4 rounded border border-dashed border-slate-300">
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Upload Admin/Committee Documents (PDF, Max 2MB)</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Upload Responsibilities & Committees Documents * (PDF, Max 2MB)</label>
                     <input type="file" accept="application/pdf" onChange={(e) => handleFileUpload('fileAdmin', e)} className="block w-full text-sm"/>
+                    {data.fileAdmin && <span className="text-xs text-green-600 flex items-center mt-1"><CheckCircle className="w-3 h-3 mr-1"/> File Selected</span>}
+                    {errors.fileAdmin && <p className="text-red-500 text-xs mt-1">{errors.fileAdmin}</p>}
                 </div>
              </div>
           )}
@@ -505,7 +554,7 @@ function App() {
           {/* STEP 5: Table 2 (Detailed) */}
           {step === 5 && (
              <div>
-               <SectionHeader title="Table 2: Academic/Research Score" subtitle="Fill exactly as per Table 2 criteria" />
+               <SectionHeader title="Table 2: Academic/Research Score" subtitle="All fields are mandatory. Enter '0' if not applicable." />
                <div className="overflow-x-auto mb-6">
                  <table className="w-full text-left border-collapse text-sm border">
                     <thead>
@@ -514,7 +563,7 @@ function App() {
                         <th className="border p-2">Academic/Research Activity</th>
                         <th className="border p-2 w-24">Faculty of Sciences/ Engg/ Ag/ Med/ Vet</th>
                         <th className="border p-2 w-24">Faculty of Lang/ Arts/ Soc Sci/ Edu/ Comm/ Mgmt</th>
-                        <th className="border p-2 w-24 bg-blue-50">Self Appraisal Marks</th>
+                        <th className="border p-2 w-24 bg-blue-50">Self Appraisal Marks *</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -591,9 +640,10 @@ function App() {
                </div>
                
                <div className="bg-slate-50 p-4 rounded border border-dashed border-slate-300 mb-8">
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Upload Research Documents (PDF, Max 10MB)</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Upload Research Documents * (PDF, Max 10MB)</label>
                     <input type="file" accept="application/pdf" onChange={(e) => handleFileUpload('fileResearch', e)} className="block w-full text-sm mb-4"/>
                     {data.fileResearch && <span className="text-xs text-green-600 flex items-center mt-1 mb-2"><CheckCircle className="w-3 h-3 mr-1"/> File Selected</span>}
+                    {errors.fileResearch && <p className="text-red-500 text-xs mt-1">{errors.fileResearch}</p>}
                     
                     {/* Google Drive Link Option */}
                     <div className="pt-2 border-t border-slate-200">
@@ -661,15 +711,37 @@ function App() {
                </div>
 
                <div className="border-t pt-6">
-                 <h3 className="font-semibold text-gray-700 mb-4">Employer NOC (If Applicable)</h3>
-                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                  <Input label="Employer Name" value={data.empName} onChange={(e) => updateField('empName', e.target.value)} required={false} />
-                  <Input label="Designation" value={data.empDesignation} onChange={(e) => updateField('empDesignation', e.target.value)} required={false} />
+                 <h3 className="font-semibold text-gray-700 mb-4">Employer NOC</h3>
+                 
+                 <div className="mb-4">
+                   <label className="block text-sm font-medium mb-2">Do you have a No Objection Certificate (NOC)?</label>
+                   <div className="flex gap-4">
+                     <label className="flex items-center">
+                       <input type="radio" name="hasNOC" value="yes" checked={data.hasNOC === 'yes'} onChange={(e) => updateField('hasNOC', 'yes')} className="mr-2" />
+                       Yes
+                     </label>
+                     <label className="flex items-center">
+                       <input type="radio" name="hasNOC" value="no" checked={data.hasNOC === 'no'} onChange={(e) => updateField('hasNOC', 'no')} className="mr-2" />
+                       No
+                     </label>
+                   </div>
                  </div>
-                 <div className="bg-slate-50 p-4 rounded border border-dashed border-slate-300">
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Upload NOC Document (PDF, Max 2MB)</label>
-                    <input type="file" accept="application/pdf" onChange={(e) => handleFileUpload('fileNOC', e)} className="block w-full text-sm"/>
-                </div>
+
+                 {data.hasNOC === 'yes' && (
+                   <div className="bg-slate-50 p-4 rounded border">
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                      <Input label="Employer Name" value={data.empName} onChange={(e) => updateField('empName', e.target.value)} error={errors.empName} />
+                      <Input label="Designation" value={data.empDesignation} onChange={(e) => updateField('empDesignation', e.target.value)} error={errors.empDesignation} />
+                      <Input label="Department" value={data.empDept} onChange={(e) => updateField('empDept', e.target.value)} error={errors.empDept} />
+                     </div>
+                     <div className="bg-white p-4 rounded border border-dashed border-slate-300">
+                        <label className="block text-sm font-medium text-slate-700 mb-2">Upload NOC Document * (PDF, Max 2MB)</label>
+                        <input type="file" accept="application/pdf" onChange={(e) => handleFileUpload('fileNOC', e)} className="block w-full text-sm"/>
+                        {data.fileNOC && <span className="text-xs text-green-600 flex items-center mt-1"><CheckCircle className="w-3 h-3 mr-1"/> File Selected</span>}
+                        {errors.fileNOC && <p className="text-red-500 text-xs mt-1">{errors.fileNOC}</p>}
+                    </div>
+                   </div>
+                 )}
                </div>
             </div>
           )}
