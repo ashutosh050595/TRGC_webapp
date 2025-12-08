@@ -244,8 +244,8 @@ export const generatePDF = (data: ApplicationData, shouldDownload: boolean = tru
 
     // 4. Guidance
     ["4.", { content: "(a) Research guidance", styles: { fontStyle: 'bold' } }, "", "", ""],
-    ["", "Ph.D. (10 per degree awarded / 05 per thesis submitted)", "10", "10", r.resPhd],
-    ["", "M.Phil./P.G dissertation (02 per degree awarded)", "02", "02", r.resMphil],
+    ["", "Ph.D. (10 per degree / 05 per thesis)", "10", "10", r.resPhd],
+    ["", "M.Phil./P.G dissertation (02 per degree)", "02", "02", r.resMphil],
     ["", "(b) Research Projects Completed", "", "", ""],
     ["", "More than 10 lakhs", "10", "10", r.resProjMore10],
     ["", "Less than 10 lakhs", "05", "05", r.resProjLess10],
@@ -290,26 +290,12 @@ export const generatePDF = (data: ApplicationData, shouldDownload: boolean = tru
     }
   });
 
-  // Table at the end of Section III
-  finalY = (doc as any).lastAutoTable.finalY + 4;
-  
-  const scoreSummaryData = [
-     ["1.", "Research Score above 110 as per The criteria given in Appendix II, Table 2", "0.3 mark for each 1 Research Score above 110", ""]
-  ];
-
-  autoTable(doc, {
-    startY: finalY,
-    head: [['S.No.', 'Particulars', 'Marks', 'Self-appraisal Marks']],
-    body: scoreSummaryData,
-    theme: 'grid',
-    headStyles: { fillColor: [255, 255, 255], textColor: [0, 0, 0], lineWidth: 0.1, lineColor: [0,0,0] },
-    styles: { lineColor: [0,0,0], lineWidth: 0.1, textColor: [0,0,0] },
-  });
-
   finalY = (doc as any).lastAutoTable.finalY + 5;
   doc.setFontSize(9);
   doc.setFont('helvetica', 'bold');
-  doc.text("** Attach copies as proof of documents for your calculated API score according to Annexure attached with this form –Table 2, Appendix II (as supplied by DGHE)", 14, finalY);
+  
+  const attachText = "** Attach copies as proof of documents for your calculated API score according to Annexure attached with this form – Table 2, Appendix II (as supplied by DGHE)";
+  doc.text(doc.splitTextToSize(attachText, pageWidth - 28), 14, finalY);
 
   finalY += 15;
   

@@ -1,6 +1,5 @@
-
-import React, { useState } from 'react';
-import { ChevronRight, CheckCircle, Download, Mail, Loader2, Link as LinkIcon, ChevronLeft, Eye, CheckSquare, FileText } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ChevronRight, CheckCircle, Download, Mail, Loader2, Link as LinkIcon, ChevronLeft, Eye, CheckSquare, FileText, Upload, CreditCard, Info } from 'lucide-react';
 import { INITIAL_DATA, ApplicationData } from './types';
 import { Input } from './components/Input';
 import { ScoreRow } from './components/ScoreRow';
@@ -103,6 +102,13 @@ function App() {
     table2: false,
     payment: false
   });
+
+  // Prefill Parent's Name when entering Step 6
+  useEffect(() => {
+    if (step === 6 && !data.parentName && data.fatherName) {
+      setData(prev => ({ ...prev, parentName: data.fatherName }));
+    }
+  }, [step, data.fatherName, data.parentName]);
 
   const updateField = (field: keyof ApplicationData, value: string) => {
     setData(prev => ({ ...prev, [field]: value }));
@@ -291,15 +297,15 @@ function App() {
       setSubmissionStage("Generating Application PDF...");
       const { blob: formPdfBlob } = generatePDF(data, false);
       
-      // 2. Gather Attachments
+      // 2. Gather Attachments with Titles
       setSubmissionStage("Processing Attachments...");
       const attachments = [
-        data.fileAcademic,
-        data.fileTeaching,
-        data.fileAdminSkill,
-        data.fileAdmin,
-        data.fileResearch,
-        data.hasNOC === 'yes' ? data.fileNOC : null
+        { base64: data.fileAcademic, title: "APPENDIX I: ACADEMIC RECORDS" },
+        { base64: data.fileTeaching, title: "APPENDIX II: TEACHING EXPERIENCE" },
+        { base64: data.fileAdminSkill, title: "APPENDIX III: ADMIN SKILLS" },
+        { base64: data.fileAdmin, title: "APPENDIX IV: RESPONSIBILITIES & COMMITTEES" },
+        { base64: data.fileResearch, title: "APPENDIX V: RESEARCH SCORE (TABLE 2)" },
+        { base64: data.hasNOC === 'yes' ? data.fileNOC : null, title: "APPENDIX VI: NO OBJECTION CERTIFICATE" }
       ];
 
       // 3. Merge
@@ -390,68 +396,86 @@ function App() {
           
           {/* STEP 0: INSTRUCTIONS */}
           {step === 0 && (
-             <div className="space-y-6">
-              <SectionHeader title="Instructions to the Candidates" subtitle="Please read the following guidelines carefully before proceeding." />
-              
-              <div className="bg-white rounded-lg border border-slate-200 p-5 shadow-sm text-sm text-slate-700 space-y-4">
-                <div>
-                  <h4 className="font-bold text-slate-900 mb-1">1. Submission of Hard Copy</h4>
-                  <p>A copy of the filled application form along with all relevant documents must be sent to the following addresses:</p>
-                  <ul className="list-disc pl-5 mt-1 space-y-1">
-                    <li><strong>The Dean</strong>, College Development Council, M.D. University, Rohtak – 124001</li>
-                    <li><strong>Director General</strong>, Higher Education, Haryana, Shiksha Sadan, Sector-5, Panchkula</li>
+             <div className="space-y-8">
+              <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white p-6 rounded-lg shadow-md">
+                <h2 className="text-xl font-bold mb-2 flex items-center">
+                  <Info className="mr-2" /> Application Guidelines
+                </h2>
+                <p className="text-blue-100 text-sm">
+                  Welcome to the official recruitment portal. Please follow the steps below carefully to ensure your application is processed successfully.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-white p-5 border border-slate-200 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                  <h4 className="font-bold text-slate-800 mb-3 flex items-center">
+                    <FileText className="w-5 h-5 text-blue-600 mr-2" /> 1. Submission Process
+                  </h4>
+                  <p className="text-sm text-slate-600 leading-relaxed">
+                    After submitting this online form, a <strong>PDF will be generated</strong>. You must print this PDF, self-attest it, and send hard copies along with all documents to:
+                  </p>
+                  <ul className="list-disc pl-5 mt-2 text-xs text-slate-700 font-medium space-y-1">
+                    <li>The Dean, College Dev. Council, M.D. University, Rohtak</li>
+                    <li>Director General, Higher Education, Haryana, Panchkula</li>
                   </ul>
                 </div>
 
-                <div>
-                  <h4 className="font-bold text-slate-900 mb-1">2. Payment & Fees</h4>
-                  <p>The candidate must pay the requisite fee via Demand Draft/NEFT/UPI. You will be required to enter the <strong>UTR No / Draft Number</strong>, Date, and Amount in this form.</p>
+                <div className="bg-white p-5 border border-slate-200 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                  <h4 className="font-bold text-slate-800 mb-3 flex items-center">
+                    <CreditCard className="w-5 h-5 text-green-600 mr-2" /> 2. Payment Details
+                  </h4>
+                  <p className="text-sm text-slate-600 leading-relaxed">
+                    Candidates must pay the requisite fee via Demand Draft, NEFT, or UPI. Keep your <strong>UTR Number</strong> and payment details ready, as they are mandatory fields in Step 5.
+                  </p>
                 </div>
 
-                <div>
-                   <h4 className="font-bold text-slate-900 mb-1">3. Document Uploads</h4>
-                   <p>You can upload supporting documents directly in this form (PDF format). The system will merge them into a single application file.</p>
-                   <ul className="list-disc pl-5 mt-1 text-slate-600">
-                     <li>General Documents (Academic, Teaching, NOC): Max <strong>2 MB</strong> each.</li>
-                     <li>Research Documents (Table 2): Max <strong>10 MB</strong>.</li>
-                     <li><strong>Alternative:</strong> If your research files are very large, you may provide a Google Drive link in the Research section.</li>
-                   </ul>
+                <div className="bg-white p-5 border border-slate-200 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                  <h4 className="font-bold text-slate-800 mb-3 flex items-center">
+                    <Upload className="w-5 h-5 text-purple-600 mr-2" /> 3. Document Uploads
+                  </h4>
+                  <p className="text-sm text-slate-600 leading-relaxed">
+                    The system will automatically merge your uploaded PDFs into the final application.
+                  </p>
+                  <ul className="mt-2 space-y-2 text-xs text-slate-600">
+                    <li className="flex items-center"><CheckCircle className="w-3 h-3 text-green-500 mr-1"/> General Docs: Max <strong>2 MB</strong></li>
+                    <li className="flex items-center"><CheckCircle className="w-3 h-3 text-green-500 mr-1"/> Research Docs: Max <strong>10 MB</strong></li>
+                    <li className="text-indigo-600">Use the Google Drive link option for larger research files.</li>
+                  </ul>
                 </div>
 
-                <div>
-                  <h4 className="font-bold text-slate-900 mb-1">4. Self-Attestation</h4>
-                  <p>All attached documents and the final printout must be self-attested by the candidate.</p>
-                </div>
-
-                <div>
-                   <h4 className="font-bold text-slate-900 mb-1">5. NOC Requirement</h4>
-                   <p>Applicants already in employment must submit a "No Objection Certificate" (NOC) from their present employer.</p>
+                <div className="bg-white p-5 border border-slate-200 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                  <h4 className="font-bold text-slate-800 mb-3 flex items-center">
+                    <CheckSquare className="w-5 h-5 text-orange-600 mr-2" /> 4. Verification
+                  </h4>
+                  <p className="text-sm text-slate-600 leading-relaxed">
+                    Review your details using the <strong>Preview</strong> feature before final submission. Ensure your email is correct to receive the confirmation copy.
+                  </p>
                 </div>
               </div>
               
-              <div className="mt-6">
-                    <a 
+              <div className="flex flex-col items-center space-y-4 pt-6 border-t">
+                  <a 
                     href="instructions.pdf" 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="inline-flex items-center px-4 py-2 bg-slate-100 border border-slate-300 rounded-md text-slate-700 hover:bg-slate-200 transition-colors shadow-sm font-medium text-sm"
-                    >
+                    className="flex items-center text-blue-600 hover:text-blue-800 font-medium text-sm transition-colors"
+                  >
                     <Download className="w-4 h-4 mr-2" />
-                    Download Detailed Instructions PDF
-                    </a>
+                    Download Official Detailed Instructions PDF
+                  </a>
+
+                 <div className="w-full max-w-2xl flex items-start space-x-3 p-4 border-2 border-slate-200 rounded-lg bg-slate-50 hover:bg-white hover:border-blue-300 transition-all cursor-pointer" onClick={() => setIsStartInstructionsRead(!isStartInstructionsRead)}>
+                  <div className="flex h-5 items-center">
+                    <input type="checkbox" className="h-5 w-5 rounded cursor-pointer text-blue-600 focus:ring-blue-500" checked={isStartInstructionsRead} onChange={(e) => setIsStartInstructionsRead(e.target.checked)} />
+                  </div>
+                  <div className="text-sm">
+                    <label className="font-bold text-slate-800 cursor-pointer select-none">I have read all the instructions carefully and am ready to proceed.</label>
+                    <p className="text-xs text-slate-500 mt-1">By proceeding, you agree to the terms and conditions of the recruitment process.</p>
+                  </div>
                 </div>
 
-               <div className="mt-8 flex items-start space-x-3 p-4 border-2 border-slate-200 rounded-lg bg-blue-50 hover:border-blue-300 transition-colors cursor-pointer" onClick={() => setIsStartInstructionsRead(!isStartInstructionsRead)}>
-                <div className="flex h-5 items-center">
-                  <input type="checkbox" className="h-4 w-4 rounded cursor-pointer" checked={isStartInstructionsRead} onChange={(e) => setIsStartInstructionsRead(e.target.checked)} />
-                </div>
-                <div className="text-sm">
-                  <label className="font-bold text-gray-800 cursor-pointer select-none">I have read all the instructions carefully and am ready to proceed.</label>
-                </div>
-              </div>
-              <div className="flex justify-end pt-4">
-                <button onClick={handleNext} disabled={!isStartInstructionsRead} className={`flex items-center px-6 py-3 rounded-lg text-white font-medium ${isStartInstructionsRead ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-400 cursor-not-allowed'}`}>
-                  Proceed <ChevronRight className="w-5 h-5 ml-2" />
+                <button onClick={handleNext} disabled={!isStartInstructionsRead} className={`mt-4 px-8 py-3 rounded-full text-white font-bold text-lg shadow-lg transition-all transform hover:-translate-y-1 ${isStartInstructionsRead ? 'bg-blue-600 hover:bg-blue-700 hover:shadow-blue-300' : 'bg-slate-300 cursor-not-allowed'}`}>
+                  Proceed to Application
                 </button>
               </div>
              </div>
@@ -713,6 +737,11 @@ function App() {
                  </div>
                </div>
 
+               {/* Attach copies note */}
+               <div className="mb-6 p-3 bg-gray-50 border border-gray-200 rounded text-sm text-gray-700 italic">
+                 ** Attach copies as proof of documents for your calculated API score according to Annexure attached with this form – Table 2, Appendix II (as supplied by DGHE)
+               </div>
+
                {/* Acknowledgment */}
                <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
                   <div className="flex items-start space-x-3">
@@ -730,22 +759,7 @@ function App() {
             <div>
                <SectionHeader title="Final Verification & Declaration" subtitle="Review your details before submitting." />
                
-               {/* 1. Preview Section */}
-               <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-5 mb-8 flex flex-col md:flex-row items-center justify-between">
-                 <div>
-                   <h3 className="font-semibold text-indigo-900">Preview Application Form</h3>
-                   <p className="text-sm text-indigo-700 mt-1">Generate a PDF preview of your data to ensure everything is correct.</p>
-                 </div>
-                 <button 
-                  onClick={handlePreview}
-                  className="mt-4 md:mt-0 flex items-center px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors shadow-sm"
-                 >
-                   <Eye className="w-4 h-4 mr-2" />
-                   Preview Form
-                 </button>
-               </div>
-
-               {/* 2. Declaration Inputs */}
+               {/* 1. Declaration Inputs */}
                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 border-b pb-6">
                  <Input label="Parent's Name" value={data.parentName} onChange={(e) => updateField('parentName', e.target.value)} error={errors.parentName} />
                  <Input label="Place" value={data.place} onChange={(e) => updateField('place', e.target.value)} error={errors.place} />
@@ -791,6 +805,21 @@ function App() {
                     </div>
                    </div>
                  )}
+               </div>
+
+               {/* 2. Preview Section */}
+               <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-5 mb-8 flex flex-col md:flex-row items-center justify-between">
+                 <div>
+                   <h3 className="font-semibold text-indigo-900">Preview Application Form</h3>
+                   <p className="text-sm text-indigo-700 mt-1">Generate a PDF preview of your data to ensure everything is correct.</p>
+                 </div>
+                 <button 
+                  onClick={handlePreview}
+                  className="mt-4 md:mt-0 flex items-center px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors shadow-sm"
+                 >
+                   <Eye className="w-4 h-4 mr-2" />
+                   Preview Form
+                 </button>
                </div>
 
                {/* 3. Mandatory Checklist */}

@@ -1,12 +1,17 @@
-import { PDFDocument, PDFPage } from 'pdf-lib';
+import { PDFDocument, PDFPage, rgb, StandardFonts } from 'pdf-lib';
+
+interface Attachment {
+  base64: string | null;
+  title: string;
+}
 
 /**
- * Merges the generated Application Form PDF with user uploaded documents
- * (Academic Docs, Teaching Docs, Research Docs, NOC)
+ * Merges the generated Application Form PDF with user uploaded documents.
+ * Adds a header title to each page of the attachments for verification.
  */
 export const mergePDFs = async (
   mainFormBlob: Blob, 
-  attachments: (string | null)[] // Array of Base64 strings (PDFs)
+  attachments: Attachment[] 
 ): Promise<{ base64: string; blob: Blob }> => {
   try {
     const mergedPdf = await PDFDocument.create();
@@ -18,13 +23,12 @@ export const mergePDFs = async (
     formPages.forEach((page: PDFPage) => mergedPdf.addPage(page));
 
     // 2. Loop through attachments and append them
-    for (const base64Pdf of attachments) {
-      if (!base64Pdf) continue;
+    for (const attach of attachments) {
+      if (!attach.base64) continue;
 
       try {
-        // base64Pdf string usually comes with "data:application/pdf;base64," prefix from FileReader
-        // We need to strip it if present, though PDFDocument.load might handle it, better safe.
-        const cleanBase64 = base64Pdf.includes(',') ? base64Pdf.split(',')[1] : base64Pdf;
+        // base64 string usually comes with "data:application/pdf;base64," prefix from FileReader
+        const cleanBase64 = attach.base64.includes(',') ? attach.base64.split(',')[1] : attach.base64;
         
         // Convert Base64 to Uint8Array
         const binaryString = window.atob(cleanBase64);
@@ -36,11 +40,40 @@ export const mergePDFs = async (
 
         const attachedPdf = await PDFDocument.load(bytes);
         const attachedPages = await mergedPdf.copyPages(attachedPdf, attachedPdf.getPageIndices());
-        attachedPages.forEach((page: PDFPage) => mergedPdf.addPage(page));
+        
+        // Embed font for drawing title
+        const font = await mergedPdf.embedFont(StandardFonts.HelveticaBold);
+
+        attachedPages.forEach((page: PDFPage) => {
+           // Add Header Title to each page
+           const { width, height } = page.getSize();
+           const fontSize = 12;
+           const titleText = attach.title.toUpperCase();
+           const textWidth = font.widthOfTextAtSize(titleText, fontSize);
+           
+           // Draw a small background rectangle for text readability
+           page.drawRectangle({
+             x: (width - textWidth) / 2 - 10,
+             y: height - 25,
+             width: textWidth + 20,
+             height: 20,
+             color: rgb(1, 1, 1), // White background
+           });
+
+           // Draw Title Text at top center
+           page.drawText(titleText, {
+             x: (width - textWidth) / 2,
+             y: height - 15,
+             size: fontSize,
+             font: font,
+             color: rgb(0, 0, 0.8), // Dark Blue color
+           });
+
+           mergedPdf.addPage(page);
+        });
         
       } catch (e) {
-        console.warn("Failed to merge an attachment:", e);
-        // We continue merging other files even if one fails
+        console.warn(`Failed to merge attachment ${attach.title}:`, e);
       }
     }
 
