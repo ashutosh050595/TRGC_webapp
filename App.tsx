@@ -421,7 +421,17 @@ function App() {
                      </li>
                      <li className="flex items-start gap-2">
                        <span className="bg-blue-200 text-blue-800 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center mt-0.5">2</span>
-                       <span>Upload merged PDFs for evidence (Max 2MB/10MB).</span>
+                       <div>
+                         <span>Upload merged PDFs for evidence:</span>
+                         <ul className="mt-1 ml-1 text-xs text-slate-600 space-y-1">
+                           <li className="flex items-center gap-1.5 before:content-['•'] before:text-blue-500">
+                             General Supporting Documents - File size is 2 MB maximum
+                           </li>
+                           <li className="flex items-center gap-1.5 before:content-['•'] before:text-blue-500">
+                             Table 2 Report - Maximum file size is 10 MB
+                           </li>
+                         </ul>
+                       </div>
                      </li>
                      <li className="flex items-start gap-2">
                        <span className="bg-blue-200 text-blue-800 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center mt-0.5">3</span>
