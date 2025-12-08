@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { ChevronRight, CheckCircle, Download, Loader2, Link as LinkIcon, ChevronLeft, Eye, CheckSquare, FileText, Upload, CreditCard, Info, ExternalLink, QrCode, Send } from 'lucide-react';
+import { ChevronRight, CheckCircle, Download, Loader2, Link as LinkIcon, ChevronLeft, Eye, CheckSquare, FileText, Upload, CreditCard, Info, ExternalLink, QrCode, Send, GraduationCap, ArrowRight, FileCheck, ShieldCheck } from 'lucide-react';
 import { INITIAL_DATA, ApplicationData, ResearchData, INITIAL_RESEARCH } from './types';
 import { Input } from './components/Input';
 import { ScoreRow } from './components/ScoreRow';
@@ -182,6 +182,17 @@ function App() {
         newErrors['confirmEmail'] = 'Email addresses do not match';
         isValid = false;
       }
+
+      // Mobile Number Validator (Strict 10 Digits)
+      const mobileRegex = /^[0-9]{10}$/;
+      if (!mobileRegex.test(data.contactNo1)) {
+        newErrors['contactNo1'] = 'Mobile number must be exactly 10 digits';
+        isValid = false;
+      }
+      if (data.contactNo2 && !mobileRegex.test(data.contactNo2)) {
+        newErrors['contactNo2'] = 'Mobile number must be exactly 10 digits';
+        isValid = false;
+      }
     }
 
     if (currentStep === 2) {
@@ -212,22 +223,7 @@ function App() {
     }
 
     if (currentStep === 5) {
-       // Table 2 validation - simple check if at least one field is filled or check logical constraints
-       // Making sure file is uploaded
        requireField('fileResearch', 'Research documents are required');
-       // Check if all table fields are filled? User asked for mandatory input.
-       Object.keys(INITIAL_RESEARCH).forEach((key) => {
-         if (data.research[key as keyof ResearchData] === '') {
-           // We are not strictly blocking empty fields in Table 2 to allow for 0s, 
-           // but 'required' usually implies non-empty. 
-           // Given the user said "MAKE ALL THE INPUT OF TABLE 2 MANDATORY", we will block.
-           // However, let's treat "0" as valid, but "" as invalid.
-           // Since we initialize with '', this works.
-           // newErrors['research'] = "All fields in Table 2 are mandatory. Enter 0 if not applicable."; 
-           // isValid = false;
-         }
-       });
-       // Just ensuring file is there for now to avoid blocking testing excessively
     }
 
     if (currentStep === 6) {
@@ -360,720 +356,807 @@ function App() {
     );
   }
 
-  // --- STEP 0: INSTRUCTIONS ---
+  // --- STEP 0: INSTRUCTIONS (REDESIGNED) ---
   if (step === 0) {
     return (
-      <div className="min-h-screen bg-slate-50 py-8 px-4 font-sans">
-        <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-2xl overflow-hidden">
-          <div className="bg-gradient-to-r from-blue-900 to-slate-800 p-8 text-white text-center">
-            <img src="https://trgc.edu.in/wp-content/uploads/2023/04/Logo-TRGC.png" alt="TRGC Logo" className="h-24 mx-auto mb-4 bg-white rounded-full p-2" />
-            <h1 className="text-3xl font-bold mb-2">Tika Ram Girls College, Sonepat</h1>
-            <p className="text-blue-200">Affiliated to M.D. University, Rohtak</p>
-            <h2 className="text-2xl font-semibold mt-6 text-yellow-400">Online Recruitment Portal</h2>
+      <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-blue-800 to-blue-900 font-sans text-white relative overflow-hidden">
+        {/* Decorative Background Elements */}
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
+          <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-blue-500/20 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-purple-500/20 rounded-full blur-3xl"></div>
+        </div>
+
+        <div className="max-w-5xl mx-auto px-4 py-12 relative z-10">
+          
+          {/* Header Section */}
+          <div className="text-center mb-12">
+            <div className="inline-block p-4 bg-white/10 backdrop-blur-md rounded-full shadow-2xl mb-6 border border-white/20">
+              <img src="logo.png" alt="TRGC Logo" className="h-28 w-28 object-contain drop-shadow-lg" onError={(e) => {e.currentTarget.style.display='none'}} />
+              {/* Fallback if logo fails to load (User needs to add logo.png to public/) */}
+              <div className="h-28 w-28 flex items-center justify-center font-bold text-2xl border-4 border-white/30 rounded-full" style={{display: 'none'}}>TRGC</div>
+            </div>
+            <h1 className="text-5xl font-extrabold tracking-tight mb-2 text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 to-white drop-shadow-md">
+              Tika Ram Girls College
+            </h1>
+            <p className="text-xl text-blue-200 font-light tracking-widest uppercase">Sonepat, Haryana</p>
+            <p className="text-sm text-blue-300 mt-2 font-medium bg-blue-900/40 inline-block px-4 py-1 rounded-full border border-blue-500/30">
+              Affiliated to M.D. University, Rohtak
+            </p>
           </div>
 
-          <div className="p-8 space-y-8">
-            <section>
-              <h3 className="text-xl font-bold text-slate-800 border-b-2 border-blue-900 pb-2 mb-4 flex items-center gap-2">
-                <Info className="w-6 h-6 text-blue-600" />
-                Application Guidelines
-              </h3>
-              <div className="grid md:grid-cols-2 gap-6 text-slate-700 text-sm leading-relaxed">
-                <div className="bg-blue-50 p-4 rounded-lg">
-                  <h4 className="font-bold text-blue-900 mb-2">Submission Process</h4>
-                  <ul className="list-disc list-inside space-y-2">
-                    <li>Fill all details carefully. Incomplete forms will be rejected.</li>
-                    <li>Ensure your email ID is correct as the receipt will be sent there.</li>
-                    <li>Upload documents in PDF format (Max 2MB for general, 10MB for Research).</li>
-                    <li><strong>Final PDF:</strong> The system will auto-merge your uploads into a single file.</li>
-                  </ul>
-                </div>
-                <div className="bg-yellow-50 p-4 rounded-lg">
-                  <h4 className="font-bold text-yellow-900 mb-2">Hard Copy Submission</h4>
-                  <p className="mb-2">A printed copy of the generated PDF along with all documents must be sent to:</p>
-                  <ul className="list-disc list-inside font-semibold">
-                    <li>Dean, College Development Council, M.D. University, Rohtak</li>
-                    <li>D.G.H.E., Shiksha Sadan, Sector-5, Panchkula, Haryana</li>
-                  </ul>
-                </div>
+          {/* Main Card */}
+          <div className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl text-slate-800 overflow-hidden border border-white/40">
+            <div className="bg-gradient-to-r from-slate-100 to-white p-8 border-b border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4">
+              <div>
+                <h2 className="text-3xl font-bold text-slate-800">Recruitment Portal</h2>
+                <p className="text-slate-500 mt-1">Teaching & Administrative Positions</p>
               </div>
-            </section>
-
-            <section>
-              <h3 className="text-xl font-bold text-slate-800 border-b-2 border-blue-900 pb-2 mb-4 flex items-center gap-2">
-                <CreditCard className="w-6 h-6 text-blue-600" />
-                Payment Information
-              </h3>
-              <p className="text-slate-700 mb-4">
-                Application fee must be paid via UPI using the QR code provided in the final step.
-                Please keep your <strong>UTR Number</strong> and a <strong>Screenshot</strong> ready.
-              </p>
-            </section>
-
-            <section className="bg-slate-100 p-6 rounded-xl border border-slate-200 text-center">
-              <h3 className="text-lg font-bold mb-3">Download Official Instructions</h3>
-              <p className="text-slate-600 mb-4 text-sm">Please read the detailed advertisement and criteria before applying.</p>
               <a 
                 href="instructions.pdf" 
                 download 
-                className="inline-flex items-center gap-2 bg-slate-800 text-white px-6 py-3 rounded-lg hover:bg-slate-900 transition-all shadow-md hover:shadow-lg"
+                className="flex items-center gap-3 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl transition-all shadow-lg hover:shadow-blue-200 transform hover:-translate-y-1 font-semibold"
               >
                 <Download className="w-5 h-5" />
-                Download Instructions PDF
+                <span>Download Official Notification</span>
               </a>
-            </section>
+            </div>
 
-            <div className="border-t pt-6">
-              <label className="flex items-start gap-3 cursor-pointer group bg-blue-50 p-4 rounded-lg border border-blue-100 hover:border-blue-300 transition-all">
-                <input 
-                  type="checkbox" 
-                  className="mt-1 w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
-                  checked={instructionsRead}
-                  onChange={(e) => setInstructionsRead(e.target.checked)}
-                />
-                <span className="text-slate-800 font-medium group-hover:text-blue-800 transition-colors">
-                  I have read all the instructions carefully, understood the eligibility criteria, and I am ready to proceed with the application.
+            <div className="p-8 grid md:grid-cols-2 gap-8">
+              {/* Left Column */}
+              <div className="space-y-6">
+                <div className="bg-blue-50 p-6 rounded-2xl border border-blue-100 transition-all hover:shadow-md">
+                   <h3 className="text-lg font-bold text-blue-900 flex items-center gap-2 mb-3">
+                     <FileCheck className="w-5 h-5 text-blue-600" />
+                     Submission Process
+                   </h3>
+                   <ul className="space-y-3 text-sm text-slate-700">
+                     <li className="flex items-start gap-2">
+                       <span className="bg-blue-200 text-blue-800 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center mt-0.5">1</span>
+                       <span>Complete the online form with accurate details.</span>
+                     </li>
+                     <li className="flex items-start gap-2">
+                       <span className="bg-blue-200 text-blue-800 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center mt-0.5">2</span>
+                       <span>Upload merged PDFs for evidence (Max 2MB/10MB).</span>
+                     </li>
+                     <li className="flex items-start gap-2">
+                       <span className="bg-blue-200 text-blue-800 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center mt-0.5">3</span>
+                       <span>System generates a consolidated PDF application.</span>
+                     </li>
+                   </ul>
+                </div>
+
+                <div className="bg-purple-50 p-6 rounded-2xl border border-purple-100 transition-all hover:shadow-md">
+                   <h3 className="text-lg font-bold text-purple-900 flex items-center gap-2 mb-3">
+                     <ShieldCheck className="w-5 h-5 text-purple-600" />
+                     Documents Required
+                   </h3>
+                   <div className="text-sm text-slate-700 space-y-2">
+                     <p>Please keep scanned copies ready:</p>
+                     <div className="flex flex-wrap gap-2 mt-2">
+                        <span className="px-3 py-1 bg-white border border-purple-200 rounded-full text-xs font-medium">Passport Photo</span>
+                        <span className="px-3 py-1 bg-white border-purple-200 rounded-full text-xs font-medium">Academic Certificates</span>
+                        <span className="px-3 py-1 bg-white border-purple-200 rounded-full text-xs font-medium">Research Proofs</span>
+                        <span className="px-3 py-1 bg-white border-purple-200 rounded-full text-xs font-medium">NOC (if applicable)</span>
+                     </div>
+                   </div>
+                </div>
+              </div>
+
+              {/* Right Column */}
+              <div className="space-y-6">
+                <div className="bg-amber-50 p-6 rounded-2xl border border-amber-100 transition-all hover:shadow-md">
+                   <h3 className="text-lg font-bold text-amber-900 flex items-center gap-2 mb-3">
+                     <CreditCard className="w-5 h-5 text-amber-600" />
+                     Fee Payment
+                   </h3>
+                   <p className="text-sm text-slate-700 mb-3">
+                     Application fee is applicable. You will be prompted to scan a QR code in the final step.
+                   </p>
+                   <div className="flex items-center gap-2 text-xs font-bold text-amber-800 bg-amber-100/50 p-2 rounded">
+                      <QrCode className="w-4 h-4" />
+                      Keep UTR Number & Screenshot handy.
+                   </div>
+                </div>
+
+                <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                   <h3 className="text-lg font-bold text-slate-800 mb-2">Hard Copy Submission</h3>
+                   <p className="text-sm text-slate-600 mb-3">
+                     A printed copy of the generated PDF must be sent to:
+                   </p>
+                   <div className="text-xs font-mono bg-white p-3 border rounded text-slate-700 space-y-1">
+                      <p>1. Dean, College Development Council, MDU Rohtak</p>
+                      <p>2. D.G.H.E., Shiksha Sadan, Panchkula</p>
+                   </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Action Area */}
+            <div className="bg-slate-50 p-8 border-t border-slate-200 flex flex-col items-center">
+              <label className="flex items-start gap-4 cursor-pointer group max-w-2xl mx-auto">
+                <div className="relative flex items-center">
+                  <input 
+                    type="checkbox" 
+                    className="peer sr-only"
+                    checked={instructionsRead}
+                    onChange={(e) => setInstructionsRead(e.target.checked)}
+                  />
+                  <div className="w-6 h-6 border-2 border-slate-400 rounded transition-colors peer-checked:bg-blue-600 peer-checked:border-blue-600"></div>
+                  <CheckCircle className="w-4 h-4 text-white absolute top-1 left-1 opacity-0 peer-checked:opacity-100 transition-opacity" />
+                </div>
+                <span className="text-slate-600 text-sm md:text-base group-hover:text-slate-800 transition-colors">
+                  I have read and understood all the instructions, eligibility criteria, and submission guidelines. I agree to provide authentic information.
                 </span>
               </label>
 
-              <div className="mt-6 flex justify-end">
-                <button
-                  onClick={() => setStep(1)}
-                  disabled={!instructionsRead}
-                  className={`flex items-center gap-2 px-8 py-4 rounded-lg font-bold text-lg shadow-lg transition-all
-                    ${instructionsRead 
-                      ? 'bg-gradient-to-r from-blue-700 to-blue-900 text-white hover:scale-105' 
-                      : 'bg-slate-300 text-slate-500 cursor-not-allowed'
-                    }
-                  `}
-                >
-                  Proceed to Application
-                  <ChevronRight className="w-6 h-6" />
-                </button>
-              </div>
+              <button
+                onClick={() => setStep(1)}
+                disabled={!instructionsRead}
+                className={`mt-8 flex items-center gap-3 px-10 py-4 rounded-full font-bold text-lg shadow-xl transition-all transform
+                  ${instructionsRead 
+                    ? 'bg-gradient-to-r from-blue-600 to-indigo-700 text-white hover:scale-105 hover:shadow-blue-500/30' 
+                    : 'bg-slate-200 text-slate-400 cursor-not-allowed scale-95 opacity-70'
+                  }
+                `}
+              >
+                Proceed to Application Form
+                <ArrowRight className="w-6 h-6" />
+              </button>
             </div>
           </div>
+          
+          <p className="text-center text-blue-200/60 text-xs mt-8">© 2024 Tika Ram Girls College. All Rights Reserved.</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 py-8 px-4 font-sans">
-      <div className="max-w-6xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
-        
-        {/* Progress Bar */}
-        <div className="bg-slate-800 p-4 text-white flex justify-between items-center sticky top-0 z-50">
-          <div className="text-sm font-medium">Step {step} of 6</div>
-          <h1 className="text-lg font-bold hidden md:block">TRGC Application Portal</h1>
-          <div className="flex gap-1">
-            {[1, 2, 3, 4, 5, 6].map(i => (
-              <div key={i} className={`h-2 w-8 rounded-full ${i <= step ? 'bg-yellow-400' : 'bg-slate-600'}`} />
-            ))}
-          </div>
-        </div>
+    <div className="min-h-screen bg-slate-50 font-sans pb-12">
+      
+      {/* --- PERSISTENT HEADER WITH LOGO --- */}
+      <header className="bg-white border-b sticky top-0 z-50 shadow-sm">
+         <div className="max-w-6xl mx-auto px-4 py-2 flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <img 
+                src="logo.png" 
+                alt="TRGC" 
+                className="h-12 w-12 object-contain"
+                onError={(e) => {e.currentTarget.style.display='none'}} 
+              />
+              <div>
+                 <h1 className="text-lg md:text-xl font-bold text-blue-900 leading-tight">Tika Ram Girls College</h1>
+                 <p className="text-xs text-slate-500 font-medium tracking-wide">Sonepat, Haryana</p>
+              </div>
+            </div>
+            {step > 0 && (
+               <div className="text-right hidden md:block">
+                  <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">Application Portal</div>
+                  <div className="text-xs text-blue-600 font-semibold">Step {step} of 6</div>
+               </div>
+            )}
+         </div>
+         {/* Progress Bar (Integrated) */}
+         <div className="h-1 w-full bg-slate-100">
+            <div 
+              className="h-full bg-blue-600 transition-all duration-500 ease-out" 
+              style={{ width: `${(step / 6) * 100}%` }}
+            ></div>
+         </div>
+      </header>
 
-        <div className="p-6 md:p-8">
+
+      <div className="max-w-6xl mx-auto px-4 mt-8">
+        <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-slate-200">
           
-          {/* STEP 1: PERSONAL */}
-          {step === 1 && (
-            <div className="space-y-6">
-              <SectionHeader title="Personal Information" subtitle="Please enter your details exactly as per ID proofs" />
-              <div className="grid md:grid-cols-2 gap-6">
-                <Input label="Post Applied For" value={data.postAppliedFor} onChange={e => handleInputChange('postAppliedFor', e.target.value)} error={errors.postAppliedFor} />
-                <Input label="Category" value={data.category} onChange={e => handleInputChange('category', e.target.value)} error={errors.category} />
-                <Input label="Advertisement Reference" value={data.advertisementRef} onChange={e => handleInputChange('advertisementRef', e.target.value)} />
-                <Input label="Full Name" value={data.name} onChange={e => handleInputChange('name', e.target.value)} error={errors.name} />
-                <Input label="Father's Name" value={data.fatherName} onChange={e => handleInputChange('fatherName', e.target.value)} error={errors.fatherName} />
-                <Input type="date" label="Date of Birth" value={data.dob} onChange={e => handleInputChange('dob', e.target.value)} error={errors.dob} />
-              </div>
-              <div className="grid md:grid-cols-2 gap-6">
-                <Input type="email" label="Email ID" value={data.email} onChange={e => handleInputChange('email', e.target.value)} error={errors.email} />
-                <Input 
-                  type="email" 
-                  label="Re-enter Email ID" 
-                  value={data.confirmEmail} 
-                  onChange={e => handleInputChange('confirmEmail', e.target.value)} 
-                  error={errors.confirmEmail} 
-                  placeholder="Must match Email ID above"
-                />
-              </div>
-              <div className="grid md:grid-cols-2 gap-6">
-                <Input label="Mobile No. 1" value={data.contactNo1} onChange={e => handleInputChange('contactNo1', e.target.value)} error={errors.contactNo1} />
-                <Input label="Mobile No. 2" value={data.contactNo2} onChange={e => handleInputChange('contactNo2', e.target.value)} />
-              </div>
-              <div className="space-y-4">
-                <Input label="Permanent Address" value={data.permanentAddress} onChange={e => handleInputChange('permanentAddress', e.target.value)} error={errors.permanentAddress} />
-                <Input label="Correspondence Address" value={data.correspondenceAddress} onChange={e => handleInputChange('correspondenceAddress', e.target.value)} />
-              </div>
-              <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Upload Passport Photo (Max 2MB)</label>
-                <div className="flex items-center gap-4">
-                  <input type="file" accept="image/*" onChange={e => e.target.files?.[0] && handleFileUpload('photo', e.target.files[0])} className="text-sm" />
-                  {data.photo && <img src={data.photo} alt="Preview" className="h-20 w-20 object-cover rounded-full border-2 border-white shadow" />}
-                </div>
-                {errors.photo && <p className="text-xs text-red-500 mt-1">{errors.photo}</p>}
-              </div>
-            </div>
-          )}
-
-          {/* STEP 2: ACADEMIC */}
-          {step === 2 && (
-            <div className="space-y-6">
-              <SectionHeader title="I. Academic Record" subtitle="Maximum 20 marks" />
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="bg-slate-100 text-slate-700 text-sm">
-                      <th className="p-2 border">S.No.</th>
-                      <th className="p-2 border">Particulars</th>
-                      <th className="p-2 border">Marks Criteria</th>
-                      <th className="p-2 border w-32">Obtained</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <ScoreRow sNo="1." particulars="Above 55% marks in Master's degree" marksCriteria="0.5 marks for each percentage (max 5)" value={data.academicMasters} onChange={v => handleInputChange('academicMasters', v)} max={5} error={!!errors.academicMasters} />
-                    <ScoreRow sNo="2." particulars="Above 55% marks in Graduation" marksCriteria="0.4 marks for each percentage (max 5)" value={data.academicGraduation} onChange={v => handleInputChange('academicGraduation', v)} max={5} error={!!errors.academicGraduation} />
-                    <ScoreRow sNo="3." particulars="Above 55% marks in 10+2/Prep." marksCriteria="0.3 marks for each percentage (max 5)" value={data.academic12th} onChange={v => handleInputChange('academic12th', v)} max={5} error={!!errors.academic12th} />
-                    <ScoreRow sNo="4." particulars="Above 55% marks in Matriculation" marksCriteria="0.2 marks for each percentage (max 5)" value={data.academicMatric} onChange={v => handleInputChange('academicMatric', v)} max={5} error={!!errors.academicMatric} />
-                  </tbody>
-                </table>
-              </div>
-              <div className="bg-slate-50 p-4 rounded border">
-                <label className="font-semibold text-sm">Upload Academic Documents (Merged PDF)</label>
-                <input type="file" accept="application/pdf" onChange={e => e.target.files?.[0] && handleFileUpload('fileAcademic', e.target.files[0])} className="block w-full text-sm mt-2" />
-                {errors.fileAcademic && <p className="text-red-500 text-xs mt-1">{errors.fileAcademic}</p>}
-              </div>
-            </div>
-          )}
-
-          {/* STEP 3: TEACHING & ADMIN */}
-          {step === 3 && (
-            <div className="space-y-8">
-              <div>
-                <SectionHeader title="II. Teaching & Administrative Experience" subtitle="Max 35 marks" />
-                <h3 className="font-bold text-gray-700 mb-2">A. Teaching Experience (Max 10 marks)</h3>
-                <table className="w-full border-collapse mb-4">
-                  <tbody>
-                    <ScoreRow sNo="1." particulars="Above 15 years teaching experience" marksCriteria="1 mark for each year" value={data.teachingExpAbove15} onChange={v => handleInputChange('teachingExpAbove15', v)} max={10} error={!!errors.teachingExpAbove15} />
-                  </tbody>
-                </table>
-                <div className="bg-slate-50 p-4 rounded border mb-6">
-                   <label className="font-semibold text-sm">Upload Teaching Experience Documents</label>
-                   <input type="file" accept="application/pdf" onChange={e => e.target.files?.[0] && handleFileUpload('fileTeaching', e.target.files[0])} className="block w-full text-sm mt-2" />
-                   {errors.fileTeaching && <p className="text-red-500 text-xs mt-1">{errors.fileTeaching}</p>}
-                </div>
-              </div>
-              <div>
-                <h3 className="font-bold text-gray-700 mb-2">B. Assessment of Administrative Skill (Max 25 marks)</h3>
-                <div className="bg-blue-50 p-3 mb-2 rounded text-sm text-blue-800 flex justify-between">
-                   <span><strong>Note:</strong> Sum of these 3 fields cannot exceed 25 marks.</span>
-                   <span className="font-bold">Total Claimed: {((parseFloat(data.adminJointDirector)||0) + (parseFloat(data.adminRegistrar)||0) + (parseFloat(data.adminHead)||0))} / 25</span>
-                </div>
-                <table className="w-full border-collapse">
-                   <tbody>
-                    <ScoreRow sNo="1." particulars="Experience as Joint/Deputy/Assistant Director in Directorate of Higher Education" marksCriteria="1 mark for each year" value={data.adminJointDirector} onChange={v => handleInputChange('adminJointDirector', v)} max={25} />
-                    <ScoreRow sNo="2." particulars="Experience as Registrar or any other Administrative post in any University" marksCriteria="1 mark for each year" value={data.adminRegistrar} onChange={v => handleInputChange('adminRegistrar', v)} max={25} />
-                    <ScoreRow sNo="3." particulars="Experience as Head of the Higher Education Institution i.e. Principal, Officiating Principal/DDO" marksCriteria="1 mark for each year" value={data.adminHead} onChange={v => handleInputChange('adminHead', v)} max={25} />
-                   </tbody>
-                </table>
-                <div className="bg-slate-50 p-4 rounded border mt-4">
-                   <label className="font-semibold text-sm">Upload Administrative Experience Documents</label>
-                   <input type="file" accept="application/pdf" onChange={e => e.target.files?.[0] && handleFileUpload('fileAdminSkill', e.target.files[0])} className="block w-full text-sm mt-2" />
-                   {errors.fileAdminSkill && <p className="text-red-500 text-xs mt-1">{errors.fileAdminSkill}</p>}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* STEP 4: RESPONSIBILITIES */}
-          {step === 4 && (
-            <div className="space-y-8">
-              <SectionHeader title="Assessment of Administrative Skill (Contd.)" subtitle="Part B (ii) & (iii)" />
-              <div>
-                <h3 className="font-bold text-gray-700 mb-2 text-sm">(ii) Experience of Key responsibilities in colleges</h3>
-                <div className="overflow-x-auto">
-                  <table className="w-full border-collapse">
-                    <tbody>
-                      <ScoreRow sNo="1." particulars="Staff Representative or V.C. Nominee in Managing Committee of any College" marksCriteria="1 mark/year (Max 3)" value={data.respStaffRep} onChange={v => handleInputChange('respStaffRep', v)} max={3} />
-                      <ScoreRow sNo="2." particulars="Co-ordinator or Organizing Secretary of International/National/State Conference/Event" marksCriteria="1 mark/year (Max 3)" value={data.respCoordinator} onChange={v => handleInputChange('respCoordinator', v)} max={3} />
-                      <ScoreRow sNo="3." particulars="Bursar" marksCriteria="1 mark/year (Max 3)" value={data.respBursar} onChange={v => handleInputChange('respBursar', v)} max={3} />
-                      <ScoreRow sNo="4." particulars="NSS Programme Officer" marksCriteria="1 mark/year (Max 3)" value={data.respNSS} onChange={v => handleInputChange('respNSS', v)} max={3} />
-                      <ScoreRow sNo="5." particulars="YRC Counsellor" marksCriteria="1 mark/year (Max 3)" value={data.respYRC} onChange={v => handleInputChange('respYRC', v)} max={3} />
-                      <ScoreRow sNo="6." particulars="Hostel Warden" marksCriteria="1 mark/year (Max 3)" value={data.respWarden} onChange={v => handleInputChange('respWarden', v)} max={3} />
-                      <ScoreRow sNo="7." particulars="Member of any Statutory Body of University" marksCriteria="1 mark/year (Max 2)" value={data.respStatutory} onChange={v => handleInputChange('respStatutory', v)} max={2} />
-                      <ScoreRow sNo="8." particulars="Experience as Associate NCC Officer in HEI (s)" marksCriteria="1 mark/year (Max 3)" value={data.respNCC} onChange={v => handleInputChange('respNCC', v)} max={3} />
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-              <div>
-                <h3 className="font-bold text-gray-700 mb-2 text-sm">(iii) Experience of Committees in College</h3>
-                <div className="overflow-x-auto">
-                  <table className="w-full border-collapse">
-                    <tbody>
-                      <ScoreRow sNo="1." particulars="Co-ordinator IQAC" marksCriteria="1 mark/year (Max 2)" value={data.commIQAC} onChange={v => handleInputChange('commIQAC', v)} max={2} />
-                      <ScoreRow sNo="2." particulars="Editor in Chief, College Magazine" marksCriteria="1 mark/year (Max 2)" value={data.commEditor} onChange={v => handleInputChange('commEditor', v)} max={2} />
-                      <ScoreRow sNo="3." particulars="Member, College Advisory Council" marksCriteria="1 mark/year (Max 2)" value={data.commAdvisory} onChange={v => handleInputChange('commAdvisory', v)} max={2} />
-                      <ScoreRow sNo="4." particulars="Convener, University Work Committee" marksCriteria="1 mark/year (Max 2)" value={data.commWork} onChange={v => handleInputChange('commWork', v)} max={2} />
-                      <ScoreRow sNo="5." particulars="Convener, Cultural Affairs Committee" marksCriteria="1 mark/year (Max 2)" value={data.commCultural} onChange={v => handleInputChange('commCultural', v)} max={2} />
-                      <ScoreRow sNo="6." particulars="Convener, Purchase/Procurement Committee" marksCriteria="1 mark/year (Max 2)" value={data.commPurchase} onChange={v => handleInputChange('commPurchase', v)} max={2} />
-                      <ScoreRow sNo="7." particulars="Convener, Building/Works Committee" marksCriteria="1 mark/year (Max 2)" value={data.commBuilding} onChange={v => handleInputChange('commBuilding', v)} max={2} />
-                      <ScoreRow sNo="8." particulars="Convener, Sports Committee" marksCriteria="1 mark/year (Max 2)" value={data.commSports} onChange={v => handleInputChange('commSports', v)} max={2} />
-                      <ScoreRow sNo="9." particulars="Convener, Discipline Committee" marksCriteria="1 mark/year (Max 2)" value={data.commDiscipline} onChange={v => handleInputChange('commDiscipline', v)} max={2} />
-                      <ScoreRow sNo="10." particulars="Convener, Internal (Complaint) Committee" marksCriteria="1 mark/year (Max 2)" value={data.commInternal} onChange={v => handleInputChange('commInternal', v)} max={2} />
-                      <ScoreRow sNo="11." particulars="Convener, Road Safety Club" marksCriteria="1 mark/year (Max 2)" value={data.commRoadSafety} onChange={v => handleInputChange('commRoadSafety', v)} max={2} />
-                      <ScoreRow sNo="12." particulars="Convener, Red Ribbon Club" marksCriteria="1 mark/year (Max 2)" value={data.commRedRibbon} onChange={v => handleInputChange('commRedRibbon', v)} max={2} />
-                      <ScoreRow sNo="13." particulars="Convener, Eco Club" marksCriteria="1 mark/year (Max 2)" value={data.commEco} onChange={v => handleInputChange('commEco', v)} max={2} />
-                      <ScoreRow sNo="14." particulars="In-charge, Placement Cell" marksCriteria="1 mark/year (Max 2)" value={data.commPlacement} onChange={v => handleInputChange('commPlacement', v)} max={2} />
-                      <ScoreRow sNo="15." particulars="Incharge, Women Cell" marksCriteria="1 mark/year (Max 2)" value={data.commWomen} onChange={v => handleInputChange('commWomen', v)} max={2} />
-                      <ScoreRow sNo="16." particulars="In-charge, Time-table Committee" marksCriteria="1 mark/year (Max 2)" value={data.commTimeTable} onChange={v => handleInputChange('commTimeTable', v)} max={2} />
-                      <ScoreRow sNo="17." particulars="In-charge, SC/BC Committee" marksCriteria="1 mark/year (Max 2)" value={data.commSCBC} onChange={v => handleInputChange('commSCBC', v)} max={2} />
-                    </tbody>
-                  </table>
-                </div>
-                <div className="bg-slate-50 p-4 rounded border mt-6">
-                   <label className="font-semibold text-sm">Upload Supporting Documents (Responsibilities & Committees)</label>
-                   <input type="file" accept="application/pdf" onChange={e => e.target.files?.[0] && handleFileUpload('fileAdmin', e.target.files[0])} className="block w-full text-sm mt-2" />
-                   {errors.fileAdmin && <p className="text-red-500 text-xs mt-1">{errors.fileAdmin}</p>}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* STEP 5: RESEARCH (TABLE 2) - EXACT TEXT UPDATE */}
-          {step === 5 && (
-            <div className="space-y-6">
-              <SectionHeader title="III. Academic/Research Score: Maximum 32.5 marks" subtitle="MDU AC PASSED TABLE 2" />
-              
-              <div className="bg-yellow-50 border border-yellow-200 p-4 rounded text-xs md:text-sm text-slate-800 mb-4 font-medium leading-relaxed">
-                (Assessment must be based on evidence produced by the teacher such as : copy of publications, project sanction letter, utilization and completion certificates issued by University and acknowledgements for patent filing and approval letters, students Ph.D. award letter etc.)
-              </div>
-
-              <div className="overflow-x-auto text-xs md:text-sm">
-                <table className="w-full border-collapse border border-slate-300">
-                  <thead className="bg-blue-50 text-blue-900 font-bold">
-                    <tr>
-                      <th className="border border-slate-300 p-2 w-12 text-left align-top">S.N.</th>
-                      <th className="border border-slate-300 p-2 text-left align-top">Academic/Research Activity</th>
-                      <th className="border border-slate-300 p-2 w-32 text-center align-top">Faculty of Sciences/ Engineering/ Agriculture/ Medical/ Veterinary Sciences</th>
-                      <th className="border border-slate-300 p-2 w-32 text-center align-top">Faculty of Languages/ Humanities/ Arts/ Social Sciences/ Library/ Education/ Physical Education/ Commerce/ Management & other related disciplines</th>
-                      <th className="border border-slate-300 p-2 w-28 text-center align-top">Self Appraisal Marks</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    
-                    {/* 1. Research Papers */}
-                    <Table2Row 
-                      sn="1." 
-                      activity={<>
-                        For Direct Recruitment:<br/>
-                        Research Papers in Peer-reviewed / UGC Journals upto 13.06.2019 and UGC CARE Listed Journals w.e.f. 14.06.2019<br/><br/>
-                        For Career Advancement Scheme:<br/>
-                        Research Papers in Peer-reviewed / UGC Journals upto 02.07.2023 and UGC CARE Listed Journals w.e.f. 03.07.2023
-                      </>} 
-                      capScience="8" 
-                      capArts="10" 
-                      value={data.research.resPapers} 
-                      onChange={v => handleResearchChange('resPapers', v)} 
-                    />
-
-                    {/* 2. Publications */}
-                    <Table2Row isHeader sn="2." activity="Publications (other than Research papers)" capScience="" capArts="" />
-                    <Table2Row isSubHeader sn="(a)" activity="Books authored which are published by;" capScience="" capArts="" />
-                    <Table2Row sn="" activity="International publishers" capScience="12" capArts="12" value={data.research.resBooksInt} onChange={v => handleResearchChange('resBooksInt', v)} />
-                    <Table2Row sn="" activity="National Publishers" capScience="10" capArts="10" value={data.research.resBooksNat} onChange={v => handleResearchChange('resBooksNat', v)} />
-                    <Table2Row sn="" activity="Chapter in Edited Book" capScience="05" capArts="05" value={data.research.resChapter} onChange={v => handleResearchChange('resChapter', v)} />
-                    <Table2Row sn="" activity="Editor of Book by International Publisher" capScience="10" capArts="10" value={data.research.resEditorInt} onChange={v => handleResearchChange('resEditorInt', v)} />
-                    <Table2Row sn="" activity="Editor of Book by National Publisher" capScience="08" capArts="08" value={data.research.resEditorNat} onChange={v => handleResearchChange('resEditorNat', v)} />
-                    
-                    <Table2Row isSubHeader sn="(b)" activity="Translation works in Indian and Foreign Languages by qualified faculties" capScience="" capArts="" />
-                    <Table2Row sn="" activity="Chapter or Research paper" capScience="03" capArts="03" value={data.research.resTransChapter} onChange={v => handleResearchChange('resTransChapter', v)} />
-                    <Table2Row sn="" activity="Book" capScience="08" capArts="08" value={data.research.resTransBook} onChange={v => handleResearchChange('resTransBook', v)} />
-
-                    {/* 3. ICT */}
-                    <Table2Row isHeader sn="3." activity="Creation of ICT mediated Teaching Learning pedagogy and content and development of new and innovative courses and curricula" capScience="" capArts="" />
-                    <Table2Row isSubHeader sn="(a)" activity="Development of Innovative pedagogy" capScience="05" capArts="05" value={data.research.resIctPedagogy} onChange={v => handleResearchChange('resIctPedagogy', v)} />
-                    <Table2Row isSubHeader sn="(b)" activity="Design of new curricula and courses" capScience="02 per curricula/course" capArts="02 per curricula/course" value={data.research.resIctCurricula} onChange={v => handleResearchChange('resIctCurricula', v)} />
-                    
-                    <Table2Row isSubHeader sn="(c)" activity="MOOCs" capScience="" capArts="" />
-                    <Table2Row sn="" activity="Development of complete MOOCs in 4 quadrants (4 credit course)(In case of MOOCs of lesser credits 05 marks/credit)" capScience="20" capArts="20" value={data.research.resMoocs4Quad} onChange={v => handleResearchChange('resMoocs4Quad', v)} />
-                    <Table2Row sn="" activity="MOOCs (developed in 4 quadrant) per module/lecture" capScience="05" capArts="05" value={data.research.resMoocsModule} onChange={v => handleResearchChange('resMoocsModule', v)} />
-                    <Table2Row sn="" activity="Contentwriter/subject matter expert for each moduleof MOOCs (at least one quadrant)" capScience="02" capArts="02" value={data.research.resMoocsContent} onChange={v => handleResearchChange('resMoocsContent', v)} />
-                    <Table2Row sn="" activity="Course Coordinator for MOOCs (4 credit course)(In case of MOOCs of lesser credits 02 marks/credit)" capScience="08" capArts="08" value={data.research.resMoocsCoord} onChange={v => handleResearchChange('resMoocsCoord', v)} />
-
-                    <Table2Row isSubHeader sn="(d)" activity="E-Content" capScience="" capArts="" />
-                    <Table2Row sn="" activity="Development of e-Content in 4 quadrants for a complete course/e-book" capScience="12" capArts="12" value={data.research.resEcontentComplete} onChange={v => handleResearchChange('resEcontentComplete', v)} />
-                    <Table2Row sn="" activity="e-Content (developed in 4 quadrants) per module" capScience="05" capArts="05" value={data.research.resEcontentModule} onChange={v => handleResearchChange('resEcontentModule', v)} />
-                    <Table2Row sn="" activity="Contribution to development of e-content module in complete course/paper/e-book (at least one quadrant)" capScience="02" capArts="02" value={data.research.resEcontentContrib} onChange={v => handleResearchChange('resEcontentContrib', v)} />
-                    <Table2Row sn="" activity="Editor of e-content for complete course/ paper /e-book" capScience="10" capArts="10" value={data.research.resEcontentEditor} onChange={v => handleResearchChange('resEcontentEditor', v)} />
-
-                    {/* 4. Guidance */}
-                    <Table2Row isHeader sn="4." activity="(a) Research guidance" capScience="" capArts="" />
-                    <Table2Row sn="" activity={<>Ph.D.<br/><span className="text-xs text-gray-500">(10 per degree awarded, 05 per thesis submitted)</span></>} capScience="10 / 05" capArts="10 / 05" value={data.research.resPhd} onChange={v => handleResearchChange('resPhd', v)} />
-                    <Table2Row sn="" activity="M.Phil./P.G dissertation" capScience="02 per degree awarded" capArts="02 per degree awarded" value={data.research.resMphil} onChange={v => handleResearchChange('resMphil', v)} />
-
-                    <Table2Row isSubHeader sn="(b)" activity="Research Projects Completed" capScience="" capArts="" />
-                    <Table2Row sn="" activity="More than 10 lakhs" capScience="10" capArts="10" value={data.research.resProjMore10} onChange={v => handleResearchChange('resProjMore10', v)} />
-                    <Table2Row sn="" activity="Less than 10 lakhs" capScience="05" capArts="05" value={data.research.resProjLess10} onChange={v => handleResearchChange('resProjLess10', v)} />
-
-                    <Table2Row isSubHeader sn="(c)" activity="Research Projects Ongoing :" capScience="" capArts="" />
-                    <Table2Row sn="" activity="More than 10 lakhs" capScience="05" capArts="05" value={data.research.resProjOngoingMore10} onChange={v => handleResearchChange('resProjOngoingMore10', v)} />
-                    <Table2Row sn="" activity="Less than 10 lakhs" capScience="02" capArts="02" value={data.research.resProjOngoingLess10} onChange={v => handleResearchChange('resProjOngoingLess10', v)} />
-
-                    <Table2Row isSubHeader sn="(d)" activity="Consultancy" capScience="03" capArts="03" value={data.research.resConsultancy} onChange={v => handleResearchChange('resConsultancy', v)} />
-
-                    {/* 5. Patents */}
-                    <Table2Row isHeader sn="5." activity="(a) Patents" capScience="" capArts="" />
-                    <Table2Row sn="" activity="International" capScience="10" capArts="0" value={data.research.resPatentInt} onChange={v => handleResearchChange('resPatentInt', v)} />
-                    <Table2Row sn="" activity="National" capScience="07" capArts="0" value={data.research.resPatentNat} onChange={v => handleResearchChange('resPatentNat', v)} />
-                    
-                    <Table2Row isSubHeader sn="(b)" activity="*Policy Document (Submitted to an International body/organisation like UNO/UNESCO/World Bank/International Monetary Fund etc. or Central Government or State Government)" capScience="" capArts="" />
-                    <Table2Row sn="" activity="International" capScience="10" capArts="10" value={data.research.resPolicyInt} onChange={v => handleResearchChange('resPolicyInt', v)} />
-                    <Table2Row sn="" activity="National" capScience="07" capArts="07" value={data.research.resPolicyNat} onChange={v => handleResearchChange('resPolicyNat', v)} />
-                    <Table2Row sn="" activity="State" capScience="04" capArts="04" value={data.research.resPolicyState} onChange={v => handleResearchChange('resPolicyState', v)} />
-
-                    <Table2Row isSubHeader sn="(c)" activity="Awards/Fellowship" capScience="" capArts="" />
-                    <Table2Row sn="" activity="International" capScience="07" capArts="07" value={data.research.resAwardInt} onChange={v => handleResearchChange('resAwardInt', v)} />
-                    <Table2Row sn="" activity="National" capScience="05" capArts="05" value={data.research.resAwardNat} onChange={v => handleResearchChange('resAwardNat', v)} />
-
-                    {/* 6. Invited Lectures */}
-                    <Table2Row isHeader sn="6." activity="*Invited lectures / Resource Person/ paper presentation in Seminars/ Conferences/full paper in Conference Proceedings (Paper presented in Seminars/Conferences and also published as full paper in Conference Proceedings will be counted only once)" capScience="" capArts="" />
-                    <Table2Row sn="" activity="International (Abroad)" capScience="07" capArts="0" value={data.research.resInvitedIntAbroad} onChange={v => handleResearchChange('resInvitedIntAbroad', v)} />
-                    <Table2Row sn="" activity="International (within country)" capScience="05" capArts="0" value={data.research.resInvitedIntWithin} onChange={v => handleResearchChange('resInvitedIntWithin', v)} />
-                    <Table2Row sn="" activity="National" capScience="03" capArts="0" value={data.research.resInvitedNat} onChange={v => handleResearchChange('resInvitedNat', v)} />
-                    <Table2Row sn="" activity="State/University" capScience="02" capArts="0" value={data.research.resInvitedState} onChange={v => handleResearchChange('resInvitedState', v)} />
-                  </tbody>
-                </table>
-              </div>
-              
-              <div className="mt-4 text-sm font-bold text-slate-800">
-                ** Attach copies as proof of documents for your calculated APl score according to Annexure attached with this form - Table 2, Appendix II (as supplied by DGHE)
-              </div>
-
-              <div className="bg-slate-50 p-6 rounded-lg border">
-                <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
-                  <Upload className="w-5 h-5" />
-                  Upload Research Documents
-                </h4>
-                
-                <div className="mb-4">
-                  <label className="block text-sm font-semibold mb-2">Upload Merged PDF (Max 10MB)</label>
-                  <input type="file" accept="application/pdf" onChange={e => e.target.files?.[0] && handleFileUpload('fileResearch', e.target.files[0])} className="block w-full text-sm" />
-                  {errors.fileResearch && <p className="text-red-500 text-xs mt-1">{errors.fileResearch}</p>}
-                </div>
-
-                <div className="relative flex items-center gap-4 py-4">
-                  <div className="flex-grow border-t border-gray-300"></div>
-                  <span className="flex-shrink-0 text-gray-400 text-sm">OR IF FILE IS TOO LARGE</span>
-                  <div className="flex-grow border-t border-gray-300"></div>
-                </div>
-
-                <div>
-                   <label className="block text-sm font-semibold mb-2 flex items-center gap-2">
-                     <LinkIcon className="w-4 h-4" />
-                     Paste Google Drive Link (Ensure 'Anyone with link can view' is on)
-                   </label>
-                   <Input 
-                      label="" 
-                      placeholder="https://drive.google.com/file/d/..." 
-                      value={data.googleDriveLink} 
-                      onChange={e => handleInputChange('googleDriveLink', e.target.value)}
-                   />
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* STEP 6: PAYMENT & DECLARATION */}
-          {step === 6 && (
-            <div className="space-y-8">
-              <SectionHeader title="Payment & Declaration" subtitle="Final Step" />
-
-              {/* PAYMENT SECTION */}
-              <div className="bg-gradient-to-br from-white to-blue-50 border border-blue-200 rounded-xl p-6 shadow-sm">
-                <h3 className="text-lg font-bold text-blue-900 mb-6 flex items-center gap-2">
-                  <QrCode className="w-6 h-6" />
-                  Step 1: Scan & Pay
-                </h3>
-
-                <div className="flex flex-col md:flex-row gap-8 items-center mb-8">
-                  <div className="bg-white p-3 rounded-lg shadow-md border">
-                    {/* Placeholder for user to place image in public folder */}
-                    <img 
-                      src="payment-qr.png" 
-                      alt="Payment QR Code" 
-                      className="w-48 h-48 object-contain"
-                      onError={(e) => {
-                         e.currentTarget.src = "https://placehold.co/200x200?text=QR+Code+Missing";
-                         e.currentTarget.className += " opacity-50";
-                      }}
-                    />
-                    <p className="text-center text-xs font-bold mt-2 text-slate-600">Scan with any UPI App</p>
-                  </div>
-                  
-                  <div className="flex-1 space-y-4 text-center md:text-left">
-                    <div>
-                      <p className="text-sm text-gray-500 font-semibold uppercase tracking-wider">Merchant Name</p>
-                      <p className="text-xl font-bold text-slate-800">TIKA RAM GIRLS COLLEGE</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500 font-semibold uppercase tracking-wider">UPI ID</p>
-                      <p className="text-lg font-mono bg-slate-100 inline-block px-3 py-1 rounded">9466463838m@pnb</p>
-                    </div>
-                    <div>
-                      <a 
-                        href="upi://pay?pa=9466463838m@pnb&pn=TIKA%20RAM%20GIRLS%20COLLEGE&cu=INR"
-                        className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition shadow-lg hover:shadow-blue-200"
-                      >
-                        <ExternalLink className="w-4 h-4" />
-                        Click here to Pay via UPI App
-                      </a>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="border-t border-blue-200 pt-6">
-                  <h3 className="text-lg font-bold text-blue-900 mb-4 flex items-center gap-2">
-                    <FileText className="w-6 h-6" />
-                    Step 2: Enter Payment Details
-                  </h3>
-                  
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <Input label="Amount Paid (₹)" type="number" value={data.paymentAmount} onChange={e => handleInputChange('paymentAmount', e.target.value)} error={errors.paymentAmount} />
-                    <Input label="UPI Provider (e.g. GPay, PhonePe)" value={data.upiProvider} onChange={e => handleInputChange('upiProvider', e.target.value)} error={errors.upiProvider} />
-                    <Input label="UPI Address used (VPA)" value={data.upiAddress} onChange={e => handleInputChange('upiAddress', e.target.value)} error={errors.upiAddress} placeholder="example@okaxis" />
-                    <Input label="Account Holder Name" value={data.accountHolderName} onChange={e => handleInputChange('accountHolderName', e.target.value)} error={errors.accountHolderName} />
-                  </div>
-                  
-                  <div className="grid md:grid-cols-2 gap-6 mt-4">
-                     <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
-                        <Input 
-                          label="UTR Number / Transaction ID" 
-                          value={data.utrNo} 
-                          onChange={e => handleInputChange('utrNo', e.target.value)} 
-                          error={errors.utrNo} 
-                          placeholder="12 Digit UTR"
-                        />
-                     </div>
-                     <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
-                        <Input 
-                          label="Re-enter UTR Number" 
-                          value={data.confirmUtrNo} 
-                          onChange={e => handleInputChange('confirmUtrNo', e.target.value)} 
-                          error={errors.confirmUtrNo} 
-                          placeholder="Must match UTR above"
-                        />
-                     </div>
-                  </div>
-
-                  <div className="mt-6">
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Upload Payment Screenshot (UTR Visible) <span className="text-red-500">*</span></label>
-                    <input 
-                      type="file" 
-                      accept="image/*" 
-                      onChange={e => e.target.files?.[0] && handleFileUpload('filePaymentScreenshot', e.target.files[0])} 
-                      className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" 
-                    />
-                    {data.filePaymentScreenshot && (
-                      <div className="mt-2">
-                        <img src={data.filePaymentScreenshot} alt="Payment Proof" className="h-32 object-contain border rounded shadow-sm" />
-                      </div>
-                    )}
-                    {errors.filePaymentScreenshot && <p className="text-red-500 text-xs mt-1">{errors.filePaymentScreenshot}</p>}
-                  </div>
-                </div>
-              </div>
-
-              {/* NOC Section */}
-              <div className="bg-slate-50 p-4 rounded-lg border">
-                <label className="font-semibold block mb-2">Are you currently employed?</label>
-                <div className="flex gap-4 mb-4">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input type="radio" name="noc" value="no" checked={data.hasNOC === 'no'} onChange={() => handleInputChange('hasNOC', 'no')} />
-                    No
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input type="radio" name="noc" value="yes" checked={data.hasNOC === 'yes'} onChange={() => handleInputChange('hasNOC', 'yes')} />
-                    Yes
-                  </label>
-                </div>
-
-                {data.hasNOC === 'yes' && (
-                  <div className="space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
-                     <div className="grid md:grid-cols-2 gap-4">
-                       <Input label="Employer Name" value={data.empName} onChange={e => handleInputChange('empName', e.target.value)} error={errors.empName} />
-                       <Input label="Designation" value={data.empDesignation} onChange={e => handleInputChange('empDesignation', e.target.value)} />
-                       <Input label="Department" value={data.empDept} onChange={e => handleInputChange('empDept', e.target.value)} />
-                       <Input label="Notice Period" value={data.empNoticePeriod} onChange={e => handleInputChange('empNoticePeriod', e.target.value)} />
-                     </div>
-                     <div>
-                       <label className="block text-sm font-semibold mb-1">Upload NOC</label>
-                       <input type="file" accept="application/pdf" onChange={e => e.target.files?.[0] && handleFileUpload('fileNOC', e.target.files[0])} className="text-sm" />
-                       {errors.fileNOC && <p className="text-red-500 text-xs mt-1">{errors.fileNOC}</p>}
-                     </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Declaration */}
-              <div className="space-y-4">
-                <SectionHeader title="Declaration" />
-                <p className="text-sm text-gray-600 bg-yellow-50 p-4 rounded border border-yellow-200 leading-relaxed italic">
-                  I <strong>{data.name}</strong> {data.parentName ? `${data.parentName.startsWith('D/o') || data.parentName.startsWith('S/o') ? '' : 'D/o S/o W/o'} ${data.parentName}` : 'D/o S/o W/o...'} 
-                  hereby declare that all the entries made by me in this application form are true and correct to the best of my knowledge and I have attached related proof of documents. 
-                  If anything is found false or incorrect at any stage, my candidature/appointment is liable to be cancelled.
-                </p>
-
+          <div className="p-6 md:p-8">
+            
+            {/* STEP 1: PERSONAL */}
+            {step === 1 && (
+              <div className="space-y-6">
+                <SectionHeader title="Personal Information" subtitle="Please enter your details exactly as per ID proofs" />
                 <div className="grid md:grid-cols-2 gap-6">
-                  <Input label="Place" value={data.place} onChange={e => handleInputChange('place', e.target.value)} error={errors.place} />
-                  <Input label="Date" type="date" value={data.date} onChange={e => handleInputChange('date', e.target.value)} />
+                  <Input label="Post Applied For" value={data.postAppliedFor} onChange={e => handleInputChange('postAppliedFor', e.target.value)} error={errors.postAppliedFor} />
+                  <Input label="Category" value={data.category} onChange={e => handleInputChange('category', e.target.value)} error={errors.category} />
+                  <Input label="Advertisement Reference" value={data.advertisementRef} onChange={e => handleInputChange('advertisementRef', e.target.value)} />
+                  <Input label="Full Name" value={data.name} onChange={e => handleInputChange('name', e.target.value)} error={errors.name} />
+                  <Input label="Father's Name" value={data.fatherName} onChange={e => handleInputChange('fatherName', e.target.value)} error={errors.fatherName} />
+                  <Input type="date" label="Date of Birth" value={data.dob} onChange={e => handleInputChange('dob', e.target.value)} error={errors.dob} />
+                </div>
+                <div className="grid md:grid-cols-2 gap-6">
+                  <Input type="email" label="Email ID" value={data.email} onChange={e => handleInputChange('email', e.target.value)} error={errors.email} />
+                  <Input 
+                    type="email" 
+                    label="Re-enter Email ID" 
+                    value={data.confirmEmail} 
+                    onChange={e => handleInputChange('confirmEmail', e.target.value)} 
+                    error={errors.confirmEmail} 
+                    placeholder="Must match Email ID above"
+                  />
+                </div>
+                <div className="grid md:grid-cols-2 gap-6">
+                  <Input label="Mobile No. 1" value={data.contactNo1} onChange={e => handleInputChange('contactNo1', e.target.value)} error={errors.contactNo1} placeholder="10 Digit Mobile Number" maxLength={10} />
+                  <Input label="Mobile No. 2" value={data.contactNo2} onChange={e => handleInputChange('contactNo2', e.target.value)} error={errors.contactNo2} placeholder="Optional" maxLength={10} />
+                </div>
+                <div className="space-y-4">
+                  <Input label="Permanent Address" value={data.permanentAddress} onChange={e => handleInputChange('permanentAddress', e.target.value)} error={errors.permanentAddress} />
+                  <Input label="Correspondence Address" value={data.correspondenceAddress} onChange={e => handleInputChange('correspondenceAddress', e.target.value)} />
+                </div>
+                <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Upload Passport Photo (Max 2MB)</label>
+                  <div className="flex items-center gap-4">
+                    <input type="file" accept="image/*" onChange={e => e.target.files?.[0] && handleFileUpload('photo', e.target.files[0])} className="text-sm" />
+                    {data.photo && <img src={data.photo} alt="Preview" className="h-20 w-20 object-cover rounded-full border-2 border-white shadow" />}
+                  </div>
+                  {errors.photo && <p className="text-xs text-red-500 mt-1">{errors.photo}</p>}
+                </div>
+              </div>
+            )}
+
+            {/* STEP 2: ACADEMIC */}
+            {step === 2 && (
+              <div className="space-y-6">
+                <SectionHeader title="I. Academic Record" subtitle="Maximum 20 marks" />
+                
+                {/* --- ADDED REQUIRED TEXT FOR SCORE SHEET --- */}
+                <div className="bg-slate-100 p-2 text-xs text-slate-600 font-medium text-center border border-slate-200 rounded mb-4">
+                   (As supplied from DGHE vide dated 18.04.2023-Attached with this form in last)
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="bg-slate-100 text-slate-700 text-sm">
+                        <th className="p-2 border">S.No.</th>
+                        <th className="p-2 border">Particulars</th>
+                        <th className="p-2 border">Marks Criteria</th>
+                        <th className="p-2 border w-32">Obtained</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <ScoreRow sNo="1." particulars="Above 55% marks in Master's degree" marksCriteria="0.5 marks for each percentage (max 5)" value={data.academicMasters} onChange={v => handleInputChange('academicMasters', v)} max={5} error={!!errors.academicMasters} />
+                      <ScoreRow sNo="2." particulars="Above 55% marks in Graduation" marksCriteria="0.4 marks for each percentage (max 5)" value={data.academicGraduation} onChange={v => handleInputChange('academicGraduation', v)} max={5} error={!!errors.academicGraduation} />
+                      <ScoreRow sNo="3." particulars="Above 55% marks in 10+2/Prep." marksCriteria="0.3 marks for each percentage (max 5)" value={data.academic12th} onChange={v => handleInputChange('academic12th', v)} max={5} error={!!errors.academic12th} />
+                      <ScoreRow sNo="4." particulars="Above 55% marks in Matriculation" marksCriteria="0.2 marks for each percentage (max 5)" value={data.academicMatric} onChange={v => handleInputChange('academicMatric', v)} max={5} error={!!errors.academicMatric} />
+                    </tbody>
+                  </table>
+                </div>
+                <div className="bg-slate-50 p-4 rounded border">
+                  <label className="font-semibold text-sm">Upload Academic Documents (Merged PDF)</label>
+                  <input type="file" accept="application/pdf" onChange={e => e.target.files?.[0] && handleFileUpload('fileAcademic', e.target.files[0])} className="block w-full text-sm mt-2" />
+                  {errors.fileAcademic && <p className="text-red-500 text-xs mt-1">{errors.fileAcademic}</p>}
+                </div>
+              </div>
+            )}
+
+            {/* STEP 3: TEACHING & ADMIN */}
+            {step === 3 && (
+              <div className="space-y-8">
+                <div>
+                  <SectionHeader title="II. Teaching & Administrative Experience" subtitle="Max 35 marks" />
+                  <h3 className="font-bold text-gray-700 mb-2">A. Teaching Experience (Max 10 marks)</h3>
+                  <table className="w-full border-collapse mb-4">
+                    <tbody>
+                      <ScoreRow sNo="1." particulars="Above 15 years teaching experience" marksCriteria="1 mark for each year" value={data.teachingExpAbove15} onChange={v => handleInputChange('teachingExpAbove15', v)} max={10} error={!!errors.teachingExpAbove15} />
+                    </tbody>
+                  </table>
+                  <div className="bg-slate-50 p-4 rounded border mb-6">
+                     <label className="font-semibold text-sm">Upload Teaching Experience Documents</label>
+                     <input type="file" accept="application/pdf" onChange={e => e.target.files?.[0] && handleFileUpload('fileTeaching', e.target.files[0])} className="block w-full text-sm mt-2" />
+                     {errors.fileTeaching && <p className="text-red-500 text-xs mt-1">{errors.fileTeaching}</p>}
+                  </div>
+                </div>
+                <div>
+                  <h3 className="font-bold text-gray-700 mb-2">B. Assessment of Administrative Skill (Max 25 marks)</h3>
+                  <div className="bg-blue-50 p-3 mb-2 rounded text-sm text-blue-800 flex justify-between">
+                     <span><strong>Note:</strong> Sum of these 3 fields cannot exceed 25 marks.</span>
+                     <span className="font-bold">Total Claimed: {((parseFloat(data.adminJointDirector)||0) + (parseFloat(data.adminRegistrar)||0) + (parseFloat(data.adminHead)||0))} / 25</span>
+                  </div>
+                  <table className="w-full border-collapse">
+                     <tbody>
+                      <ScoreRow sNo="1." particulars="Experience as Joint/Deputy/Assistant Director in Directorate of Higher Education" marksCriteria="1 mark for each year" value={data.adminJointDirector} onChange={v => handleInputChange('adminJointDirector', v)} max={25} />
+                      <ScoreRow sNo="2." particulars="Experience as Registrar or any other Administrative post in any University" marksCriteria="1 mark for each year" value={data.adminRegistrar} onChange={v => handleInputChange('adminRegistrar', v)} max={25} />
+                      <ScoreRow sNo="3." particulars="Experience as Head of the Higher Education Institution i.e. Principal, Officiating Principal/DDO" marksCriteria="1 mark for each year" value={data.adminHead} onChange={v => handleInputChange('adminHead', v)} max={25} />
+                     </tbody>
+                  </table>
+                  <div className="bg-slate-50 p-4 rounded border mt-4">
+                     <label className="font-semibold text-sm">Upload Administrative Experience Documents</label>
+                     <input type="file" accept="application/pdf" onChange={e => e.target.files?.[0] && handleFileUpload('fileAdminSkill', e.target.files[0])} className="block w-full text-sm mt-2" />
+                     {errors.fileAdminSkill && <p className="text-red-500 text-xs mt-1">{errors.fileAdminSkill}</p>}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* STEP 4: RESPONSIBILITIES */}
+            {step === 4 && (
+              <div className="space-y-8">
+                <SectionHeader title="Assessment of Administrative Skill (Contd.)" subtitle="Part B (ii) & (iii)" />
+                <div>
+                  <h3 className="font-bold text-gray-700 mb-2 text-sm">(ii) Experience of Key responsibilities in colleges</h3>
+                  <div className="overflow-x-auto">
+                    <table className="w-full border-collapse">
+                      <tbody>
+                        <ScoreRow sNo="1." particulars="Staff Representative or V.C. Nominee in Managing Committee of any College" marksCriteria="1 mark/year (Max 3)" value={data.respStaffRep} onChange={v => handleInputChange('respStaffRep', v)} max={3} />
+                        <ScoreRow sNo="2." particulars="Co-ordinator or Organizing Secretary of International/National/State Conference/Event" marksCriteria="1 mark/year (Max 3)" value={data.respCoordinator} onChange={v => handleInputChange('respCoordinator', v)} max={3} />
+                        <ScoreRow sNo="3." particulars="Bursar" marksCriteria="1 mark/year (Max 3)" value={data.respBursar} onChange={v => handleInputChange('respBursar', v)} max={3} />
+                        <ScoreRow sNo="4." particulars="NSS Programme Officer" marksCriteria="1 mark/year (Max 3)" value={data.respNSS} onChange={v => handleInputChange('respNSS', v)} max={3} />
+                        <ScoreRow sNo="5." particulars="YRC Counsellor" marksCriteria="1 mark/year (Max 3)" value={data.respYRC} onChange={v => handleInputChange('respYRC', v)} max={3} />
+                        <ScoreRow sNo="6." particulars="Hostel Warden" marksCriteria="1 mark/year (Max 3)" value={data.respWarden} onChange={v => handleInputChange('respWarden', v)} max={3} />
+                        <ScoreRow sNo="7." particulars="Member of any Statutory Body of University" marksCriteria="1 mark/year (Max 2)" value={data.respStatutory} onChange={v => handleInputChange('respStatutory', v)} max={2} />
+                        <ScoreRow sNo="8." particulars="Experience as Associate NCC Officer in HEI (s)" marksCriteria="1 mark/year (Max 3)" value={data.respNCC} onChange={v => handleInputChange('respNCC', v)} max={3} />
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div>
+                  <h3 className="font-bold text-gray-700 mb-2 text-sm">(iii) Experience of Committees in College</h3>
+                  <div className="overflow-x-auto">
+                    <table className="w-full border-collapse">
+                      <tbody>
+                        <ScoreRow sNo="1." particulars="Co-ordinator IQAC" marksCriteria="1 mark/year (Max 2)" value={data.commIQAC} onChange={v => handleInputChange('commIQAC', v)} max={2} />
+                        <ScoreRow sNo="2." particulars="Editor in Chief, College Magazine" marksCriteria="1 mark/year (Max 2)" value={data.commEditor} onChange={v => handleInputChange('commEditor', v)} max={2} />
+                        <ScoreRow sNo="3." particulars="Member, College Advisory Council" marksCriteria="1 mark/year (Max 2)" value={data.commAdvisory} onChange={v => handleInputChange('commAdvisory', v)} max={2} />
+                        <ScoreRow sNo="4." particulars="Convener, University Work Committee" marksCriteria="1 mark/year (Max 2)" value={data.commWork} onChange={v => handleInputChange('commWork', v)} max={2} />
+                        <ScoreRow sNo="5." particulars="Convener, Cultural Affairs Committee" marksCriteria="1 mark/year (Max 2)" value={data.commCultural} onChange={v => handleInputChange('commCultural', v)} max={2} />
+                        <ScoreRow sNo="6." particulars="Convener, Purchase/Procurement Committee" marksCriteria="1 mark/year (Max 2)" value={data.commPurchase} onChange={v => handleInputChange('commPurchase', v)} max={2} />
+                        <ScoreRow sNo="7." particulars="Convener, Building/Works Committee" marksCriteria="1 mark/year (Max 2)" value={data.commBuilding} onChange={v => handleInputChange('commBuilding', v)} max={2} />
+                        <ScoreRow sNo="8." particulars="Convener, Sports Committee" marksCriteria="1 mark/year (Max 2)" value={data.commSports} onChange={v => handleInputChange('commSports', v)} max={2} />
+                        <ScoreRow sNo="9." particulars="Convener, Discipline Committee" marksCriteria="1 mark/year (Max 2)" value={data.commDiscipline} onChange={v => handleInputChange('commDiscipline', v)} max={2} />
+                        <ScoreRow sNo="10." particulars="Convener, Internal (Complaint) Committee" marksCriteria="1 mark/year (Max 2)" value={data.commInternal} onChange={v => handleInputChange('commInternal', v)} max={2} />
+                        <ScoreRow sNo="11." particulars="Convener, Road Safety Club" marksCriteria="1 mark/year (Max 2)" value={data.commRoadSafety} onChange={v => handleInputChange('commRoadSafety', v)} max={2} />
+                        <ScoreRow sNo="12." particulars="Convener, Red Ribbon Club" marksCriteria="1 mark/year (Max 2)" value={data.commRedRibbon} onChange={v => handleInputChange('commRedRibbon', v)} max={2} />
+                        <ScoreRow sNo="13." particulars="Convener, Eco Club" marksCriteria="1 mark/year (Max 2)" value={data.commEco} onChange={v => handleInputChange('commEco', v)} max={2} />
+                        <ScoreRow sNo="14." particulars="In-charge, Placement Cell" marksCriteria="1 mark/year (Max 2)" value={data.commPlacement} onChange={v => handleInputChange('commPlacement', v)} max={2} />
+                        <ScoreRow sNo="15." particulars="Incharge, Women Cell" marksCriteria="1 mark/year (Max 2)" value={data.commWomen} onChange={v => handleInputChange('commWomen', v)} max={2} />
+                        <ScoreRow sNo="16." particulars="In-charge, Time-table Committee" marksCriteria="1 mark/year (Max 2)" value={data.commTimeTable} onChange={v => handleInputChange('commTimeTable', v)} max={2} />
+                        <ScoreRow sNo="17." particulars="In-charge, SC/BC Committee" marksCriteria="1 mark/year (Max 2)" value={data.commSCBC} onChange={v => handleInputChange('commSCBC', v)} max={2} />
+                      </tbody>
+                    </table>
+                  </div>
+                  <div className="bg-slate-50 p-4 rounded border mt-6">
+                     <label className="font-semibold text-sm">Upload Supporting Documents (Responsibilities & Committees)</label>
+                     <input type="file" accept="application/pdf" onChange={e => e.target.files?.[0] && handleFileUpload('fileAdmin', e.target.files[0])} className="block w-full text-sm mt-2" />
+                     {errors.fileAdmin && <p className="text-red-500 text-xs mt-1">{errors.fileAdmin}</p>}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* STEP 5: RESEARCH (TABLE 2) */}
+            {step === 5 && (
+              <div className="space-y-6">
+                <SectionHeader title="III. Academic/Research Score: Maximum 32.5 marks" subtitle="MDU AC PASSED TABLE 2" />
+                
+                <div className="bg-yellow-50 border border-yellow-200 p-4 rounded text-xs md:text-sm text-slate-800 mb-4 font-medium leading-relaxed">
+                  (Assessment must be based on evidence produced by the teacher such as : copy of publications, project sanction letter, utilization and completion certificates issued by University and acknowledgements for patent filing and approval letters, students Ph.D. award letter etc.)
+                </div>
+
+                <div className="overflow-x-auto text-xs md:text-sm">
+                  <table className="w-full border-collapse border border-slate-300">
+                    <thead className="bg-blue-50 text-blue-900 font-bold">
+                      <tr>
+                        <th className="border border-slate-300 p-2 w-12 text-left align-top">S.N.</th>
+                        <th className="border border-slate-300 p-2 text-left align-top">Academic/Research Activity</th>
+                        <th className="border border-slate-300 p-2 w-32 text-center align-top">Faculty of Sciences/ Engineering/ Agriculture/ Medical/ Veterinary Sciences</th>
+                        <th className="border border-slate-300 p-2 w-32 text-center align-top">Faculty of Languages/ Humanities/ Arts/ Social Sciences/ Library/ Education/ Physical Education/ Commerce/ Management & other related disciplines</th>
+                        <th className="border border-slate-300 p-2 w-28 text-center align-top">Self Appraisal Marks</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      
+                      {/* 1. Research Papers */}
+                      <Table2Row 
+                        sn="1." 
+                        activity={<>
+                          For Direct Recruitment:<br/>
+                          Research Papers in Peer-reviewed / UGC Journals upto 13.06.2019 and UGC CARE Listed Journals w.e.f. 14.06.2019<br/><br/>
+                          For Career Advancement Scheme:<br/>
+                          Research Papers in Peer-reviewed / UGC Journals upto 02.07.2023 and UGC CARE Listed Journals w.e.f. 03.07.2023
+                        </>} 
+                        capScience="8" 
+                        capArts="10" 
+                        value={data.research.resPapers} 
+                        onChange={v => handleResearchChange('resPapers', v)} 
+                      />
+
+                      {/* 2. Publications */}
+                      <Table2Row isHeader sn="2." activity="Publications (other than Research papers)" capScience="" capArts="" />
+                      <Table2Row isSubHeader sn="(a)" activity="Books authored which are published by;" capScience="" capArts="" />
+                      <Table2Row sn="" activity="International publishers" capScience="12" capArts="12" value={data.research.resBooksInt} onChange={v => handleResearchChange('resBooksInt', v)} />
+                      <Table2Row sn="" activity="National Publishers" capScience="10" capArts="10" value={data.research.resBooksNat} onChange={v => handleResearchChange('resBooksNat', v)} />
+                      <Table2Row sn="" activity="Chapter in Edited Book" capScience="05" capArts="05" value={data.research.resChapter} onChange={v => handleResearchChange('resChapter', v)} />
+                      <Table2Row sn="" activity="Editor of Book by International Publisher" capScience="10" capArts="10" value={data.research.resEditorInt} onChange={v => handleResearchChange('resEditorInt', v)} />
+                      <Table2Row sn="" activity="Editor of Book by National Publisher" capScience="08" capArts="08" value={data.research.resEditorNat} onChange={v => handleResearchChange('resEditorNat', v)} />
+                      
+                      <Table2Row isSubHeader sn="(b)" activity="Translation works in Indian and Foreign Languages by qualified faculties" capScience="" capArts="" />
+                      <Table2Row sn="" activity="Chapter or Research paper" capScience="03" capArts="03" value={data.research.resTransChapter} onChange={v => handleResearchChange('resTransChapter', v)} />
+                      <Table2Row sn="" activity="Book" capScience="08" capArts="08" value={data.research.resTransBook} onChange={v => handleResearchChange('resTransBook', v)} />
+
+                      {/* 3. ICT */}
+                      <Table2Row isHeader sn="3." activity="Creation of ICT mediated Teaching Learning pedagogy and content and development of new and innovative courses and curricula" capScience="" capArts="" />
+                      <Table2Row isSubHeader sn="(a)" activity="Development of Innovative pedagogy" capScience="05" capArts="05" value={data.research.resIctPedagogy} onChange={v => handleResearchChange('resIctPedagogy', v)} />
+                      <Table2Row isSubHeader sn="(b)" activity="Design of new curricula and courses" capScience="02 per curricula/course" capArts="02 per curricula/course" value={data.research.resIctCurricula} onChange={v => handleResearchChange('resIctCurricula', v)} />
+                      
+                      <Table2Row isSubHeader sn="(c)" activity="MOOCs" capScience="" capArts="" />
+                      <Table2Row sn="" activity="Development of complete MOOCs in 4 quadrants (4 credit course)(In case of MOOCs of lesser credits 05 marks/credit)" capScience="20" capArts="20" value={data.research.resMoocs4Quad} onChange={v => handleResearchChange('resMoocs4Quad', v)} />
+                      <Table2Row sn="" activity="MOOCs (developed in 4 quadrant) per module/lecture" capScience="05" capArts="05" value={data.research.resMoocsModule} onChange={v => handleResearchChange('resMoocsModule', v)} />
+                      <Table2Row sn="" activity="Contentwriter/subject matter expert for each moduleof MOOCs (at least one quadrant)" capScience="02" capArts="02" value={data.research.resMoocsContent} onChange={v => handleResearchChange('resMoocsContent', v)} />
+                      <Table2Row sn="" activity="Course Coordinator for MOOCs (4 credit course)(In case of MOOCs of lesser credits 02 marks/credit)" capScience="08" capArts="08" value={data.research.resMoocsCoord} onChange={v => handleResearchChange('resMoocsCoord', v)} />
+
+                      <Table2Row isSubHeader sn="(d)" activity="E-Content" capScience="" capArts="" />
+                      <Table2Row sn="" activity="Development of e-Content in 4 quadrants for a complete course/e-book" capScience="12" capArts="12" value={data.research.resEcontentComplete} onChange={v => handleResearchChange('resEcontentComplete', v)} />
+                      <Table2Row sn="" activity="e-Content (developed in 4 quadrants) per module" capScience="05" capArts="05" value={data.research.resEcontentModule} onChange={v => handleResearchChange('resEcontentModule', v)} />
+                      <Table2Row sn="" activity="Contribution to development of e-content module in complete course/paper/e-book (at least one quadrant)" capScience="02" capArts="02" value={data.research.resEcontentContrib} onChange={v => handleResearchChange('resEcontentContrib', v)} />
+                      <Table2Row sn="" activity="Editor of e-content for complete course/ paper /e-book" capScience="10" capArts="10" value={data.research.resEcontentEditor} onChange={v => handleResearchChange('resEcontentEditor', v)} />
+
+                      {/* 4. Guidance */}
+                      <Table2Row isHeader sn="4." activity="(a) Research guidance" capScience="" capArts="" />
+                      <Table2Row sn="" activity={<>Ph.D.<br/><span className="text-xs text-gray-500">(10 per degree awarded, 05 per thesis submitted)</span></>} capScience="10 / 05" capArts="10 / 05" value={data.research.resPhd} onChange={v => handleResearchChange('resPhd', v)} />
+                      <Table2Row sn="" activity="M.Phil./P.G dissertation" capScience="02 per degree awarded" capArts="02 per degree awarded" value={data.research.resMphil} onChange={v => handleResearchChange('resMphil', v)} />
+
+                      <Table2Row isSubHeader sn="(b)" activity="Research Projects Completed" capScience="" capArts="" />
+                      <Table2Row sn="" activity="More than 10 lakhs" capScience="10" capArts="10" value={data.research.resProjMore10} onChange={v => handleResearchChange('resProjMore10', v)} />
+                      <Table2Row sn="" activity="Less than 10 lakhs" capScience="05" capArts="05" value={data.research.resProjLess10} onChange={v => handleResearchChange('resProjLess10', v)} />
+
+                      <Table2Row isSubHeader sn="(c)" activity="Research Projects Ongoing :" capScience="" capArts="" />
+                      <Table2Row sn="" activity="More than 10 lakhs" capScience="05" capArts="05" value={data.research.resProjOngoingMore10} onChange={v => handleResearchChange('resProjOngoingMore10', v)} />
+                      <Table2Row sn="" activity="Less than 10 lakhs" capScience="02" capArts="02" value={data.research.resProjOngoingLess10} onChange={v => handleResearchChange('resProjOngoingLess10', v)} />
+
+                      <Table2Row isSubHeader sn="(d)" activity="Consultancy" capScience="03" capArts="03" value={data.research.resConsultancy} onChange={v => handleResearchChange('resConsultancy', v)} />
+
+                      {/* 5. Patents */}
+                      <Table2Row isHeader sn="5." activity="(a) Patents" capScience="" capArts="" />
+                      <Table2Row sn="" activity="International" capScience="10" capArts="0" value={data.research.resPatentInt} onChange={v => handleResearchChange('resPatentInt', v)} />
+                      <Table2Row sn="" activity="National" capScience="07" capArts="0" value={data.research.resPatentNat} onChange={v => handleResearchChange('resPatentNat', v)} />
+                      
+                      <Table2Row isSubHeader sn="(b)" activity="*Policy Document (Submitted to an International body/organisation like UNO/UNESCO/World Bank/International Monetary Fund etc. or Central Government or State Government)" capScience="" capArts="" />
+                      <Table2Row sn="" activity="International" capScience="10" capArts="10" value={data.research.resPolicyInt} onChange={v => handleResearchChange('resPolicyInt', v)} />
+                      <Table2Row sn="" activity="National" capScience="07" capArts="07" value={data.research.resPolicyNat} onChange={v => handleResearchChange('resPolicyNat', v)} />
+                      <Table2Row sn="" activity="State" capScience="04" capArts="04" value={data.research.resPolicyState} onChange={v => handleResearchChange('resPolicyState', v)} />
+
+                      <Table2Row isSubHeader sn="(c)" activity="Awards/Fellowship" capScience="" capArts="" />
+                      <Table2Row sn="" activity="International" capScience="07" capArts="07" value={data.research.resAwardInt} onChange={v => handleResearchChange('resAwardInt', v)} />
+                      <Table2Row sn="" activity="National" capScience="05" capArts="05" value={data.research.resAwardNat} onChange={v => handleResearchChange('resAwardNat', v)} />
+
+                      {/* 6. Invited Lectures */}
+                      <Table2Row isHeader sn="6." activity="*Invited lectures / Resource Person/ paper presentation in Seminars/ Conferences/full paper in Conference Proceedings (Paper presented in Seminars/Conferences and also published as full paper in Conference Proceedings will be counted only once)" capScience="" capArts="" />
+                      <Table2Row sn="" activity="International (Abroad)" capScience="07" capArts="0" value={data.research.resInvitedIntAbroad} onChange={v => handleResearchChange('resInvitedIntAbroad', v)} />
+                      <Table2Row sn="" activity="International (within country)" capScience="05" capArts="0" value={data.research.resInvitedIntWithin} onChange={v => handleResearchChange('resInvitedIntWithin', v)} />
+                      <Table2Row sn="" activity="National" capScience="03" capArts="0" value={data.research.resInvitedNat} onChange={v => handleResearchChange('resInvitedNat', v)} />
+                      <Table2Row sn="" activity="State/University" capScience="02" capArts="0" value={data.research.resInvitedState} onChange={v => handleResearchChange('resInvitedState', v)} />
+                    </tbody>
+                  </table>
                 </div>
                 
-                <div>
-                   <label className="block text-sm font-semibold mb-2">Upload Signature (Max 2MB)</label>
-                   <input type="file" accept="image/*" onChange={e => e.target.files?.[0] && handleFileUpload('signature', e.target.files[0])} className="text-sm" />
-                   {data.signature && <img src={data.signature} alt="Sign" className="mt-2 h-16 object-contain border" />}
-                   {errors.signature && <p className="text-red-500 text-xs mt-1">{errors.signature}</p>}
+                <div className="mt-4 text-sm font-bold text-slate-800">
+                  ** Attach copies as proof of documents for your calculated APl score according to Annexure attached with this form - Table 2, Appendix II (as supplied by DGHE)
                 </div>
-              </div>
-              
-              {/* Document Preview Section */}
-              <div className="border rounded-lg overflow-hidden">
-                <div className="bg-slate-200 p-3 font-bold text-slate-700 flex items-center gap-2">
-                  <Eye className="w-5 h-5" /> Verify Uploaded Documents
-                </div>
-                <div className="p-4 bg-slate-50 grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {[
-                    { label: 'Academic Docs', file: data.fileAcademic },
-                    { label: 'Teaching Docs', file: data.fileTeaching },
-                    { label: 'Admin Docs', file: data.fileAdminSkill },
-                    { label: 'Committee Docs', file: data.fileAdmin },
-                    { label: 'Research Docs', file: data.fileResearch },
-                    { label: 'NOC', file: data.fileNOC },
-                    { label: 'Payment Proof', file: data.filePaymentScreenshot },
-                  ].map((doc, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => viewDocument(doc.file)}
-                      disabled={!doc.file}
-                      className={`text-xs p-2 rounded border flex items-center justify-center gap-2
-                        ${doc.file ? 'bg-white hover:bg-blue-50 text-blue-700 border-blue-200' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}
-                      `}
-                    >
-                      {doc.file ? <Eye className="w-3 h-3" /> : null}
-                      {doc.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
 
-              {/* Preview Button */}
-              <div className="flex justify-center pt-4 pb-2">
-                 <button
-                    onClick={handlePreview}
-                    className="flex items-center gap-2 bg-slate-700 text-white px-6 py-3 rounded-lg hover:bg-slate-800 transition shadow-lg"
-                 >
-                    <FileText className="w-5 h-5" />
-                    Preview Application Form PDF
+                <div className="bg-slate-50 p-6 rounded-lg border">
+                  <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
+                    <Upload className="w-5 h-5" />
+                    Upload Research Documents
+                  </h4>
+                  
+                  <div className="mb-4">
+                    <label className="block text-sm font-semibold mb-2">Upload Merged PDF (Max 10MB)</label>
+                    <input type="file" accept="application/pdf" onChange={e => e.target.files?.[0] && handleFileUpload('fileResearch', e.target.files[0])} className="block w-full text-sm" />
+                    {errors.fileResearch && <p className="text-red-500 text-xs mt-1">{errors.fileResearch}</p>}
+                  </div>
+
+                  <div className="relative flex items-center gap-4 py-4">
+                    <div className="flex-grow border-t border-gray-300"></div>
+                    <span className="flex-shrink-0 text-gray-400 text-sm">OR IF FILE IS TOO LARGE</span>
+                    <div className="flex-grow border-t border-gray-300"></div>
+                  </div>
+
+                  <div>
+                     <label className="block text-sm font-semibold mb-2 flex items-center gap-2">
+                       <LinkIcon className="w-4 h-4" />
+                       Paste Google Drive Link (Ensure 'Anyone with link can view' is on)
+                     </label>
+                     <Input 
+                        label="" 
+                        placeholder="https://drive.google.com/file/d/..." 
+                        value={data.googleDriveLink} 
+                        onChange={e => handleInputChange('googleDriveLink', e.target.value)}
+                     />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* STEP 6: PAYMENT & DECLARATION */}
+            {step === 6 && (
+              <div className="space-y-8">
+                <SectionHeader title="Payment & Declaration" subtitle="Final Step" />
+
+                {/* PAYMENT SECTION */}
+                <div className="bg-gradient-to-br from-white to-blue-50 border border-blue-200 rounded-xl p-6 shadow-sm">
+                  <h3 className="text-lg font-bold text-blue-900 mb-6 flex items-center gap-2">
+                    <QrCode className="w-6 h-6" />
+                    Step 1: Scan & Pay
+                  </h3>
+
+                  <div className="flex flex-col md:flex-row gap-8 items-center mb-8">
+                    <div className="bg-white p-3 rounded-lg shadow-md border">
+                      {/* Placeholder for user to place image in public folder */}
+                      <img 
+                        src="payment-qr.png" 
+                        alt="Payment QR Code" 
+                        className="w-48 h-48 object-contain"
+                        onError={(e) => {
+                           e.currentTarget.src = "https://placehold.co/200x200?text=QR+Code+Missing";
+                           e.currentTarget.className += " opacity-50";
+                        }}
+                      />
+                      <p className="text-center text-xs font-bold mt-2 text-slate-600">Scan with any UPI App</p>
+                    </div>
+                    
+                    <div className="flex-1 space-y-4 text-center md:text-left">
+                      <div>
+                        <p className="text-sm text-gray-500 font-semibold uppercase tracking-wider">Merchant Name</p>
+                        <p className="text-xl font-bold text-slate-800">TIKA RAM GIRLS COLLEGE</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-500 font-semibold uppercase tracking-wider">UPI ID</p>
+                        <p className="text-lg font-mono bg-slate-100 inline-block px-3 py-1 rounded">9466463838m@pnb</p>
+                      </div>
+                      <div>
+                        <a 
+                          href="upi://pay?pa=9466463838m@pnb&pn=TIKA%20RAM%20GIRLS%20COLLEGE&cu=INR"
+                          className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition shadow-lg hover:shadow-blue-200"
+                        >
+                          <ExternalLink className="w-4 h-4" />
+                          Click here to Pay via UPI App
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="border-t border-blue-200 pt-6">
+                    <h3 className="text-lg font-bold text-blue-900 mb-4 flex items-center gap-2">
+                      <FileText className="w-6 h-6" />
+                      Step 2: Enter Payment Details
+                    </h3>
+                    
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <Input label="Amount Paid (₹)" type="number" value={data.paymentAmount} onChange={e => handleInputChange('paymentAmount', e.target.value)} error={errors.paymentAmount} />
+                      <Input label="UPI Provider (e.g. GPay, PhonePe)" value={data.upiProvider} onChange={e => handleInputChange('upiProvider', e.target.value)} error={errors.upiProvider} />
+                      <Input label="UPI Address used (VPA)" value={data.upiAddress} onChange={e => handleInputChange('upiAddress', e.target.value)} error={errors.upiAddress} placeholder="example@okaxis" />
+                      <Input label="Account Holder Name" value={data.accountHolderName} onChange={e => handleInputChange('accountHolderName', e.target.value)} error={errors.accountHolderName} />
+                    </div>
+                    
+                    <div className="grid md:grid-cols-2 gap-6 mt-4">
+                       <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                          <Input 
+                            label="UTR Number / Transaction ID" 
+                            value={data.utrNo} 
+                            onChange={e => handleInputChange('utrNo', e.target.value)} 
+                            error={errors.utrNo} 
+                            placeholder="12 Digit UTR"
+                          />
+                       </div>
+                       <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                          <Input 
+                            label="Re-enter UTR Number" 
+                            value={data.confirmUtrNo} 
+                            onChange={e => handleInputChange('confirmUtrNo', e.target.value)} 
+                            error={errors.confirmUtrNo} 
+                            placeholder="Must match UTR above"
+                          />
+                       </div>
+                    </div>
+
+                    <div className="mt-6">
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Upload Payment Screenshot (UTR Visible) <span className="text-red-500">*</span></label>
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        onChange={e => e.target.files?.[0] && handleFileUpload('filePaymentScreenshot', e.target.files[0])} 
+                        className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" 
+                      />
+                      {data.filePaymentScreenshot && (
+                        <div className="mt-2">
+                          <img src={data.filePaymentScreenshot} alt="Payment Proof" className="h-32 object-contain border rounded shadow-sm" />
+                        </div>
+                      )}
+                      {errors.filePaymentScreenshot && <p className="text-red-500 text-xs mt-1">{errors.filePaymentScreenshot}</p>}
+                    </div>
+                  </div>
+                </div>
+
+                {/* NOC Section */}
+                <div className="bg-slate-50 p-4 rounded-lg border">
+                  <label className="font-semibold block mb-2">Are you currently employed?</label>
+                  <div className="flex gap-4 mb-4">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input type="radio" name="noc" value="no" checked={data.hasNOC === 'no'} onChange={() => handleInputChange('hasNOC', 'no')} />
+                      No
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input type="radio" name="noc" value="yes" checked={data.hasNOC === 'yes'} onChange={() => handleInputChange('hasNOC', 'yes')} />
+                      Yes
+                    </label>
+                  </div>
+
+                  {data.hasNOC === 'yes' && (
+                    <div className="space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
+                       <div className="grid md:grid-cols-2 gap-4">
+                         <Input label="Employer Name" value={data.empName} onChange={e => handleInputChange('empName', e.target.value)} error={errors.empName} />
+                         <Input label="Designation" value={data.empDesignation} onChange={e => handleInputChange('empDesignation', e.target.value)} />
+                         <Input label="Department" value={data.empDept} onChange={e => handleInputChange('empDept', e.target.value)} />
+                         <Input label="Notice Period" value={data.empNoticePeriod} onChange={e => handleInputChange('empNoticePeriod', e.target.value)} />
+                       </div>
+                       <div>
+                         <label className="block text-sm font-semibold mb-1">Upload NOC</label>
+                         <input type="file" accept="application/pdf" onChange={e => e.target.files?.[0] && handleFileUpload('fileNOC', e.target.files[0])} className="text-sm" />
+                         {errors.fileNOC && <p className="text-red-500 text-xs mt-1">{errors.fileNOC}</p>}
+                       </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Declaration */}
+                <div className="space-y-4">
+                  <SectionHeader title="Declaration" />
+                  <p className="text-sm text-gray-600 bg-yellow-50 p-4 rounded border border-yellow-200 leading-relaxed italic">
+                    I <strong>{data.name}</strong> {data.parentName ? `${data.parentName.startsWith('D/o') || data.parentName.startsWith('S/o') ? '' : 'D/o S/o W/o'} ${data.parentName}` : 'D/o S/o W/o...'} 
+                    hereby declare that all the entries made by me in this application form are true and correct to the best of my knowledge and I have attached related proof of documents. 
+                    If anything is found false or incorrect at any stage, my candidature/appointment is liable to be cancelled.
+                  </p>
+
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <Input label="Place" value={data.place} onChange={e => handleInputChange('place', e.target.value)} error={errors.place} />
+                    <Input label="Date" type="date" value={data.date} onChange={e => handleInputChange('date', e.target.value)} />
+                  </div>
+                  
+                  <div>
+                     <label className="block text-sm font-semibold mb-2">Upload Signature (Max 2MB)</label>
+                     <input type="file" accept="image/*" onChange={e => e.target.files?.[0] && handleFileUpload('signature', e.target.files[0])} className="text-sm" />
+                     {data.signature && <img src={data.signature} alt="Sign" className="mt-2 h-16 object-contain border" />}
+                     {errors.signature && <p className="text-red-500 text-xs mt-1">{errors.signature}</p>}
+                  </div>
+                </div>
+                
+                {/* Document Preview Section */}
+                <div className="border rounded-lg overflow-hidden">
+                  <div className="bg-slate-200 p-3 font-bold text-slate-700 flex items-center gap-2">
+                    <Eye className="w-5 h-5" /> Verify Uploaded Documents
+                  </div>
+                  <div className="p-4 bg-slate-50 grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {[
+                      { label: 'Academic Docs', file: data.fileAcademic },
+                      { label: 'Teaching Docs', file: data.fileTeaching },
+                      { label: 'Admin Docs', file: data.fileAdminSkill },
+                      { label: 'Committee Docs', file: data.fileAdmin },
+                      { label: 'Research Docs', file: data.fileResearch },
+                      { label: 'NOC', file: data.fileNOC },
+                      { label: 'Payment Proof', file: data.filePaymentScreenshot },
+                    ].map((doc, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => viewDocument(doc.file)}
+                        disabled={!doc.file}
+                        className={`text-xs p-2 rounded border flex items-center justify-center gap-2
+                          ${doc.file ? 'bg-white hover:bg-blue-50 text-blue-700 border-blue-200' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}
+                        `}
+                      >
+                        {doc.file ? <Eye className="w-3 h-3" /> : null}
+                        {doc.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Preview Button */}
+                <div className="flex justify-center pt-4 pb-2">
+                   <button
+                      onClick={handlePreview}
+                      className="flex items-center gap-2 bg-slate-700 text-white px-6 py-3 rounded-lg hover:bg-slate-800 transition shadow-lg"
+                   >
+                      <FileText className="w-5 h-5" />
+                      Preview Application Form PDF
+                   </button>
+                </div>
+
+                {/* Final Checklist */}
+                <div className="bg-red-50 p-6 rounded-xl border border-red-100">
+                  <h4 className="font-bold text-red-900 mb-4 flex items-center gap-2">
+                    <CheckSquare className="w-5 h-5" />
+                    Final Verification Checklist
+                  </h4>
+                  <div className="grid md:grid-cols-2 gap-3 text-sm text-red-800">
+                    <label className="flex items-center gap-2"><input type="checkbox" checked={verifications.name} onChange={e => setVerifications(p => ({...p, name: e.target.checked}))} /> Name: <strong>{data.name}</strong></label>
+                    <label className="flex items-center gap-2"><input type="checkbox" checked={verifications.fatherName} onChange={e => setVerifications(p => ({...p, fatherName: e.target.checked}))} /> Father Name: <strong>{data.fatherName}</strong></label>
+                    <label className="flex items-center gap-2"><input type="checkbox" checked={verifications.post} onChange={e => setVerifications(p => ({...p, post: e.target.checked}))} /> Post: <strong>{data.postAppliedFor}</strong></label>
+                    <label className="flex items-center gap-2"><input type="checkbox" checked={verifications.dob} onChange={e => setVerifications(p => ({...p, dob: e.target.checked}))} /> DOB: <strong>{formatDate(data.dob)}</strong></label>
+                    <label className="flex items-center gap-2"><input type="checkbox" checked={verifications.category} onChange={e => setVerifications(p => ({...p, category: e.target.checked}))} /> Category: <strong>{data.category}</strong></label>
+                    <label className="flex items-center gap-2"><input type="checkbox" checked={verifications.photo} onChange={e => setVerifications(p => ({...p, photo: e.target.checked}))} /> Photo Uploaded</label>
+                    <label className="flex items-center gap-2"><input type="checkbox" checked={verifications.signature} onChange={e => setVerifications(p => ({...p, signature: e.target.checked}))} /> Signature Uploaded</label>
+                    <label className="flex items-center gap-2"><input type="checkbox" checked={verifications.documents} onChange={e => setVerifications(p => ({...p, documents: e.target.checked}))} /> All Documents Uploaded</label>
+                    <label className="flex items-center gap-2"><input type="checkbox" checked={verifications.table2} onChange={e => setVerifications(p => ({...p, table2: e.target.checked}))} /> Research Table Checked</label>
+                    <label className="flex items-center gap-2"><input type="checkbox" checked={verifications.payment} onChange={e => setVerifications(p => ({...p, payment: e.target.checked}))} /> Payment Details Verified</label>
+                    <label className="flex items-center gap-2"><input type="checkbox" checked={verifications.paymentScreenshot} onChange={e => setVerifications(p => ({...p, paymentScreenshot: e.target.checked}))} /> Payment Screenshot Uploaded</label>
+                  </div>
+                </div>
+
+              </div>
+            )}
+
+            {/* Navigation Buttons */}
+            <div className="flex justify-between mt-8 pt-6 border-t">
+               {step > 1 && (
+                 <button onClick={() => { setStep(prev => prev - 1); window.scrollTo(0,0); }} className="flex items-center gap-2 px-6 py-2 rounded border hover:bg-gray-50 text-gray-600">
+                   <ChevronLeft className="w-4 h-4" /> Back
                  </button>
-              </div>
-
-              {/* Final Checklist */}
-              <div className="bg-red-50 p-6 rounded-xl border border-red-100">
-                <h4 className="font-bold text-red-900 mb-4 flex items-center gap-2">
-                  <CheckSquare className="w-5 h-5" />
-                  Final Verification Checklist
-                </h4>
-                <div className="grid md:grid-cols-2 gap-3 text-sm text-red-800">
-                  <label className="flex items-center gap-2"><input type="checkbox" checked={verifications.name} onChange={e => setVerifications(p => ({...p, name: e.target.checked}))} /> Name: <strong>{data.name}</strong></label>
-                  <label className="flex items-center gap-2"><input type="checkbox" checked={verifications.fatherName} onChange={e => setVerifications(p => ({...p, fatherName: e.target.checked}))} /> Father Name: <strong>{data.fatherName}</strong></label>
-                  <label className="flex items-center gap-2"><input type="checkbox" checked={verifications.post} onChange={e => setVerifications(p => ({...p, post: e.target.checked}))} /> Post: <strong>{data.postAppliedFor}</strong></label>
-                  <label className="flex items-center gap-2"><input type="checkbox" checked={verifications.dob} onChange={e => setVerifications(p => ({...p, dob: e.target.checked}))} /> DOB: <strong>{formatDate(data.dob)}</strong></label>
-                  <label className="flex items-center gap-2"><input type="checkbox" checked={verifications.category} onChange={e => setVerifications(p => ({...p, category: e.target.checked}))} /> Category: <strong>{data.category}</strong></label>
-                  <label className="flex items-center gap-2"><input type="checkbox" checked={verifications.photo} onChange={e => setVerifications(p => ({...p, photo: e.target.checked}))} /> Photo Uploaded</label>
-                  <label className="flex items-center gap-2"><input type="checkbox" checked={verifications.signature} onChange={e => setVerifications(p => ({...p, signature: e.target.checked}))} /> Signature Uploaded</label>
-                  <label className="flex items-center gap-2"><input type="checkbox" checked={verifications.documents} onChange={e => setVerifications(p => ({...p, documents: e.target.checked}))} /> All Documents Uploaded</label>
-                  <label className="flex items-center gap-2"><input type="checkbox" checked={verifications.table2} onChange={e => setVerifications(p => ({...p, table2: e.target.checked}))} /> Research Table Checked</label>
-                  <label className="flex items-center gap-2"><input type="checkbox" checked={verifications.payment} onChange={e => setVerifications(p => ({...p, payment: e.target.checked}))} /> Payment Details Verified</label>
-                  <label className="flex items-center gap-2"><input type="checkbox" checked={verifications.paymentScreenshot} onChange={e => setVerifications(p => ({...p, paymentScreenshot: e.target.checked}))} /> Payment Screenshot Uploaded</label>
-                </div>
-              </div>
-
+               )}
+               
+               {step < 6 ? (
+                 <button onClick={handleNext} className="ml-auto flex items-center gap-2 bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 shadow-md">
+                   Next Step <ChevronRight className="w-4 h-4" />
+                 </button>
+               ) : (
+                 <button 
+                   onClick={handleSubmit} 
+                   disabled={loading || !allVerified}
+                   className={`ml-auto flex items-center gap-2 px-8 py-3 rounded-lg font-bold shadow-lg transition-all
+                     ${loading || !allVerified 
+                       ? 'bg-gray-400 cursor-not-allowed' 
+                       : 'bg-green-600 text-white hover:bg-green-700 hover:scale-105'
+                     }
+                   `}
+                 >
+                   {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
+                   {loading ? 'Submitting...' : 'Final Submit'}
+                 </button>
+               )}
             </div>
-          )}
+            
+            {/* Detailed Submission Progress Indicator */}
+            {loading && (
+               <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100]">
+                  <div className="bg-white p-8 rounded-xl shadow-2xl max-w-sm w-full text-center space-y-4">
+                    <div className="relative w-16 h-16 mx-auto">
+                       <div className="absolute inset-0 border-4 border-slate-200 rounded-full"></div>
+                       <div className="absolute inset-0 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                    </div>
+                    <h3 className="text-xl font-bold text-slate-800">Processing Application</h3>
+                    <div className="space-y-2 text-sm text-slate-600">
+                       <p className={`flex items-center justify-center gap-2 ${['generating','merging','sending','success'].includes(submissionStatus) ? 'text-green-600 font-bold' : ''}`}>
+                          {['generating','merging','sending','success'].includes(submissionStatus) && <CheckCircle className="w-4 h-4" />}
+                          1. Generating Application PDF...
+                       </p>
+                       <p className={`flex items-center justify-center gap-2 ${['merging','sending','success'].includes(submissionStatus) ? 'text-green-600 font-bold' : ''}`}>
+                          {['merging','sending','success'].includes(submissionStatus) && <CheckCircle className="w-4 h-4" />}
+                          2. Merging Attachments...
+                       </p>
+                       <p className={`flex items-center justify-center gap-2 ${['sending','success'].includes(submissionStatus) ? 'text-green-600 font-bold' : ''}`}>
+                          {['sending','success'].includes(submissionStatus) && <CheckCircle className="w-4 h-4" />}
+                          3. Uploading & Sending Email...
+                       </p>
+                    </div>
+                    <p className="text-xs text-slate-400 mt-4">Please do not close this window.</p>
+                  </div>
+               </div>
+            )}
 
-          {/* Navigation Buttons */}
-          <div className="flex justify-between mt-8 pt-6 border-t">
-             {step > 1 && (
-               <button onClick={() => { setStep(prev => prev - 1); window.scrollTo(0,0); }} className="flex items-center gap-2 px-6 py-2 rounded border hover:bg-gray-50 text-gray-600">
-                 <ChevronLeft className="w-4 h-4" /> Back
-               </button>
-             )}
-             
-             {step < 6 ? (
-               <button onClick={handleNext} className="ml-auto flex items-center gap-2 bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 shadow-md">
-                 Next Step <ChevronRight className="w-4 h-4" />
-               </button>
-             ) : (
-               <button 
-                 onClick={handleSubmit} 
-                 disabled={loading || !allVerified}
-                 className={`ml-auto flex items-center gap-2 px-8 py-3 rounded-lg font-bold shadow-lg transition-all
-                   ${loading || !allVerified 
-                     ? 'bg-gray-400 cursor-not-allowed' 
-                     : 'bg-green-600 text-white hover:bg-green-700 hover:scale-105'
-                   }
-                 `}
-               >
-                 {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
-                 {loading ? 'Submitting...' : 'Final Submit'}
-               </button>
-             )}
           </div>
-          
-          {/* Detailed Submission Progress Indicator */}
-          {loading && (
-             <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100]">
-                <div className="bg-white p-8 rounded-xl shadow-2xl max-w-sm w-full text-center space-y-4">
-                  <div className="relative w-16 h-16 mx-auto">
-                     <div className="absolute inset-0 border-4 border-slate-200 rounded-full"></div>
-                     <div className="absolute inset-0 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                  </div>
-                  <h3 className="text-xl font-bold text-slate-800">Processing Application</h3>
-                  <div className="space-y-2 text-sm text-slate-600">
-                     <p className={`flex items-center justify-center gap-2 ${['generating','merging','sending','success'].includes(submissionStatus) ? 'text-green-600 font-bold' : ''}`}>
-                        {['generating','merging','sending','success'].includes(submissionStatus) && <CheckCircle className="w-4 h-4" />}
-                        1. Generating Application PDF...
-                     </p>
-                     <p className={`flex items-center justify-center gap-2 ${['merging','sending','success'].includes(submissionStatus) ? 'text-green-600 font-bold' : ''}`}>
-                        {['merging','sending','success'].includes(submissionStatus) && <CheckCircle className="w-4 h-4" />}
-                        2. Merging Attachments...
-                     </p>
-                     <p className={`flex items-center justify-center gap-2 ${['sending','success'].includes(submissionStatus) ? 'text-green-600 font-bold' : ''}`}>
-                        {['sending','success'].includes(submissionStatus) && <CheckCircle className="w-4 h-4" />}
-                        3. Uploading & Sending Email...
-                     </p>
-                  </div>
-                  <p className="text-xs text-slate-400 mt-4">Please do not close this window.</p>
-                </div>
-             </div>
-          )}
-
         </div>
-      </div>
 
-      {/* Footer Admin Link */}
-      <div className="mt-8 text-center">
-         <a 
-           href="https://docs.google.com/spreadsheets/d/1yA_v8D9zKk-WpZk5yCjXJq-WpZk5yCjXJq-WpZk5yC/edit?usp=sharing"
-           target="_blank"
-           rel="noreferrer" 
-           className="text-slate-300 hover:text-slate-500 text-xs transition-colors"
-           title="Authorized Access Only"
-         >
-           Admin Database Access
-         </a>
+        {/* Footer Admin Link */}
+        <div className="mt-8 text-center">
+           <a 
+             href="https://docs.google.com/spreadsheets/d/1yA_v8D9zKk-WpZk5yCjXJq-WpZk5yCjXJq-WpZk5yC/edit?usp=sharing"
+             target="_blank"
+             rel="noreferrer" 
+             className="text-slate-300 hover:text-slate-500 text-xs transition-colors"
+             title="Authorized Access Only"
+           >
+             Admin Database Access
+           </a>
+        </div>
       </div>
     </div>
   );

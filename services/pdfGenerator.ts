@@ -59,9 +59,9 @@ export const generatePDF = (data: ApplicationData, shouldDownload: boolean = tru
   doc.setFont('helvetica', 'bold');
   doc.text(`Subject: Application for the post of  ${data.postAppliedFor}`, 14, yPos);
   
+  // REMOVED DUPLICATE CATEGORY HERE as per instructions
   yPos += 10;
   doc.setFont('helvetica', 'normal');
-  doc.text(`Category: ${data.category}`, pageWidth - 90, yPos - 10); 
 
   doc.text(`With reference to your advertisement in ${data.advertisementRef}`, 14, yPos);
   doc.text(`I request you to consider my application for above said post. My biodata is given below:`, 14, yPos + 6);
@@ -281,7 +281,6 @@ export const generatePDF = (data: ApplicationData, shouldDownload: boolean = tru
       [{ content: '(c) MOOCs', colSpan: 5, styles: { fontStyle: 'bold' } }],
       ['', 'Development of complete MOOCs in 4 quadrants (4 credit course)(In case of MOOCs of lesser credits 05 marks/credit)', '20', '20', data.research.resMoocs4Quad],
       ['', 'MOOCs (developed in 4 quadrant) per module/lecture', '05', '05', data.research.resMoocsModule],
-      // Typo Fix: "Contentwriter" -> "Content writer"
       ['', 'Content writer/Subject matter expert for each module of MOOCs (at least one quadrant)', '02', '02', data.research.resMoocsContent],
       ['', 'Course Coordinator for MOOCs (4 credit course)(In case of MOOCs of lesser credits 02 marks/credit)', '08', '08', data.research.resMoocsCoord],
 
