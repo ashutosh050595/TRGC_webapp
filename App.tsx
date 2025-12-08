@@ -71,14 +71,13 @@ const Table2Row = ({
               onChange={(e) => {
                 const val = parseFloat(e.target.value);
                 // Allow user to enter up to the max specified. 
-                // Note: Some criteria allow accumulation (like research papers), so maxVal might apply per item, not total.
-                // However, based on previous instructions, we usually limit per cell.
-                // For Table 2, often there is no upper limit per row (like Research papers), only capped sections.
-                // We will rely on user honesty but prevent negative numbers.
                 if (val < 0) return;
+                // Use maxVal to restrict input if a limit exists
+                if (maxVal > 0 && val > maxVal) return;
                 onChange(e.target.value);
               }}
             />
+            {maxVal > 0 && <span className="text-[10px] text-gray-400 text-right">Max: {maxVal}</span>}
           </div>
         )}
       </td>
