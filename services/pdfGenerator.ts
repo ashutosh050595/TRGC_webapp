@@ -206,7 +206,10 @@ export const generatePDF = (data: ApplicationData, shouldDownload: boolean = tru
   doc.addPage();
   yPos = 15;
   doc.setFont('helvetica', 'bold');
-  centerText("III. Academic/Research Score: Maximum 32.5 marks", yPos, 11, 'helvetica', 'bold');
+  // Left aligned header as requested
+  doc.setFontSize(11);
+  doc.text("III. Academic/Research Score: Maximum 32.5 marks", 14, yPos);
+  
   centerText("MDU AC PASSED TABLE 2: Methodology for University and College Teachers for Calculating Academic/Research Score", yPos + 6, 9, 'helvetica', 'bold');
   
   yPos += 15;
@@ -229,37 +232,61 @@ export const generatePDF = (data: ApplicationData, shouldDownload: boolean = tru
       'Self Appraisal Marks'
     ]],
     body: [
-      // 1. Research Papers (Long text)
-      ['1.', 'For Direct Recruitment:\nResearch Papers in Peer-reviewed / UGC Journals upto 13.06.2019 and UGC CARE Listed Journals w.e.f. 14.06.2019\n\nFor Career Advancement Scheme:\nResearch Papers in Peer-reviewed / UGC Journals upto 02.07.2023 and UGC CARE Listed Journals w.e.f. 03.07.2023', '08', '10', data.research.resPapers],
+      // 1. Research Papers (Split for mixed styling)
+      [
+        { content: '1.', rowSpan: 4, styles: { valign: 'middle' } },
+        { content: 'For Direct Recruitment:', styles: { fontStyle: 'bold' } }, // Bold
+        { content: '08', rowSpan: 4, styles: { valign: 'middle', halign: 'center' } },
+        { content: '10', rowSpan: 4, styles: { valign: 'middle', halign: 'center' } },
+        { content: data.research.resPapers, rowSpan: 4, styles: { valign: 'middle', halign: 'center' } }
+      ],
+      [
+        { content: 'Research Papers in Peer-reviewed / UGC Journals upto 13.06.2019 and UGC CARE Listed Journals w.e.f. 14.06.2019' }
+      ],
+      [
+        { content: 'For Career Advancement Scheme:', styles: { fontStyle: 'bold' } } // Bold
+      ],
+      [
+        { content: 'Research Papers in Peer-reviewed / UGC Journals upto 02.07.2023 and UGC CARE Listed Journals w.e.f. 03.07.2023' }
+      ],
       
       // 2. Publications
       [{ content: '2. Publications (other than Research papers)', colSpan: 5, styles: { fontStyle: 'bold', fillColor: [240, 240, 240] } }],
-      [{ content: '(a) Books authored which are published by;', colSpan: 5, styles: { fontStyle: 'italic' } }],
+      
+      // 2(a) Bold
+      [{ content: '(a) Books authored which are published by;', colSpan: 5, styles: { fontStyle: 'bold' } }],
       ['', 'International publishers', '12', '12', data.research.resBooksInt],
       ['', 'National Publishers', '10', '10', data.research.resBooksNat],
       ['', 'Chapter in Edited Book', '05', '05', data.research.resChapter],
       ['', 'Editor of Book by International Publisher', '10', '10', data.research.resEditorInt],
       ['', 'Editor of Book by National Publisher', '08', '08', data.research.resEditorNat],
       
-      [{ content: '(b) Translation works in Indian and Foreign Languages by qualified faculties', colSpan: 5, styles: { fontStyle: 'italic' } }],
+      // 2(b) Bold
+      [{ content: '(b) Translation works in Indian and Foreign Languages by qualified faculties', colSpan: 5, styles: { fontStyle: 'bold' } }],
       ['', 'Chapter or Research paper', '03', '03', data.research.resTransChapter],
       ['', 'Book', '08', '08', data.research.resTransBook],
 
       // 3. ICT
       [{ content: '3. Creation of ICT mediated Teaching Learning pedagogy and content and development of new and innovative courses and curricula', colSpan: 5, styles: { fontStyle: 'bold', fillColor: [240, 240, 240] } }],
-      [{ content: '(a) Development of Innovative pedagogy', colSpan: 5, styles: { fontStyle: 'italic' } }],
+      
+      // 3(a) Bold
+      [{ content: '(a) Development of Innovative pedagogy', colSpan: 5, styles: { fontStyle: 'bold' } }],
       ['', 'Development of Innovative pedagogy', '05', '05', data.research.resIctPedagogy],
       
-      [{ content: '(b) Design of new curricula and courses', colSpan: 5, styles: { fontStyle: 'italic' } }],
+      // 3(b) Bold
+      [{ content: '(b) Design of new curricula and courses', colSpan: 5, styles: { fontStyle: 'bold' } }],
       ['', 'Design of new curricula and courses', '02 per curricula/course', '02 per curricula/course', data.research.resIctCurricula],
 
-      [{ content: '(c) MOOCs', colSpan: 5, styles: { fontStyle: 'italic' } }],
+      // 3(c) Bold
+      [{ content: '(c) MOOCs', colSpan: 5, styles: { fontStyle: 'bold' } }],
       ['', 'Development of complete MOOCs in 4 quadrants (4 credit course)(In case of MOOCs of lesser credits 05 marks/credit)', '20', '20', data.research.resMoocs4Quad],
       ['', 'MOOCs (developed in 4 quadrant) per module/lecture', '05', '05', data.research.resMoocsModule],
-      ['', 'Contentwriter/subject matter expert for each moduleof MOOCs (at least one quadrant)', '02', '02', data.research.resMoocsContent],
+      // Typo Fix: "Contentwriter" -> "Content writer"
+      ['', 'Content writer/Subject matter expert for each module of MOOCs (at least one quadrant)', '02', '02', data.research.resMoocsContent],
       ['', 'Course Coordinator for MOOCs (4 credit course)(In case of MOOCs of lesser credits 02 marks/credit)', '08', '08', data.research.resMoocsCoord],
 
-      [{ content: '(d) E-Content', colSpan: 5, styles: { fontStyle: 'italic' } }],
+      // 3(d) Bold
+      [{ content: '(d) E-Content', colSpan: 5, styles: { fontStyle: 'bold' } }],
       ['', 'Development of e-Content in 4 quadrants for a complete course/e-book', '12', '12', data.research.resEcontentComplete],
       ['', 'e-Content (developed in 4 quadrants) per module', '05', '05', data.research.resEcontentModule],
       ['', 'Contribution to development of e-content module in complete course/paper/e-book (at least one quadrant)', '02', '02', data.research.resEcontentContrib],
@@ -270,15 +297,18 @@ export const generatePDF = (data: ApplicationData, shouldDownload: boolean = tru
       ['', 'Ph.D.\n(10 per degree awarded 05 per thesis submitted)', '10 per degree awarded 05 per thesis submitted', '10 per degree awarded 05 per thesis submitted', data.research.resPhd],
       ['', 'M.Phil./P.G dissertation', '02 per degree awarded', '02 per degree awarded', data.research.resMphil],
 
-      [{ content: '(b) Research Projects Completed', colSpan: 5, styles: { fontStyle: 'italic' } }],
+      // 4(b) Bold
+      [{ content: '(b) Research Projects Completed', colSpan: 5, styles: { fontStyle: 'bold' } }],
       ['', 'More than 10 lakhs', '10', '10', data.research.resProjMore10],
       ['', 'Less than 10 lakhs', '05', '05', data.research.resProjLess10],
 
-      [{ content: '(c) Research Projects Ongoing :', colSpan: 5, styles: { fontStyle: 'italic' } }],
+      // 4(c) Bold
+      [{ content: '(c) Research Projects Ongoing :', colSpan: 5, styles: { fontStyle: 'bold' } }],
       ['', 'More than 10 lakhs', '05', '05', data.research.resProjOngoingMore10],
       ['', 'Less than 10 lakhs', '02', '02', data.research.resProjOngoingLess10],
 
-      [{ content: '(d) Consultancy', colSpan: 5, styles: { fontStyle: 'italic' } }],
+      // 4(d) Bold
+      [{ content: '(d) Consultancy', colSpan: 5, styles: { fontStyle: 'bold' } }],
       ['', 'Consultancy', '03', '03', data.research.resConsultancy],
 
       // 5. Patents
@@ -286,12 +316,14 @@ export const generatePDF = (data: ApplicationData, shouldDownload: boolean = tru
       ['', 'International', '10', '0', data.research.resPatentInt],
       ['', 'National', '07', '0', data.research.resPatentNat],
 
-      [{ content: '(b) *Policy Document (Submitted to an International body/organisation like UNO/UNESCO/World Bank/International Monetary Fund etc. or Central Government or State Government)', colSpan: 5, styles: { fontStyle: 'italic' } }],
+      // 5(b) Bold
+      [{ content: '(b) *Policy Document (Submitted to an International body/organisation like UNO/UNESCO/World Bank/International Monetary Fund etc. or Central Government or State Government)', colSpan: 5, styles: { fontStyle: 'bold' } }],
       ['', 'International', '10', '10', data.research.resPolicyInt],
       ['', 'National', '07', '07', data.research.resPolicyNat],
       ['', 'State', '04', '04', data.research.resPolicyState],
 
-      [{ content: '(c) Awards/Fellowship', colSpan: 5, styles: { fontStyle: 'italic' } }],
+      // 5(c) Bold
+      [{ content: '(c) Awards/Fellowship', colSpan: 5, styles: { fontStyle: 'bold' } }],
       ['', 'International', '07', '07', data.research.resAwardInt],
       ['', 'National', '05', '05', data.research.resAwardNat],
 
@@ -314,15 +346,26 @@ export const generatePDF = (data: ApplicationData, shouldDownload: boolean = tru
     }
   });
 
+  // --- ANNEXURE NOTE ---
+  // Added right after the table finalY
+  yPos = (doc as any).lastAutoTable.finalY + 8;
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'bold');
+  const attachNote = "** Attach copies as proof of documents for your calculated APl score according to Annexure attached with this form - Table 2, Appendix II (as supplied by DGHE)";
+  const splitAttachNote = doc.splitTextToSize(attachNote, pageWidth - 28);
+  doc.text(splitAttachNote, 14, yPos);
+  yPos += (splitAttachNote.length * 4) + 5;
+
+
   if (data.googleDriveLink) {
-    yPos = (doc as any).lastAutoTable.finalY + 10;
     doc.setFontSize(9);
     doc.setFont('helvetica', 'italic');
     doc.text(`Large Research Files Link: ${data.googleDriveLink}`, 14, yPos);
+    yPos += 10;
   }
 
   // --- FOOTER NOTE (Page Break Check) ---
-  yPos = (doc as any).lastAutoTable.finalY + 20;
+  yPos += 10;
   if (yPos > pageHeight - 40) {
     doc.addPage();
     yPos = 20;
