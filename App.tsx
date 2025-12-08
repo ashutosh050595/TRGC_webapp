@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { ChevronRight, CheckCircle, Download, Mail, Loader2, Link as LinkIcon, ChevronLeft, Eye, CheckSquare, FileText, Upload, CreditCard, Info, ExternalLink, QrCode, AlertCircle, Send } from 'lucide-react';
+import { ChevronRight, CheckCircle, Download, Loader2, Link as LinkIcon, ChevronLeft, Eye, CheckSquare, FileText, Upload, CreditCard, Info, ExternalLink, QrCode, Send } from 'lucide-react';
 import { INITIAL_DATA, ApplicationData, ResearchData, INITIAL_RESEARCH } from './types';
 import { Input } from './components/Input';
 import { ScoreRow } from './components/ScoreRow';
@@ -674,7 +674,7 @@ function App() {
                       <ScoreRow sNo="12." particulars="Convener, Red Ribbon Club" marksCriteria="1 mark/year (Max 2)" value={data.commRedRibbon} onChange={v => handleInputChange('commRedRibbon', v)} max={2} />
                       <ScoreRow sNo="13." particulars="Convener, Eco Club" marksCriteria="1 mark/year (Max 2)" value={data.commEco} onChange={v => handleInputChange('commEco', v)} max={2} />
                       <ScoreRow sNo="14." particulars="In-charge, Placement Cell" marksCriteria="1 mark/year (Max 2)" value={data.commPlacement} onChange={v => handleInputChange('commPlacement', v)} max={2} />
-                      <ScoreRow sNo="15." particulars="In-charge, Women Cell" marksCriteria="1 mark/year (Max 2)" value={data.commWomen} onChange={v => handleInputChange('commWomen', v)} max={2} />
+                      <ScoreRow sNo="15." particulars="Incharge, Women Cell" marksCriteria="1 mark/year (Max 2)" value={data.commWomen} onChange={v => handleInputChange('commWomen', v)} max={2} />
                       <ScoreRow sNo="16." particulars="In-charge, Time-table Committee" marksCriteria="1 mark/year (Max 2)" value={data.commTimeTable} onChange={v => handleInputChange('commTimeTable', v)} max={2} />
                       <ScoreRow sNo="17." particulars="In-charge, SC/BC Committee" marksCriteria="1 mark/year (Max 2)" value={data.commSCBC} onChange={v => handleInputChange('commSCBC', v)} max={2} />
                     </tbody>
