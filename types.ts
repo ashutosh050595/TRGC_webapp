@@ -1,4 +1,5 @@
 
+
 export interface ScoreItem {
   id: string;
   label: string;
@@ -89,6 +90,7 @@ export interface ApplicationData {
   respWarden: string;
   respStatutory: string;
   respNCC: string;
+  fileResponsibilities: string | null; // NEW: Base64 PDF for Responsibilities
 
   // Committees (Page 3/4 - B.iii)
   commIQAC: string;
@@ -108,7 +110,7 @@ export interface ApplicationData {
   commWomen: string;
   commTimeTable: string;
   commSCBC: string;
-  fileAdmin: string | null; // Base64 PDF (Committees/Resp)
+  fileAdmin: string | null; // Base64 PDF (Committees)
 
   // III. Research (Table 2)
   research: ResearchData;
@@ -212,6 +214,7 @@ export const INITIAL_DATA: ApplicationData = {
   respWarden: '',
   respStatutory: '',
   respNCC: '',
+  fileResponsibilities: null,
   commIQAC: '',
   commEditor: '',
   commAdvisory: '',

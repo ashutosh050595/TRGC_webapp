@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect } from 'react';
 import { ChevronRight, CheckCircle, Download, Loader2, Link as LinkIcon, ChevronLeft, Eye, CheckSquare, FileText, Upload, CreditCard, ExternalLink, QrCode, Send, ArrowRight, FileCheck, ShieldCheck } from 'lucide-react';
 import { INITIAL_DATA, ApplicationData, ResearchData } from './types';
@@ -223,7 +224,8 @@ function App() {
     }
 
     if (currentStep === 4) {
-       requireField('fileAdmin', 'Supporting documents are required');
+       requireField('fileResponsibilities', 'Responsibilities documents are required');
+       requireField('fileAdmin', 'Committee documents are required');
     }
 
     if (currentStep === 5) {
@@ -303,7 +305,8 @@ function App() {
         { base64: data.fileAcademic, title: "APPENDIX I: ACADEMIC RECORDS" },
         { base64: data.fileTeaching, title: "APPENDIX II: TEACHING EXPERIENCE" },
         { base64: data.fileAdminSkill, title: "APPENDIX III: ADMIN SKILLS" },
-        { base64: data.fileAdmin, title: "APPENDIX IV: RESPONSIBILITIES & COMMITTEES" },
+        { base64: data.fileResponsibilities, title: "APPENDIX IV-A: RESPONSIBILITIES" },
+        { base64: data.fileAdmin, title: "APPENDIX IV-B: COMMITTEES" },
         { base64: data.fileResearch, title: "APPENDIX V: RESEARCH DOCUMENTS" },
         { base64: data.fileNOC, title: "EMPLOYER NOC" },
         { base64: data.filePaymentScreenshot, title: "PAYMENT PROOF" }
@@ -692,6 +695,11 @@ function App() {
                       </tbody>
                     </table>
                   </div>
+                  <div className="bg-slate-50 p-4 rounded border mt-4">
+                      <label className="font-semibold text-sm">Upload Supporting Documents (Key Responsibilities)</label>
+                      <input type="file" accept="application/pdf" onChange={e => e.target.files?.[0] && handleFileUpload('fileResponsibilities', e.target.files[0])} className="block w-full text-sm mt-2" />
+                      {errors.fileResponsibilities && <p className="text-red-500 text-xs mt-1">{errors.fileResponsibilities}</p>}
+                  </div>
                 </div>
                 <div>
                   <h3 className="font-bold text-gray-700 mb-2 text-sm">(iii) Experience of Committees in College</h3>
@@ -719,7 +727,7 @@ function App() {
                     </table>
                   </div>
                   <div className="bg-slate-50 p-4 rounded border mt-6">
-                     <label className="font-semibold text-sm">Upload Supporting Documents (Responsibilities & Committees)</label>
+                     <label className="font-semibold text-sm">Upload Supporting Documents (Committees)</label>
                      <input type="file" accept="application/pdf" onChange={e => e.target.files?.[0] && handleFileUpload('fileAdmin', e.target.files[0])} className="block w-full text-sm mt-2" />
                      {errors.fileAdmin && <p className="text-red-500 text-xs mt-1">{errors.fileAdmin}</p>}
                   </div>
@@ -1034,6 +1042,7 @@ function App() {
                       { label: 'Academic Docs', file: data.fileAcademic },
                       { label: 'Teaching Docs', file: data.fileTeaching },
                       { label: 'Admin Docs', file: data.fileAdminSkill },
+                      { label: 'Responsibility Docs', file: data.fileResponsibilities },
                       { label: 'Committee Docs', file: data.fileAdmin },
                       { label: 'Research Docs', file: data.fileResearch },
                       { label: 'NOC', file: data.fileNOC },
