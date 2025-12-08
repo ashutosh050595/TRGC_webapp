@@ -9,6 +9,10 @@ import { generatePDF } from './services/pdfGenerator';
 import { sendApplicationEmail } from './services/emailService';
 import { mergePDFs } from './services/pdfMerger';
 
+// --- CONFIGURATION ---
+// TODO: Replace the URL below with the link to your actual Google Sheet to view submissions
+const ADMIN_SHEET_URL = "https://docs.google.com/spreadsheets/d/1yA_v8D9zKk-WpZk5yCjXJq-WpZk5yCjXJq-WpZk5yC/edit?usp=sharing";
+
 // Helper component for Table 2 Rows
 const Table2Row = ({ 
   sn, 
@@ -1148,7 +1152,7 @@ function App() {
         {/* Footer Admin Link */}
         <div className="mt-8 text-center">
            <a 
-             href="https://docs.google.com/spreadsheets/d/1yA_v8D9zKk-WpZk5yCjXJq-WpZk5yCjXJq-WpZk5yC/edit?usp=sharing"
+             href={ADMIN_SHEET_URL}
              target="_blank"
              rel="noreferrer" 
              className="text-slate-300 hover:text-slate-500 text-xs transition-colors"
