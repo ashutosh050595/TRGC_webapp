@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
-import { ChevronRight, CheckCircle, Download, Loader2, Link as LinkIcon, ChevronLeft, Eye, CheckSquare, FileText, Upload, CreditCard, Info, ExternalLink, QrCode, Send, GraduationCap, ArrowRight, FileCheck, ShieldCheck } from 'lucide-react';
-import { INITIAL_DATA, ApplicationData, ResearchData, INITIAL_RESEARCH } from './types';
+import { ChevronRight, CheckCircle, Download, Loader2, Link as LinkIcon, ChevronLeft, Eye, CheckSquare, FileText, Upload, CreditCard, ExternalLink, QrCode, Send, ArrowRight, FileCheck, ShieldCheck } from 'lucide-react';
+import { INITIAL_DATA, ApplicationData, ResearchData } from './types';
 import { Input } from './components/Input';
 import { ScoreRow } from './components/ScoreRow';
 import { SectionHeader } from './components/SectionHeader';
