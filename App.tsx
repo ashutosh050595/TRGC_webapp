@@ -746,6 +746,10 @@ function App() {
                   </tbody>
                 </table>
               </div>
+              
+              <div className="mt-4 text-sm font-bold text-slate-800">
+                ** Attach copies as proof of documents for your calculated APl score according to Annexure attached with this form - Table 2, Appendix II (as supplied by DGHE)
+              </div>
 
               <div className="bg-slate-50 p-6 rounded-lg border">
                 <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
