@@ -128,6 +128,7 @@ function App() {
   }, [step, data.fatherName, data.parentName]);
 
   const updateField = (field: keyof ApplicationData, value: string) => {
+    // @ts-ignore - Ignoring type mismatch for research field which is object
     setData(prev => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
@@ -167,7 +168,13 @@ function App() {
     let isValid = true;
 
     const requireField = (field: keyof ApplicationData, message = "This field is required") => {
-      if (!data[field] || (typeof data[field] === 'string' && !data[field].trim())) {
+      const val = data[field];
+      if (val === null || val === undefined) {
+         newErrors[field] = message;
+         isValid = false;
+         return;
+      }
+      if (typeof val === 'string' && val.trim() === '') {
         newErrors[field] = message;
         isValid = false;
       }
@@ -236,7 +243,8 @@ function App() {
       const researchKeys = Object.keys(data.research) as Array<keyof typeof data.research>;
       let researchMissing = false;
       researchKeys.forEach(key => {
-        if (!data.research[key] || data.research[key].trim() === '') {
+        const val = data.research[key];
+        if (!val || (typeof val === 'string' && val.trim() === '')) {
           researchMissing = true;
         }
       });
