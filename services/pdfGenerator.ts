@@ -61,7 +61,7 @@ export const generatePDF = (data: ApplicationData, shouldDownload: boolean = tru
   
   yPos += 10;
   doc.setFont('helvetica', 'normal');
-  doc.text(`Category: ${data.category}`, pageWidth - 90, yPos - 10); // Placed beside Date of Birth logic approximately
+  doc.text(`Category: ${data.category}`, pageWidth - 90, yPos - 10); 
 
   doc.text(`With reference to your advertisement in ${data.advertisementRef}`, 14, yPos);
   doc.text(`I request you to consider my application for above said post. My biodata is given below:`, 14, yPos + 6);
@@ -70,7 +70,7 @@ export const generatePDF = (data: ApplicationData, shouldDownload: boolean = tru
   const labels = [
     { label: "Name", val: data.name },
     { label: "Father's Name", val: data.fatherName },
-    { label: "Date of Birth", val: formatDate(data.dob) }, // Formatted
+    { label: "Date of Birth", val: formatDate(data.dob) },
     { label: "Category", val: data.category },
     { label: "Permanent Address", val: data.permanentAddress },
     { label: "Correspondence Address", val: data.correspondenceAddress },
@@ -206,22 +206,31 @@ export const generatePDF = (data: ApplicationData, shouldDownload: boolean = tru
   doc.addPage();
   yPos = 15;
   doc.setFont('helvetica', 'bold');
-  centerText("TABLE 2", yPos, 11, 'helvetica', 'bold');
-  centerText("Methodology for University and College Teachers for Calculating Academic/Research Score", yPos + 6, 10, 'helvetica', 'bold');
+  centerText("III. Academic/Research Score: Maximum 32.5 marks", yPos, 11, 'helvetica', 'bold');
+  centerText("MDU AC PASSED TABLE 2: Methodology for University and College Teachers for Calculating Academic/Research Score", yPos + 6, 9, 'helvetica', 'bold');
   
   yPos += 15;
+  // Print the assessment note
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'normal');
+  const assessNote = "(Assessment must be based on evidence produced by the teacher such as : copy of publications, project sanction letter, utilization and completion certificates issued by University and acknowledgements for patent filing and approval letters, students Ph.D. award letter etc.)";
+  const splitAssess = doc.splitTextToSize(assessNote, pageWidth - 28);
+  doc.text(splitAssess, 14, yPos);
+  
+  yPos += (splitAssess.length * 4) + 2;
+
   autoTable(doc, {
     startY: yPos,
     head: [[
       'S.N.', 
       'Academic/Research Activity', 
-      'Faculty of Sciences/\nEngg./Agri./Med./Vet.', 
-      'Faculty of Lang./\nHumanities/Arts/Soc.Sci.', 
+      'Faculty of Sciences/\nEngineering/Agriculture/\nMedical/Veterinary Sciences', 
+      'Faculty of Languages/\nHumanities/Arts/Social \nSciences/Library/Education/\nPhysical Education/Commerce/\nManagement & other related \ndisciplines', 
       'Self Appraisal Marks'
     ]],
     body: [
-      // 1. Research Papers
-      ['1.', 'Research Papers in Peer-reviewed / UGC Journals', '08', '10', data.research.resPapers],
+      // 1. Research Papers (Long text)
+      ['1.', 'For Direct Recruitment:\nResearch Papers in Peer-reviewed / UGC Journals upto 13.06.2019 and UGC CARE Listed Journals w.e.f. 14.06.2019\n\nFor Career Advancement Scheme:\nResearch Papers in Peer-reviewed / UGC Journals upto 02.07.2023 and UGC CARE Listed Journals w.e.f. 03.07.2023', '08', '10', data.research.resPapers],
       
       // 2. Publications
       [{ content: '2. Publications (other than Research papers)', colSpan: 5, styles: { fontStyle: 'bold', fillColor: [240, 240, 240] } }],
@@ -232,40 +241,40 @@ export const generatePDF = (data: ApplicationData, shouldDownload: boolean = tru
       ['', 'Editor of Book by International Publisher', '10', '10', data.research.resEditorInt],
       ['', 'Editor of Book by National Publisher', '08', '08', data.research.resEditorNat],
       
-      [{ content: '(b) Translation works in Indian and Foreign Languages', colSpan: 5, styles: { fontStyle: 'italic' } }],
+      [{ content: '(b) Translation works in Indian and Foreign Languages by qualified faculties', colSpan: 5, styles: { fontStyle: 'italic' } }],
       ['', 'Chapter or Research paper', '03', '03', data.research.resTransChapter],
       ['', 'Book', '08', '08', data.research.resTransBook],
 
       // 3. ICT
-      [{ content: '3. Creation of ICT mediated Teaching Learning pedagogy and content', colSpan: 5, styles: { fontStyle: 'bold', fillColor: [240, 240, 240] } }],
+      [{ content: '3. Creation of ICT mediated Teaching Learning pedagogy and content and development of new and innovative courses and curricula', colSpan: 5, styles: { fontStyle: 'bold', fillColor: [240, 240, 240] } }],
       [{ content: '(a) Development of Innovative pedagogy', colSpan: 5, styles: { fontStyle: 'italic' } }],
       ['', 'Development of Innovative pedagogy', '05', '05', data.research.resIctPedagogy],
       
       [{ content: '(b) Design of new curricula and courses', colSpan: 5, styles: { fontStyle: 'italic' } }],
-      ['', 'Design of new curricula and courses', '02/curr', '02/curr', data.research.resIctCurricula],
+      ['', 'Design of new curricula and courses', '02 per curricula/course', '02 per curricula/course', data.research.resIctCurricula],
 
       [{ content: '(c) MOOCs', colSpan: 5, styles: { fontStyle: 'italic' } }],
-      ['', 'Dev of complete MOOCs (4 credits)', '20', '20', data.research.resMoocs4Quad],
+      ['', 'Development of complete MOOCs in 4 quadrants (4 credit course)(In case of MOOCs of lesser credits 05 marks/credit)', '20', '20', data.research.resMoocs4Quad],
       ['', 'MOOCs (developed in 4 quadrant) per module/lecture', '05', '05', data.research.resMoocsModule],
-      ['', 'Content writer/subject matter expert for MOOCs', '02', '02', data.research.resMoocsContent],
-      ['', 'Course Coordinator for MOOCs (4 credits)', '08', '08', data.research.resMoocsCoord],
+      ['', 'Contentwriter/subject matter expert for each moduleof MOOCs (at least one quadrant)', '02', '02', data.research.resMoocsContent],
+      ['', 'Course Coordinator for MOOCs (4 credit course)(In case of MOOCs of lesser credits 02 marks/credit)', '08', '08', data.research.resMoocsCoord],
 
       [{ content: '(d) E-Content', colSpan: 5, styles: { fontStyle: 'italic' } }],
-      ['', 'Dev of E-Content in 4 quadrants (complete)', '12', '12', data.research.resEcontentComplete],
-      ['', 'E-Content per module', '05', '05', data.research.resEcontentModule],
-      ['', 'Contribution to E-Content (at least one quadrant)', '02', '02', data.research.resEcontentContrib],
-      ['', 'Editor of E-content for complete course', '10', '10', data.research.resEcontentEditor],
+      ['', 'Development of e-Content in 4 quadrants for a complete course/e-book', '12', '12', data.research.resEcontentComplete],
+      ['', 'e-Content (developed in 4 quadrants) per module', '05', '05', data.research.resEcontentModule],
+      ['', 'Contribution to development of e-content module in complete course/paper/e-book (at least one quadrant)', '02', '02', data.research.resEcontentContrib],
+      ['', 'Editor of e-content for complete course/ paper /e-book', '10', '10', data.research.resEcontentEditor],
 
       // 4. Guidance
       [{ content: '4. (a) Research guidance', colSpan: 5, styles: { fontStyle: 'bold', fillColor: [240, 240, 240] } }],
-      ['', 'Ph.D.', '10 / 05', '10 / 05', data.research.resPhd],
-      ['', 'M.Phil./P.G dissertation', '02', '02', data.research.resMphil],
+      ['', 'Ph.D.\n(10 per degree awarded 05 per thesis submitted)', '10 per degree awarded 05 per thesis submitted', '10 per degree awarded 05 per thesis submitted', data.research.resPhd],
+      ['', 'M.Phil./P.G dissertation', '02 per degree awarded', '02 per degree awarded', data.research.resMphil],
 
       [{ content: '(b) Research Projects Completed', colSpan: 5, styles: { fontStyle: 'italic' } }],
       ['', 'More than 10 lakhs', '10', '10', data.research.resProjMore10],
       ['', 'Less than 10 lakhs', '05', '05', data.research.resProjLess10],
 
-      [{ content: '(c) Research Projects Ongoing', colSpan: 5, styles: { fontStyle: 'italic' } }],
+      [{ content: '(c) Research Projects Ongoing :', colSpan: 5, styles: { fontStyle: 'italic' } }],
       ['', 'More than 10 lakhs', '05', '05', data.research.resProjOngoingMore10],
       ['', 'Less than 10 lakhs', '02', '02', data.research.resProjOngoingLess10],
 
@@ -274,10 +283,10 @@ export const generatePDF = (data: ApplicationData, shouldDownload: boolean = tru
 
       // 5. Patents
       [{ content: '5. (a) Patents', colSpan: 5, styles: { fontStyle: 'bold', fillColor: [240, 240, 240] } }],
-      ['', 'International', '10', '10', data.research.resPatentInt],
-      ['', 'National', '07', '07', data.research.resPatentNat],
+      ['', 'International', '10', '0', data.research.resPatentInt],
+      ['', 'National', '07', '0', data.research.resPatentNat],
 
-      [{ content: '(b) Policy Document', colSpan: 5, styles: { fontStyle: 'italic' } }],
+      [{ content: '(b) *Policy Document (Submitted to an International body/organisation like UNO/UNESCO/World Bank/International Monetary Fund etc. or Central Government or State Government)', colSpan: 5, styles: { fontStyle: 'italic' } }],
       ['', 'International', '10', '10', data.research.resPolicyInt],
       ['', 'National', '07', '07', data.research.resPolicyNat],
       ['', 'State', '04', '04', data.research.resPolicyState],
@@ -287,11 +296,11 @@ export const generatePDF = (data: ApplicationData, shouldDownload: boolean = tru
       ['', 'National', '05', '05', data.research.resAwardNat],
 
       // 6. Invited Lectures
-      [{ content: '6. Invited lectures / Resource Person', colSpan: 5, styles: { fontStyle: 'bold', fillColor: [240, 240, 240] } }],
-      ['', 'International (Abroad)', '07', '07', data.research.resInvitedIntAbroad],
-      ['', 'International (within country)', '05', '05', data.research.resInvitedIntWithin],
-      ['', 'National', '03', '03', data.research.resInvitedNat],
-      ['', 'State/University', '02', '02', data.research.resInvitedState],
+      [{ content: '6. *Invited lectures / Resource Person/ paper presentation in Seminars/ Conferences/full paper in Conference Proceedings (Paper presented in Seminars/Conferences and also published as full paper in Conference Proceedings will be counted only once)', colSpan: 5, styles: { fontStyle: 'bold', fillColor: [240, 240, 240] } }],
+      ['', 'International (Abroad)', '07', '0', data.research.resInvitedIntAbroad],
+      ['', 'International (within country)', '05', '0', data.research.resInvitedIntWithin],
+      ['', 'National', '03', '0', data.research.resInvitedNat],
+      ['', 'State/University', '02', '0', data.research.resInvitedState],
     ],
     theme: 'grid',
     headStyles: { fillColor: [255, 255, 255], textColor: 0, lineWidth: 0.1, lineColor: 0 },
@@ -299,9 +308,9 @@ export const generatePDF = (data: ApplicationData, shouldDownload: boolean = tru
     columnStyles: {
       0: { cellWidth: 10 },
       1: { cellWidth: 'auto' },
-      2: { cellWidth: 25, halign: 'center' },
-      3: { cellWidth: 25, halign: 'center' },
-      4: { cellWidth: 25, halign: 'center' }
+      2: { cellWidth: 35, halign: 'center' }, // Adjusted for longer headers
+      3: { cellWidth: 35, halign: 'center' },
+      4: { cellWidth: 20, halign: 'center' }
     }
   });
 
