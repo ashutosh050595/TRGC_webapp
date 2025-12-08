@@ -103,6 +103,14 @@ function App() {
     payment: false
   });
 
+  // Calculate Admin Skill Sum for Step 3
+  const getAdminSkillTotal = () => {
+    const v1 = parseFloat(data.adminJointDirector) || 0;
+    const v2 = parseFloat(data.adminRegistrar) || 0;
+    const v3 = parseFloat(data.adminHead) || 0;
+    return v1 + v2 + v3;
+  };
+
   // Prefill Parent's Name when entering Step 6
   useEffect(() => {
     if (step === 6 && !data.parentName && data.fatherName) {
@@ -170,9 +178,11 @@ function App() {
       requireField('correspondenceAddress');
       requireField('photo', "Photograph is required");
 
-      if (data.email && data.confirmEmail && data.email !== data.confirmEmail) {
-        newErrors['confirmEmail'] = "Email addresses do not match.";
+      // Strict Email Matching
+      if (data.email && data.confirmEmail && data.email.trim() !== data.confirmEmail.trim()) {
+        newErrors['confirmEmail'] = "Email addresses do not match. Please enter the same email.";
         isValid = false;
+        alert("Error: Email addresses do not match.");
       }
     }
 
@@ -192,6 +202,13 @@ function App() {
       requireField('adminRegistrar');
       requireField('adminHead');
       requireField('fileAdminSkill', "Administrative skill document is required");
+
+      // Validate Admin Skill Total Sum
+      const adminSum = getAdminSkillTotal();
+      if (adminSum > 25) {
+        alert(`Total Administrative Skill marks cannot exceed 25. You have entered ${adminSum}. Please reduce marks in section (i).`);
+        isValid = false;
+      }
     }
 
     if (currentStep === 4) {
@@ -548,7 +565,12 @@ function App() {
                     {errors.fileTeaching && <p className="text-red-500 text-xs mt-1">{errors.fileTeaching}</p>}
                 </div>
 
-                <h3 className="font-semibold text-slate-700 mb-2">B. Administrative Skill</h3>
+                <div className="flex justify-between items-center mb-2">
+                  <h3 className="font-semibold text-slate-700">B. Administrative Skill</h3>
+                  <div className={`text-sm font-bold ${getAdminSkillTotal() > 25 ? 'text-red-600' : 'text-blue-600'}`}>
+                    Total Claimed: {getAdminSkillTotal()} / Max 25
+                  </div>
+                </div>
                 <p className="text-sm text-slate-500 mb-2">(i) Administrative Responsibilities</p>
                 <table className="w-full text-left border-collapse mb-4">
                   <tbody>
@@ -557,6 +579,8 @@ function App() {
                     <ScoreRow sNo="3." particulars="Exp as Head of Higher Edu Inst" marksCriteria="1 mark/year" value={data.adminHead} onChange={(v) => updateField('adminHead', v)} max={25} />
                   </tbody>
                 </table>
+                {getAdminSkillTotal() > 25 && <p className="text-red-500 text-sm mb-4 font-medium">Error: The total marks for Administrative Skill cannot exceed 25. Please adjust your values.</p>}
+                
                 <div className="bg-slate-50 p-4 rounded border border-dashed border-slate-300">
                     <label className="block text-sm font-medium text-slate-700 mb-2">Upload Administrative Skill Documents * (PDF, Max 2MB)</label>
                     <input type="file" accept="application/pdf" onChange={(e) => handleFileUpload('fileAdminSkill', e)} className="block w-full text-sm"/>
