@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect } from 'react';
 import { ChevronRight, CheckCircle, Download, Loader2, Link as LinkIcon, ChevronLeft, Eye, CheckSquare, FileText, Upload, CreditCard, ExternalLink, QrCode, Send, ArrowRight, FileCheck, ShieldCheck } from 'lucide-react';
 import { INITIAL_DATA, ApplicationData, ResearchData } from './types';
@@ -629,7 +627,7 @@ function App() {
                   </table>
                 </div>
                 <div className="bg-slate-50 p-4 rounded border">
-                  <label className="font-semibold text-sm">Upload Academic Documents (Merged PDF)</label>
+                  <label className="font-semibold text-sm">Upload Academic Documents (Merged PDF) <span className="text-xs text-gray-500 font-normal">(Max 2MB)</span></label>
                   <input type="file" accept="application/pdf" onChange={e => e.target.files?.[0] && handleFileUpload('fileAcademic', e.target.files[0])} className="block w-full text-sm mt-2" />
                   {errors.fileAcademic && <p className="text-red-500 text-xs mt-1">{errors.fileAcademic}</p>}
                 </div>
@@ -648,7 +646,7 @@ function App() {
                     </tbody>
                   </table>
                   <div className="bg-slate-50 p-4 rounded border mb-6">
-                     <label className="font-semibold text-sm">Upload Teaching Experience Documents</label>
+                     <label className="font-semibold text-sm">Upload Teaching Experience Documents <span className="text-xs text-gray-500 font-normal">(Max 2MB)</span></label>
                      <input type="file" accept="application/pdf" onChange={e => e.target.files?.[0] && handleFileUpload('fileTeaching', e.target.files[0])} className="block w-full text-sm mt-2" />
                      {errors.fileTeaching && <p className="text-red-500 text-xs mt-1">{errors.fileTeaching}</p>}
                   </div>
@@ -667,7 +665,7 @@ function App() {
                      </tbody>
                   </table>
                   <div className="bg-slate-50 p-4 rounded border mt-4">
-                     <label className="font-semibold text-sm">Upload Administrative Experience Documents</label>
+                     <label className="font-semibold text-sm">Upload Administrative Experience Documents <span className="text-xs text-gray-500 font-normal">(Max 2MB)</span></label>
                      <input type="file" accept="application/pdf" onChange={e => e.target.files?.[0] && handleFileUpload('fileAdminSkill', e.target.files[0])} className="block w-full text-sm mt-2" />
                      {errors.fileAdminSkill && <p className="text-red-500 text-xs mt-1">{errors.fileAdminSkill}</p>}
                   </div>
@@ -696,7 +694,7 @@ function App() {
                     </table>
                   </div>
                   <div className="bg-slate-50 p-4 rounded border mt-4">
-                      <label className="font-semibold text-sm">Upload Supporting Documents (Key Responsibilities)</label>
+                      <label className="font-semibold text-sm">Upload Supporting Documents (Key Responsibilities) <span className="text-xs text-gray-500 font-normal">(Max 2MB)</span></label>
                       <input type="file" accept="application/pdf" onChange={e => e.target.files?.[0] && handleFileUpload('fileResponsibilities', e.target.files[0])} className="block w-full text-sm mt-2" />
                       {errors.fileResponsibilities && <p className="text-red-500 text-xs mt-1">{errors.fileResponsibilities}</p>}
                   </div>
@@ -727,7 +725,7 @@ function App() {
                     </table>
                   </div>
                   <div className="bg-slate-50 p-4 rounded border mt-6">
-                     <label className="font-semibold text-sm">Upload Supporting Documents (Committees)</label>
+                     <label className="font-semibold text-sm">Upload Supporting Documents (Committees) <span className="text-xs text-gray-500 font-normal">(Max 2MB)</span></label>
                      <input type="file" accept="application/pdf" onChange={e => e.target.files?.[0] && handleFileUpload('fileAdmin', e.target.files[0])} className="block w-full text-sm mt-2" />
                      {errors.fileAdmin && <p className="text-red-500 text-xs mt-1">{errors.fileAdmin}</p>}
                   </div>
@@ -962,7 +960,7 @@ function App() {
                     </div>
 
                     <div className="mt-6">
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">Upload Payment Screenshot (UTR Visible) <span className="text-red-500">*</span></label>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Upload Payment Screenshot (UTR Visible) <span className="text-red-500">*</span> <span className="text-xs text-gray-500 font-normal">(Max 2MB)</span></label>
                       <input 
                         type="file" 
                         accept="image/*" 
@@ -1002,7 +1000,7 @@ function App() {
                          <Input label="Notice Period" value={data.empNoticePeriod} onChange={e => handleInputChange('empNoticePeriod', e.target.value)} />
                        </div>
                        <div>
-                         <label className="block text-sm font-semibold mb-1">Upload NOC</label>
+                         <label className="block text-sm font-semibold mb-1">Upload NOC <span className="text-xs text-gray-500 font-normal">(Max 2MB)</span></label>
                          <input type="file" accept="application/pdf" onChange={e => e.target.files?.[0] && handleFileUpload('fileNOC', e.target.files[0])} className="text-sm" />
                          {errors.fileNOC && <p className="text-red-500 text-xs mt-1">{errors.fileNOC}</p>}
                        </div>
