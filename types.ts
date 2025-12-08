@@ -115,11 +115,14 @@ export interface ApplicationData {
   fileResearch: string | null; // Base64 PDF
   googleDriveLink: string; // New Field
 
-  // Payment
-  utrNo: string; 
-  draftDate: string;
-  draftAmount: string;
-  bankName: string;
+  // Payment (New Detailed Fields)
+  paymentAmount: string;
+  utrNo: string;
+  confirmUtrNo: string; // Verification field
+  upiProvider: string; // Amazon, GPay, PhonePe, etc.
+  upiAddress: string;
+  accountHolderName: string;
+  filePaymentScreenshot: string | null; // Base64 Image
 
   // Declaration
   parentName: string; // D/o, S/o, W/o
@@ -230,10 +233,16 @@ export const INITIAL_DATA: ApplicationData = {
   research: INITIAL_RESEARCH,
   fileResearch: null,
   googleDriveLink: '',
+  
+  // Payment Init
+  paymentAmount: '',
   utrNo: '',
-  draftDate: '',
-  draftAmount: '',
-  bankName: '',
+  confirmUtrNo: '',
+  upiProvider: '',
+  upiAddress: '',
+  accountHolderName: '',
+  filePaymentScreenshot: null,
+
   parentName: '',
   place: '',
   date: new Date().toISOString().split('T')[0],

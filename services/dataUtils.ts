@@ -1,3 +1,4 @@
+
 import { ApplicationData } from '../types';
 
 export const generateCSV = (data: ApplicationData) => {
@@ -18,10 +19,13 @@ export const generateCSV = (data: ApplicationData) => {
     { header: 'Teaching Exp Score', key: 'teachingExpAbove15' },
     { header: 'Research Score', key: 'research' },
     { header: 'Drive Link', key: 'googleDriveLink' },
+    // Payment Fields
+    { header: 'Amount', key: 'paymentAmount' },
     { header: 'UTR No', key: 'utrNo' },
-    { header: 'Draft Amount', key: 'draftAmount' },
-    { header: 'Draft Date', key: 'draftDate' },
-    { header: 'Bank Name', key: 'bankName' },
+    { header: 'UPI Provider', key: 'upiProvider' },
+    { header: 'UPI Address', key: 'upiAddress' },
+    { header: 'Account Holder', key: 'accountHolderName' },
+    
     { header: 'Submission Date', key: 'date' }
   ];
 

@@ -1,8 +1,9 @@
+
 // --- INSTRUCTIONS ---
 // 1. Paste this code into your Google Apps Script editor connected to your Sheet.
 // 2. Click 'Deploy' > 'New Deployment'.
 // 3. Select type: 'Web app'.
-// 4. Description: 'TRGC Backend Final'.
+// 4. Description: 'TRGC Backend Payment Update'.
 // 5. Execute as: 'Me'.
 // 6. Who has access: 'Anyone'.
 // 7. Click Deploy.
@@ -19,7 +20,7 @@ function doPost(e) {
     // --- 1. PREPARE SHEET ---
     var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
     
-    // Define All Headers (Approx 90 Columns)
+    // Define All Headers (Approx 95 Columns)
     var headers = [
       "Timestamp", "PDF Drive Link", 
       // Personal
@@ -44,8 +45,8 @@ function doPost(e) {
       "Res: Consultancy", "Res: Patent Int", "Res: Patent Nat", "Res: Policy Int", "Res: Policy Nat", "Res: Policy State", 
       "Res: Award Int", "Res: Award Nat", "Res: Invited Int (Abr)", "Res: Invited Int (In)", "Res: Invited Nat", "Res: Invited State",
       "Google Drive Link (User)",
-      // Payment
-      "UTR No", "Draft Date", "Amount", "Bank Name",
+      // Payment (UPDATED)
+      "Amount", "UTR No", "UPI Provider", "UPI Address", "Acc Holder Name",
       // NOC & Declaration
       "Has NOC?", "Emp Name", "Emp Desig", "Emp Dept", "Place", "Submission Date"
     ];
@@ -112,8 +113,8 @@ function doPost(e) {
       r.resConsultancy, r.resPatentInt, r.resPatentNat, r.resPolicyInt, r.resPolicyNat, r.resPolicyState,
       r.resAwardInt, r.resAwardNat, r.resInvitedIntAbroad, r.resInvitedIntWithin, r.resInvitedNat, r.resInvitedState,
       data.googleDriveLink,
-      // Payment
-      data.utrNo, data.draftDate, data.draftAmount, data.bankName,
+      // Payment (UPDATED)
+      data.paymentAmount, data.utrNo, data.upiProvider, data.upiAddress, data.accountHolderName,
       // NOC
       data.hasNOC, data.empName, data.empDesignation, data.empDept, data.place, data.date
     ];

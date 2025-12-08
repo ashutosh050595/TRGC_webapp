@@ -1,3 +1,4 @@
+
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { ApplicationData } from '../types';
@@ -17,7 +18,7 @@ const formatDate = (dateString: string): string => {
 export const generatePDF = (data: ApplicationData, shouldDownload: boolean = true): PDFOutput => {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.width;
-  const pageHeight = doc.internal.pageSize.height; // Get page height for calculations
+  const pageHeight = doc.internal.pageSize.height; 
   
   // Helper for centering text
   const centerText = (text: string, y: number, size: number = 10, font: string = 'helvetica', style: string = 'normal') => {
@@ -40,35 +41,37 @@ export const generatePDF = (data: ApplicationData, shouldDownload: boolean = tru
   // --- PHOTO ---
   if (data.photo) {
     doc.addImage(data.photo, 'JPEG', pageWidth - 50, 40, 35, 45);
-  } else {
-    doc.rect(pageWidth - 50, 40, 35, 45);
-    doc.text("Latest Photograph", pageWidth - 32.5, 60, { align: 'center', maxWidth: 30 });
   }
+  doc.rect(pageWidth - 50, 40, 35, 45); // Border for photo
 
-  // --- PAGE 1: PERSONAL INFO ---
+  // --- PERSONAL DETAILS ---
+  let yPos = 50;
   doc.setFontSize(10);
-  doc.text("To", 14, 40);
-  doc.text("The General Secretary", 20, 45);
-  doc.text("Tika Ram Education Society (Regd.)", 20, 50);
-  doc.text("Add: Tika Ram Model School", 20, 55);
-  doc.text("West Ram Nagar, Sonepat-131001", 20, 60);
-
-  doc.setFont('helvetica', 'bold');
-  doc.text(`Subject: Application for the post of ${data.postAppliedFor}`, 14, 75);
-  // Category moved from here to the list below
   doc.setFont('helvetica', 'normal');
 
-  doc.text(`With reference to your advertisement in ${data.advertisementRef}`, 14, 90);
-  doc.text("I request you to consider my application for above said post. My biodata is given below:", 14, 95);
+  doc.text(`To`, 14, 45);
+  doc.text(`The General Secretary`, 25, 50);
+  doc.text(`Tika Ram Education Society (Regd.)`, 25, 55);
+  doc.text(`Add: Tika Ram Model School`, 25, 60);
+  doc.text(`West Ram Nagar, Sonepat-131001`, 25, 65);
 
-  const startY = 105;
-  const gap = 8;
+  yPos = 80;
+  doc.setFont('helvetica', 'bold');
+  doc.text(`Subject: Application for the post of  ${data.postAppliedFor}`, 14, yPos);
   
-  const fields = [
+  yPos += 10;
+  doc.setFont('helvetica', 'normal');
+  doc.text(`Category: ${data.category}`, pageWidth - 90, yPos - 10); // Placed beside Date of Birth logic approximately
+
+  doc.text(`With reference to your advertisement in ${data.advertisementRef}`, 14, yPos);
+  doc.text(`I request you to consider my application for above said post. My biodata is given below:`, 14, yPos + 6);
+
+  yPos += 15;
+  const labels = [
     { label: "Name", val: data.name },
     { label: "Father's Name", val: data.fatherName },
-    { label: "Date of Birth", val: formatDate(data.dob) }, // Formatted Date
-    { label: "Category", val: data.category }, // Moved here
+    { label: "Date of Birth", val: formatDate(data.dob) }, // Formatted
+    { label: "Category", val: data.category },
     { label: "Permanent Address", val: data.permanentAddress },
     { label: "Correspondence Address", val: data.correspondenceAddress },
     { label: "Contact No", val: `${data.contactNo1}, ${data.contactNo2}` },
@@ -76,212 +79,223 @@ export const generatePDF = (data: ApplicationData, shouldDownload: boolean = tru
     { label: "Present Employer", val: data.presentEmployer },
   ];
 
-  fields.forEach((field, i) => {
-    doc.text(`•  ${field.label}`, 20, startY + (i * gap));
-    doc.text(":", 70, startY + (i * gap));
-    doc.text(field.val || "", 75, startY + (i * gap));
-    doc.line(75, startY + (i * gap) + 1, pageWidth - 20, startY + (i * gap) + 1);
+  labels.forEach(item => {
+    doc.text(`•   ${item.label}`, 20, yPos);
+    doc.text(`:   ${item.val}`, 70, yPos);
+    yPos += 7;
   });
 
-  doc.text("(Submit NOC in attached format)", 75, startY + (fields.length * gap) + 5);
+  doc.text("(Submit NOC in attached format)", 70, yPos);
 
-  // --- PAGE 2: ACADEMIC SCORE ---
+  // --- I. ACADEMIC RECORD ---
   doc.addPage();
-  centerText("SCORE SHEETS", 15, 12, 'helvetica', 'bold');
-  centerText("(As supplied from DGHE vide dated 18.04.2023-Attached with this form in last)", 22, 10);
+  yPos = 15;
+  centerText("SCORE SHEETS", 15, 11, 'helvetica', 'bold');
+  centerText("(As supplied from DGHE vide dated 18.04.2023-Attached with this form in last)", 20, 9);
+  
+  yPos = 30;
+  doc.setFontSize(10);
   doc.setFont('helvetica', 'bold');
-  doc.text("I. Academic Record: Maximum 20 marks", 14, 30);
+  doc.text("I. Academic Record: Maximum 20 marks", 14, yPos);
   
-  const academicData = [
-    ["1.", "Above 55% marks in Master's degree", "0.5 marks for each percentage (maximum 5 marks)", data.academicMasters],
-    ["2.", "Above 55% marks in Graduation", "0.4 marks for each percentage (maximum 5 marks)", data.academicGraduation],
-    ["3.", "Above 55% marks in 10+2/Prep.", "0.3 marks for each percentage (maximum 5 marks)", data.academic12th],
-    ["4.", "Above 55% marks in Matriculation", "0.2 marks for each percentage (maximum 5 marks)", data.academicMatric],
-  ];
-
   autoTable(doc, {
-    startY: 35,
-    head: [['S.No.', 'Particulars', 'Marks', 'Self-appraisal Marks']],
-    body: academicData,
-    theme: 'grid',
-    headStyles: { fillColor: [255, 255, 255], textColor: [0, 0, 0], lineWidth: 0.1, lineColor: [0,0,0] },
-    styles: { lineColor: [0,0,0], lineWidth: 0.1, textColor: [0,0,0] },
-  });
-
-  // --- PAGE 2: TEACHING & ADMIN ---
-  let finalY = (doc as any).lastAutoTable.finalY + 10;
-  doc.text("II. Teaching Experience and Assessment of Administrative Skill: Maximum 35 marks", 14, finalY);
-  finalY += 6;
-  doc.text("A. Teaching Experience: Maximum 10 marks", 14, finalY);
-
-  autoTable(doc, {
-    startY: finalY + 4,
-    head: [['S.No.', 'Particulars', 'Marks', 'Self-appraisal Marks']],
+    startY: yPos + 2,
+    head: [['S.No.', 'Particulars', 'Marks Criteria', 'Self-Appraisal Marks']],
     body: [
-      ["1.", "Above 15 years teaching experience", "1 mark for each year", data.teachingExpAbove15]
+      ['1.', 'Above 55% marks in Master\'s degree', '0.5 marks for each percentage (max 5 marks)', data.academicMasters],
+      ['2.', 'Above 55% marks in Graduation', '0.4 marks for each percentage (max 5 marks)', data.academicGraduation],
+      ['3.', 'Above 55% marks in 10+2/Prep.', '0.3 marks for each percentage (max 5 marks)', data.academic12th],
+      ['4.', 'Above 55% marks in Matriculation', '0.2 marks for each percentage (max 5 marks)', data.academicMatric],
     ],
     theme: 'grid',
-    headStyles: { fillColor: [255, 255, 255], textColor: [0, 0, 0], lineWidth: 0.1, lineColor: [0,0,0] },
-    styles: { lineColor: [0,0,0], lineWidth: 0.1, textColor: [0,0,0] },
+    headStyles: { fillColor: [255, 255, 255], textColor: 0, lineWidth: 0.1, lineColor: 0 },
+    styles: { fontSize: 9, cellPadding: 2, lineColor: 0, lineWidth: 0.1 }
   });
 
-  finalY = (doc as any).lastAutoTable.finalY + 10;
-  doc.text("B. Assessment of Administrative Skill: Maximum 25 marks", 14, finalY);
-  finalY += 6;
-  doc.text("(i) Experience of Administrative Responsibilities", 14, finalY);
+  // --- II. TEACHING & ADMIN ---
+  yPos = (doc as any).lastAutoTable.finalY + 10;
+  doc.setFont('helvetica', 'bold');
+  doc.text("II. Teaching Experience and Assessment of Administrative Skill: Maximum 35 marks", 14, yPos);
+  yPos += 5;
+  doc.text("A. Teaching Experience: Maximum 10 marks", 14, yPos);
 
   autoTable(doc, {
-    startY: finalY + 4,
-    head: [['S.No.', 'Particulars', 'Marks', 'Self-appraisal Marks']],
+    startY: yPos + 2,
+    head: [['S.No.', 'Particulars', 'Marks Criteria', 'Self-Appraisal Marks']],
     body: [
-      ["1.", "Experience as Joint/Deputy/Assistant Director in Directorate of Higher Education", "1 mark for each year", data.adminJointDirector],
-      ["2.", "Experience as Registrar or any other Administrative post in any University", "1 mark for each year", data.adminRegistrar],
-      ["3.", "Experience as Head of the Higher Education Institution i.e. Principal, Officiating Principal/DDO", "1 mark for each year", data.adminHead],
+      ['1.', 'Above 15 years teaching experience', '1 mark for each year', data.teachingExpAbove15],
     ],
     theme: 'grid',
-    headStyles: { fillColor: [255, 255, 255], textColor: [0, 0, 0], lineWidth: 0.1, lineColor: [0,0,0] },
-    styles: { lineColor: [0,0,0], lineWidth: 0.1, textColor: [0,0,0] },
+    headStyles: { fillColor: [255, 255, 255], textColor: 0, lineWidth: 0.1, lineColor: 0 },
+    styles: { fontSize: 9, cellPadding: 2, lineColor: 0, lineWidth: 0.1 }
   });
 
-  // --- PAGE 3: KEY RESPONSIBILITIES ---
+  yPos = (doc as any).lastAutoTable.finalY + 10;
+  doc.text("B. Assessment of Administrative Skill: Maximum 25 marks", 14, yPos);
+  yPos += 5;
+  doc.text("(i) Experience of Administrative Responsibilities", 14, yPos);
+
+  autoTable(doc, {
+    startY: yPos + 2,
+    head: [['S.No.', 'Particulars', 'Marks Criteria', 'Self-Appraisal Marks']],
+    body: [
+      ['1.', 'Experience as Joint/Deputy/Assistant Director in Directorate of Higher Education', '1 mark for each year', data.adminJointDirector],
+      ['2.', 'Experience as Registrar or any other Administrative post in any University', '1 mark for each year', data.adminRegistrar],
+      ['3.', 'Experience as Head of the Higher Education Institution i.e. Principal, Officiating Principal/DDO', '1 mark for each year', data.adminHead],
+    ],
+    theme: 'grid',
+    headStyles: { fillColor: [255, 255, 255], textColor: 0, lineWidth: 0.1, lineColor: 0 },
+    styles: { fontSize: 9, cellPadding: 2, lineColor: 0, lineWidth: 0.1 }
+  });
+
+  // --- RESPONSIBILITIES (New Page) ---
   doc.addPage();
-  doc.text("(ii) Experience of Key responsibilities in colleges", 14, 15);
-  
-  const keyRespData = [
-    ["1.", "Staff Representative or V.C. Nominee in Managing Committee of any College", "1 mark for each year maximum upto 3 Marks", data.respStaffRep],
-    ["2.", "Co-ordinator or Organizing Secretary of International/National/State Conference/Event", "1 mark for each year maximum upto 3 marks", data.respCoordinator],
-    ["3.", "Bursar", "1 mark for each year maximum upto 3 Marks", data.respBursar],
-    ["4.", "NSS Programme Officer", "1 mark for each year Maximum upto 3 marks", data.respNSS],
-    ["5.", "YRC Counsellor", "1 mark for each year maximum upto 3 Marks", data.respYRC],
-    ["6.", "Hostel Warden", "1 mark for each year Maximum upto 3 marks", data.respWarden],
-    ["7.", "Member of any Statutory Body of University", "1 mark for each year Maximum upto 2 marks", data.respStatutory],
-    ["8.", "Experience as Associate NCC Officer in HEI (s)", "1 mark for each year Maximum upto 3 marks", data.respNCC],
-  ];
+  yPos = 15;
+  doc.setFont('helvetica', 'bold');
+  doc.text("(ii) Experience of Key responsibilities in colleges", 14, yPos);
 
   autoTable(doc, {
-    startY: 20,
-    head: [['S.No.', 'Particulars', 'Marks', 'Self-appraisal Marks']],
-    body: keyRespData,
+    startY: yPos + 2,
+    head: [['S.No.', 'Particulars', 'Marks Criteria', 'Self-Appraisal Marks']],
+    body: [
+      ['1.', 'Staff Representative or V.C. Nominee in Managing Committee of any College', '1 mark for each year maximum upto 3 Marks', data.respStaffRep],
+      ['2.', 'Co-ordinator or Organizing Secretary of International/National/State Conference/Event', '1 mark for each year maximum upto 3 marks', data.respCoordinator],
+      ['3.', 'Bursar', '1 mark for each year maximum upto 3 Marks', data.respBursar],
+      ['4.', 'NSS Programme Officer', '1 mark for each year Maximum upto 3 marks', data.respNSS],
+      ['5.', 'YRC Counsellor', '1 mark for each year maximum upto 3 Marks', data.respYRC],
+      ['6.', 'Hostel Warden', '1 mark for each year Maximum upto 3 marks', data.respWarden],
+      ['7.', 'Member of any Statutory Body of University', '1 mark for each year Maximum upto 2 marks', data.respStatutory],
+      ['8.', 'Experience as Associate NCC Officer in HEI (s)', '1 mark for each year Maximum upto 3 marks', data.respNCC],
+    ],
     theme: 'grid',
-    headStyles: { fillColor: [255, 255, 255], textColor: [0, 0, 0], lineWidth: 0.1, lineColor: [0,0,0] },
-    styles: { lineColor: [0,0,0], lineWidth: 0.1, textColor: [0,0,0] },
+    headStyles: { fillColor: [255, 255, 255], textColor: 0, lineWidth: 0.1, lineColor: 0 },
+    styles: { fontSize: 9, cellPadding: 2, lineColor: 0, lineWidth: 0.1 }
   });
 
-  // --- COMMITTEES ---
-  finalY = (doc as any).lastAutoTable.finalY + 10;
-  doc.text("(iii) Experience of Committees in College", 14, finalY);
-
-  const committeeData = [
-    ["1.", "Co-ordinator IQAC", "1 mark for each academic Year maximum upto 2 marks", data.commIQAC],
-    ["2.", "Editor in Chief, College Magazine", "1 mark for each academic Year maximum upto 2 marks", data.commEditor],
-    ["3.", "Member, College Advisory Council", "1 mark for each academic Year maximum upto 2 marks", data.commAdvisory],
-    ["4.", "Convener, University Work Committee", "1 mark for each academic Year maximum upto 2 marks", data.commWork],
-    ["5.", "Convener, Cultural Affairs Committee", "1 mark for each academic Year maximum upto 2 marks", data.commCultural],
-    ["6.", "Convener, Purchase/Procurement Committee", "1 mark for each academic year maximum upto 2 marks", data.commPurchase],
-    ["7.", "Convener, Building/Works Committee", "1 mark for each academic year maximum upto 2 marks", data.commBuilding],
-    ["8.", "Convener, Sports Committee", "1 mark for each academic Year maximum upto 2 marks", data.commSports],
-    ["9.", "Convener, Discipline Committee", "1 mark for each academic Year maximum upto 2 marks", data.commDiscipline],
-    ["10.", "Convener, Internal (Complaint) Committee", "1 mark for each academic Year maximum upto 2 marks", data.commInternal],
-    ["11.", "Convener, Road Safety Club", "1 mark for each academic year maximum upto 2 marks", data.commRoadSafety],
-    ["12.", "Convener, Red Ribbon Club", "1 mark for each academic Year maximum upto 2 marks", data.commRedRibbon],
-    ["13.", "Convener, Eco Club", "1 mark for each academic Year maximum upto 2 marks", data.commEco],
-    ["14.", "In-charge, Placement Cell", "1 mark for each academic Year maximum upto 2 marks", data.commPlacement],
-    ["15.", "Incharge, Women Cell", "1 mark for each academic Year maximum upto 2 marks", data.commWomen],
-    ["16.", "In-charge, Time-table Committee", "1 mark for each academic Year maximum upto 2 marks", data.commTimeTable],
-    ["17.", "In-charge, SC/BC Committee", "1 mark for each academic Year maximum upto 2 marks", data.commSCBC],
-  ];
+  yPos = (doc as any).lastAutoTable.finalY + 10;
+  doc.text("(iii) Experience of Committees in College", 14, yPos);
 
   autoTable(doc, {
-    startY: finalY + 4,
-    head: [['S.No.', 'Particulars', 'Marks', 'Self-appraisal Marks']],
-    body: committeeData,
+    startY: yPos + 2,
+    head: [['S.No.', 'Particulars', 'Marks Criteria', 'Self-Appraisal Marks']],
+    body: [
+      ['1.', 'Co-ordinator IQAC', '1 mark for each academic Year maximum upto 2 marks', data.commIQAC],
+      ['2.', 'Editor in Chief, College Magazine', '1 mark for each academic Year maximum upto 2 marks', data.commEditor],
+      ['3.', 'Member, College Advisory Council', '1 mark for each academic Year maximum upto 2 marks', data.commAdvisory],
+      ['4.', 'Convener, University Work Committee', '1 mark for each academic Year maximum upto 2 marks', data.commWork],
+      ['5.', 'Convener, Cultural Affairs Committee', '1 mark for each academic Year maximum upto 2 marks', data.commCultural],
+      ['6.', 'Convener, Purchase/Procurement Committee', '1 mark for each academic year maximum upto 2 marks', data.commPurchase],
+      ['7.', 'Convener, Building/Works Committee', '1 mark for each academic year maximum upto 2 marks', data.commBuilding],
+      ['8.', 'Convener, Sports Committee', '1 mark for each academic Year maximum upto 2 marks', data.commSports],
+      ['9.', 'Convener, Discipline Committee', '1 mark for each academic Year maximum upto 2 marks', data.commDiscipline],
+      ['10.', 'Convener, Internal (Complaint) Committee', '1 mark for each academic Year maximum upto 2 marks', data.commInternal],
+      ['11.', 'Convener, Road Safety Club', '1 mark for each academic year maximum upto 2 marks', data.commRoadSafety],
+      ['12.', 'Convener, Red Ribbon Club', '1 mark for each academic Year maximum upto 2 marks', data.commRedRibbon],
+      ['13.', 'Convener, Eco Club', '1 mark for each academic Year maximum upto 2 marks', data.commEco],
+      ['14.', 'In-charge, Placement Cell', '1 mark for each academic Year maximum upto 2 marks', data.commPlacement],
+      ['15.', 'Incharge, Women Cell', '1 mark for each academic Year maximum upto 2 marks', data.commWomen],
+      ['16.', 'In-charge, Time-table Committee', '1 mark for each academic Year maximum upto 2 marks', data.commTimeTable],
+      ['17.', 'In-charge, SC/BC Committee', '1 mark for each academic Year maximum upto 2 marks', data.commSCBC],
+    ],
     theme: 'grid',
-    headStyles: { fillColor: [255, 255, 255], textColor: [0, 0, 0], lineWidth: 0.1, lineColor: [0,0,0] },
-    styles: { lineColor: [0,0,0], lineWidth: 0.1, textColor: [0,0,0] },
-    margin: { bottom: 20 }
+    headStyles: { fillColor: [255, 255, 255], textColor: 0, lineWidth: 0.1, lineColor: 0 },
+    styles: { fontSize: 9, cellPadding: 2, lineColor: 0, lineWidth: 0.1 }
   });
 
-  // --- PAGE 4: RESEARCH (FULL TABLE 2) ---
+  // --- III. RESEARCH SCORE (Table 2) ---
   doc.addPage();
-  doc.text("TABLE 2: Methodology for University and College Teachers for Calculating Academic/Research Score", 14, 15);
-  doc.setFontSize(8);
-  doc.setFont('helvetica', 'normal');
-  doc.text("(Assessment must be based on evidence produced by the teacher such as : copy of publications, project sanction letter, utilization and completion certificates issued by University and acknowledgements for patent filing and approval letters, students Ph.D. award letter etc.)", 14, 20, { maxWidth: pageWidth - 28 });
+  yPos = 15;
+  doc.setFont('helvetica', 'bold');
+  centerText("TABLE 2", yPos, 11, 'helvetica', 'bold');
+  centerText("Methodology for University and College Teachers for Calculating Academic/Research Score", yPos + 6, 10, 'helvetica', 'bold');
   
-  // Helper to format bold text in cells
-  const r = data.research;
-  const table2Body = [
-    // 1. Research Papers
-    [{ content: "1.", rowSpan: 2 }, { content: "For Direct Recruitment:\nResearch Papers in Peer-reviewed / UGC Journals upto 13.06.2019 and UGC CARE Listed Journals w.e.f. 14.06.2019", styles: { fontStyle: 'bold' } }, "8", "10", r.resPapers],
-    [{ content: "For Career Advancement Scheme:\nResearch Papers in Peer-reviewed / UGC Journals upto 02.07.2023 and UGC CARE Listed Journals w.e.f. 03.07.2023", colSpan: 1, styles: { fontSize: 8 } }, {colSpan: 1, content: ""}, {colSpan: 1, content: ""}, {colSpan: 1, content: ""}],
-    
-    // 2. Publications
-    ["2.", { content: "Publications (other than Research papers)", styles: { fontStyle: 'bold' } }, "", "", ""],
-    ["", "(a) Books authored which are published by;", "", "", ""],
-    ["", "International publishers", "12", "12", r.resBooksInt],
-    ["", "National Publishers", "10", "10", r.resBooksNat],
-    ["", "Chapter in Edited Book", "05", "05", r.resChapter],
-    ["", "Editor of Book by International Publisher", "10", "10", r.resEditorInt],
-    ["", "Editor of Book by National Publisher", "08", "08", r.resEditorNat],
-    
-    ["", "(b) Translation works in Indian and Foreign Languages by qualified faculties", "", "", ""],
-    ["", "Chapter or Research paper", "03", "03", r.resTransChapter],
-    ["", "Book", "08", "08", r.resTransBook],
-
-    // 3. ICT
-    ["3.", { content: "Creation of ICT mediated Teaching Learning pedagogy and content and development of new and innovative courses and curricula", styles: { fontStyle: 'bold' } }, "", "", ""],
-    ["", "(a) Development of Innovative pedagogy", "05", "05", r.resIctPedagogy],
-    ["", "(b) Design of new curricula and courses", "02/curr", "02/curr", r.resIctCurricula],
-    ["", "(c) MOOCs", "", "", ""],
-    ["", "Development of complete MOOCs in 4 quadrants (4 credit course)(In case of MOOCs of lesser credits 05 marks/credit)", "20", "20", r.resMoocs4Quad],
-    ["", "MOOCs (developed in 4 quadrant) per module/lecture", "05", "05", r.resMoocsModule],
-    ["", "Contentwriter/subject matter expert for each moduleof MOOCs (at least one quadrant)", "02", "02", r.resMoocsContent],
-    ["", "Course Coordinator for MOOCs (4 credit course)(In case of MOOCs of lesser credits 02 marks/credit)", "08", "08", r.resMoocsCoord],
-    ["", "(d) E-Content", "", "", ""],
-    ["", "Development of e-Content in 4 quadrants for a complete course/e-book", "12", "12", r.resEcontentComplete],
-    ["", "e-Content (developed in 4 quadrants) per module", "05", "05", r.resEcontentModule],
-    ["", "Contribution to development of e-content module in complete course/paper/e-book (at least one quadrant)", "02", "02", r.resEcontentContrib],
-    ["", "Editor of e-content for complete course/ paper /e-book", "10", "10", r.resEcontentEditor],
-
-    // 4. Guidance
-    ["4.", { content: "(a) Research guidance", styles: { fontStyle: 'bold' } }, "", "", ""],
-    ["", "Ph.D. (10 per degree / 05 per thesis)", "10", "10", r.resPhd],
-    ["", "M.Phil./P.G dissertation (02 per degree)", "02", "02", r.resMphil],
-    ["", "(b) Research Projects Completed", "", "", ""],
-    ["", "More than 10 lakhs", "10", "10", r.resProjMore10],
-    ["", "Less than 10 lakhs", "05", "05", r.resProjLess10],
-    ["", "(c) Research Projects Ongoing :", "", "", ""],
-    ["", "More than 10 lakhs", "05", "05", r.resProjOngoingMore10],
-    ["", "Less than 10 lakhs", "02", "02", r.resProjOngoingLess10],
-    ["", "(d) Consultancy", "03", "03", r.resConsultancy],
-
-    // 5. Patents
-    ["5.", { content: "(a) Patents", styles: { fontStyle: 'bold' } }, "", "", ""],
-    ["", "International", "10", "0", r.resPatentInt],
-    ["", "National", "07", "0", r.resPatentNat],
-    ["", "(b) *Policy Document (Submitted to an International body/organisation like UNO/UNESCO/World Bank/International Monetary Fund etc. or Central Government or State Government)", "", "", ""],
-    ["", "International", "10", "10", r.resPolicyInt],
-    ["", "National", "07", "07", r.resPolicyNat],
-    ["", "State", "04", "04", r.resPolicyState],
-    ["", "(c) Awards/Fellowship", "", "", ""],
-    ["", "International", "07", "07", r.resAwardInt],
-    ["", "National", "05", "05", r.resAwardNat],
-
-    // 6. Invited Lectures
-    ["6.", { content: "*Invited lectures / Resource Person/ paper presentation in Seminars/ Conferences/full paper in Conference Proceedings (Paper presented in Seminars/Conferences and also published as full paper in Conference Proceedings will be counted only once)", styles: { fontStyle: 'bold' } }, "", "", ""],
-    ["", "International (Abroad)", "07", "0", r.resInvitedIntAbroad],
-    ["", "International (Within Country)", "05", "0", r.resInvitedIntWithin],
-    ["", "National", "03", "0", r.resInvitedNat],
-    ["", "State/University", "02", "0", r.resInvitedState],
-  ];
-
+  yPos += 15;
   autoTable(doc, {
-    startY: 35,
-    head: [['S.N.', 'Academic/Research Activity', 'Faculty of Sciences/Engineering/Agriculture/Medical/Veterinary Sciences', 'Faculty of Languages/Humanities/Arts/Social Sciences/Library/Education/Physical Education/Commerce/Management & other related disciplines', 'Self Appraisal Marks']],
-    body: table2Body as any,
+    startY: yPos,
+    head: [[
+      'S.N.', 
+      'Academic/Research Activity', 
+      'Faculty of Sciences/\nEngg./Agri./Med./Vet.', 
+      'Faculty of Lang./\nHumanities/Arts/Soc.Sci.', 
+      'Self Appraisal Marks'
+    ]],
+    body: [
+      // 1. Research Papers
+      ['1.', 'Research Papers in Peer-reviewed / UGC Journals', '08', '10', data.research.resPapers],
+      
+      // 2. Publications
+      [{ content: '2. Publications (other than Research papers)', colSpan: 5, styles: { fontStyle: 'bold', fillColor: [240, 240, 240] } }],
+      [{ content: '(a) Books authored which are published by;', colSpan: 5, styles: { fontStyle: 'italic' } }],
+      ['', 'International publishers', '12', '12', data.research.resBooksInt],
+      ['', 'National Publishers', '10', '10', data.research.resBooksNat],
+      ['', 'Chapter in Edited Book', '05', '05', data.research.resChapter],
+      ['', 'Editor of Book by International Publisher', '10', '10', data.research.resEditorInt],
+      ['', 'Editor of Book by National Publisher', '08', '08', data.research.resEditorNat],
+      
+      [{ content: '(b) Translation works in Indian and Foreign Languages', colSpan: 5, styles: { fontStyle: 'italic' } }],
+      ['', 'Chapter or Research paper', '03', '03', data.research.resTransChapter],
+      ['', 'Book', '08', '08', data.research.resTransBook],
+
+      // 3. ICT
+      [{ content: '3. Creation of ICT mediated Teaching Learning pedagogy and content', colSpan: 5, styles: { fontStyle: 'bold', fillColor: [240, 240, 240] } }],
+      [{ content: '(a) Development of Innovative pedagogy', colSpan: 5, styles: { fontStyle: 'italic' } }],
+      ['', 'Development of Innovative pedagogy', '05', '05', data.research.resIctPedagogy],
+      
+      [{ content: '(b) Design of new curricula and courses', colSpan: 5, styles: { fontStyle: 'italic' } }],
+      ['', 'Design of new curricula and courses', '02/curr', '02/curr', data.research.resIctCurricula],
+
+      [{ content: '(c) MOOCs', colSpan: 5, styles: { fontStyle: 'italic' } }],
+      ['', 'Dev of complete MOOCs (4 credits)', '20', '20', data.research.resMoocs4Quad],
+      ['', 'MOOCs (developed in 4 quadrant) per module/lecture', '05', '05', data.research.resMoocsModule],
+      ['', 'Content writer/subject matter expert for MOOCs', '02', '02', data.research.resMoocsContent],
+      ['', 'Course Coordinator for MOOCs (4 credits)', '08', '08', data.research.resMoocsCoord],
+
+      [{ content: '(d) E-Content', colSpan: 5, styles: { fontStyle: 'italic' } }],
+      ['', 'Dev of E-Content in 4 quadrants (complete)', '12', '12', data.research.resEcontentComplete],
+      ['', 'E-Content per module', '05', '05', data.research.resEcontentModule],
+      ['', 'Contribution to E-Content (at least one quadrant)', '02', '02', data.research.resEcontentContrib],
+      ['', 'Editor of E-content for complete course', '10', '10', data.research.resEcontentEditor],
+
+      // 4. Guidance
+      [{ content: '4. (a) Research guidance', colSpan: 5, styles: { fontStyle: 'bold', fillColor: [240, 240, 240] } }],
+      ['', 'Ph.D.', '10 / 05', '10 / 05', data.research.resPhd],
+      ['', 'M.Phil./P.G dissertation', '02', '02', data.research.resMphil],
+
+      [{ content: '(b) Research Projects Completed', colSpan: 5, styles: { fontStyle: 'italic' } }],
+      ['', 'More than 10 lakhs', '10', '10', data.research.resProjMore10],
+      ['', 'Less than 10 lakhs', '05', '05', data.research.resProjLess10],
+
+      [{ content: '(c) Research Projects Ongoing', colSpan: 5, styles: { fontStyle: 'italic' } }],
+      ['', 'More than 10 lakhs', '05', '05', data.research.resProjOngoingMore10],
+      ['', 'Less than 10 lakhs', '02', '02', data.research.resProjOngoingLess10],
+
+      [{ content: '(d) Consultancy', colSpan: 5, styles: { fontStyle: 'italic' } }],
+      ['', 'Consultancy', '03', '03', data.research.resConsultancy],
+
+      // 5. Patents
+      [{ content: '5. (a) Patents', colSpan: 5, styles: { fontStyle: 'bold', fillColor: [240, 240, 240] } }],
+      ['', 'International', '10', '10', data.research.resPatentInt],
+      ['', 'National', '07', '07', data.research.resPatentNat],
+
+      [{ content: '(b) Policy Document', colSpan: 5, styles: { fontStyle: 'italic' } }],
+      ['', 'International', '10', '10', data.research.resPolicyInt],
+      ['', 'National', '07', '07', data.research.resPolicyNat],
+      ['', 'State', '04', '04', data.research.resPolicyState],
+
+      [{ content: '(c) Awards/Fellowship', colSpan: 5, styles: { fontStyle: 'italic' } }],
+      ['', 'International', '07', '07', data.research.resAwardInt],
+      ['', 'National', '05', '05', data.research.resAwardNat],
+
+      // 6. Invited Lectures
+      [{ content: '6. Invited lectures / Resource Person', colSpan: 5, styles: { fontStyle: 'bold', fillColor: [240, 240, 240] } }],
+      ['', 'International (Abroad)', '07', '07', data.research.resInvitedIntAbroad],
+      ['', 'International (within country)', '05', '05', data.research.resInvitedIntWithin],
+      ['', 'National', '03', '03', data.research.resInvitedNat],
+      ['', 'State/University', '02', '02', data.research.resInvitedState],
+    ],
     theme: 'grid',
-    headStyles: { fillColor: [255, 255, 255], textColor: [0, 0, 0], lineWidth: 0.1, lineColor: [0,0,0] },
-    styles: { fontSize: 8, cellPadding: 2, lineWidth: 0.1, lineColor: [0,0,0], textColor: [0,0,0], valign: 'middle' },
+    headStyles: { fillColor: [255, 255, 255], textColor: 0, lineWidth: 0.1, lineColor: 0 },
+    styles: { fontSize: 8, cellPadding: 2, lineColor: 0, lineWidth: 0.1, valign: 'middle' },
     columnStyles: {
       0: { cellWidth: 10 },
       1: { cellWidth: 'auto' },
@@ -291,75 +305,96 @@ export const generatePDF = (data: ApplicationData, shouldDownload: boolean = tru
     }
   });
 
-  finalY = (doc as any).lastAutoTable.finalY + 5;
-  doc.setFontSize(9);
-  doc.setFont('helvetica', 'bold');
-  
-  const attachText = "** Attach copies as proof of documents for your calculated API score according to Annexure attached with this form – Table 2, Appendix II (as supplied by DGHE)";
-  doc.text(doc.splitTextToSize(attachText, pageWidth - 28), 14, finalY);
-
-  finalY += 15;
-  
-  // PAGE BREAK CHECK BEFORE PAYMENT SECTION
-  // 50 units for height of payment box + margin. If not enough space, add new page.
-  if (finalY + 50 > pageHeight) {
-    doc.addPage();
-    finalY = 20;
-  }
-  
-  doc.setLineWidth(0.5);
-  doc.rect(14, finalY, pageWidth - 28, 40);
-  doc.text(`UTR No: ${data.utrNo}`, 20, finalY + 10);
-  doc.text(`Date: ${formatDate(data.draftDate)}`, 100, finalY + 10);
-  doc.text(`Amount: ${data.draftAmount}`, 160, finalY + 10);
-  doc.text(`Bank Name/UPI Provider: ${data.bankName}`, 20, finalY + 20);
-  
-  // Google Drive Link
   if (data.googleDriveLink) {
-    doc.setTextColor(0, 0, 255);
-    doc.text(`Google Drive Documents: ${data.googleDriveLink}`, 20, finalY + 30);
-    doc.setTextColor(0, 0, 0);
+    yPos = (doc as any).lastAutoTable.finalY + 10;
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'italic');
+    doc.text(`Large Research Files Link: ${data.googleDriveLink}`, 14, yPos);
   }
 
-  finalY += 45;
+  // --- FOOTER NOTE (Page Break Check) ---
+  yPos = (doc as any).lastAutoTable.finalY + 20;
+  if (yPos > pageHeight - 40) {
+    doc.addPage();
+    yPos = 20;
+  }
   
-  // Note Section
-  if (finalY + 30 > pageHeight) { doc.addPage(); finalY = 20; }
-
   doc.setFontSize(8);
   doc.setFont('helvetica', 'italic');
-  const noteText = "Note: The candidate is to attach the relevant documents in support of his/her claim mentioned in the application form, criteria, Table-2 (Appendix Il contd.) and the same documents are also to be sent with the copies to Dean College Development Council, M.D. University Rohtak and D.G.H.E., Shiksha Sadan, Sector-5, Panchkula Haryana.";
-  doc.text(doc.splitTextToSize(noteText, pageWidth - 30), 15, finalY);
+  const note = "Note: The candidate is to attach the relevant documents in support of his/her claim mentioned in the application form, criteria, Table-2 (Appendix II contd.) and the same documents are also to be sent with the copies to Dean College Development Council, M.D. University Rohtak and D.G.H.E., Shiksha Sadan, Sector-5, Panchkula Haryana.";
+  const splitNote = doc.splitTextToSize(note, pageWidth - 28);
+  doc.text(splitNote, 14, yPos);
+
+  // --- PAYMENT DETAILS SECTION ---
+  yPos += 20;
+  if (yPos > pageHeight - 60) {
+     doc.addPage();
+     yPos = 20;
+  }
+
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'bold');
+  doc.text("Payment Details", 14, yPos);
+  
+  autoTable(doc, {
+    startY: yPos + 5,
+    body: [
+      ['Amount Paid', `Rs. ${data.paymentAmount}`],
+      ['UTR No.', data.utrNo],
+      ['Date', formatDate(data.date)],
+      ['UPI Provider', data.upiProvider],
+      ['UPI Address', data.upiAddress],
+      ['Account Holder Name', data.accountHolderName],
+    ],
+    theme: 'grid',
+    styles: { fontSize: 9, cellPadding: 2 },
+    columnStyles: { 0: { fontStyle: 'bold', cellWidth: 60 } }
+  });
+
+  // Payment Screenshot
+  if (data.filePaymentScreenshot) {
+    yPos = (doc as any).lastAutoTable.finalY + 10;
+    if (yPos > pageHeight - 80) {
+       doc.addPage();
+       yPos = 20;
+    }
+    doc.text("Payment Proof:", 14, yPos);
+    try {
+      doc.addImage(data.filePaymentScreenshot, 'JPEG', 14, yPos + 5, 80, 80); // Adjust size as needed
+    } catch (e) {
+      // Ignore format errors
+    }
+  }
 
   // --- DECLARATION ---
-  finalY += 30;
-  if (finalY + 60 > pageHeight) { doc.addPage(); finalY = 20; }
-  
-  doc.setFont('helvetica', 'normal');
+  doc.addPage();
+  yPos = 20;
   doc.setFontSize(10);
-  const declarationText = `I ${data.name} D/o S/o W/o ${data.parentName} hereby declare that all the entries made by me in this application form are true and correct to the best of my knowledge and I have attached related proof of documents in form of self attested copies. If anything is found false or incorrect at any stage, my candidature/appointment is liable to be cancelled.`;
+  doc.setFont('helvetica', 'normal');
+  const declarationText = `I ${data.name} ${data.parentName ? (data.parentName.startsWith('D/o') || data.parentName.startsWith('S/o') ? '' : 'D/o S/o W/o') + ' ' + data.parentName : 'D/o S/o W/o...'} hereby declare that all the entries made by me in this application form are true and correct to the best of my knowledge and I have attached related proof of documents in form of self attested copies. If anything is found false or incorrect at any stage, my candidature/appointment is liable to be cancelled.`;
   
-  doc.text(doc.splitTextToSize(declarationText, pageWidth - 40), 20, finalY);
+  const splitDec = doc.splitTextToSize(declarationText, pageWidth - 28);
+  doc.text(splitDec, 14, yPos);
 
-  finalY += 30;
-  doc.text(`Place: ${data.place}`, 20, finalY);
-  doc.text(`Date: ${formatDate(data.date)}`, 20, finalY + 6);
-  
+  yPos += 30;
+  doc.text(`Place: ${data.place}`, 14, yPos);
+  yPos += 7;
+  doc.text(`Date: ${formatDate(data.date)}`, 14, yPos);
+
   if (data.signature) {
-    doc.addImage(data.signature, 'PNG', pageWidth - 70, finalY - 10, 40, 15);
+    doc.addImage(data.signature, 'JPEG', pageWidth - 70, yPos - 10, 50, 20);
   }
-  doc.text("(Signature of Applicant)", pageWidth - 60, finalY + 10);
+  doc.text("(Signature of Applicant)", pageWidth - 60, yPos + 15);
+
+  const output: PDFOutput = {
+    dataUri: doc.output('datauristring'),
+    blob: doc.output('blob'),
+    base64: doc.output('datauristring').split(',')[1]
+  };
 
   if (shouldDownload) {
-    doc.save(`${data.name.replace(/\s+/g, '_')}_Application.pdf`);
+    doc.save(`TRGC_Application_${data.name}.pdf`);
   }
-  
-  const dataUri = doc.output('datauristring');
-  const base64 = dataUri.split(',')[1];
 
-  return {
-    dataUri,
-    blob: doc.output('blob'),
-    base64
-  };
+  return output;
 };
