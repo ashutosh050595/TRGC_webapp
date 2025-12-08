@@ -17,6 +17,7 @@ const formatDate = (dateString: string): string => {
 export const generatePDF = (data: ApplicationData, shouldDownload: boolean = true): PDFOutput => {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.width;
+  const pageHeight = doc.internal.pageSize.height; // Get page height for calculations
   
   // Helper for centering text
   const centerText = (text: string, y: number, size: number = 10, font: string = 'helvetica', style: string = 'normal') => {
@@ -299,6 +300,13 @@ export const generatePDF = (data: ApplicationData, shouldDownload: boolean = tru
 
   finalY += 15;
   
+  // PAGE BREAK CHECK BEFORE PAYMENT SECTION
+  // 50 units for height of payment box + margin. If not enough space, add new page.
+  if (finalY + 50 > pageHeight) {
+    doc.addPage();
+    finalY = 20;
+  }
+  
   doc.setLineWidth(0.5);
   doc.rect(14, finalY, pageWidth - 28, 40);
   doc.text(`UTR No: ${data.utrNo}`, 20, finalY + 10);
@@ -316,7 +324,7 @@ export const generatePDF = (data: ApplicationData, shouldDownload: boolean = tru
   finalY += 45;
   
   // Note Section
-  if (finalY > 250) { doc.addPage(); finalY = 20; }
+  if (finalY + 30 > pageHeight) { doc.addPage(); finalY = 20; }
 
   doc.setFontSize(8);
   doc.setFont('helvetica', 'italic');
@@ -325,7 +333,7 @@ export const generatePDF = (data: ApplicationData, shouldDownload: boolean = tru
 
   // --- DECLARATION ---
   finalY += 30;
-  if (finalY > 250) { doc.addPage(); finalY = 20; }
+  if (finalY + 60 > pageHeight) { doc.addPage(); finalY = 20; }
   
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(10);

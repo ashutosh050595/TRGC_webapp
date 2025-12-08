@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronRight, CheckCircle, Download, Mail, Loader2, Link as LinkIcon, ChevronLeft, Eye, CheckSquare, FileText, Upload, CreditCard, Info } from 'lucide-react';
+import { ChevronRight, CheckCircle, Download, Mail, Loader2, Link as LinkIcon, ChevronLeft, Eye, CheckSquare, FileText, Upload, CreditCard, Info, ExternalLink } from 'lucide-react';
 import { INITIAL_DATA, ApplicationData } from './types';
 import { Input } from './components/Input';
 import { ScoreRow } from './components/ScoreRow';
@@ -75,6 +75,15 @@ const Table2Row = ({
       </td>
     </tr>
   );
+};
+
+// Simple date formatter for display
+const formatDate = (dateString: string): string => {
+  if (!dateString) return "";
+  const parts = dateString.split('-');
+  if (parts.length !== 3) return dateString;
+  const [year, month, day] = parts;
+  return `${day}-${month}-${year}`;
 };
 
 function App() {
@@ -288,6 +297,16 @@ function App() {
     const { blob } = generatePDF(data, false);
     const url = URL.createObjectURL(blob);
     window.open(url, '_blank');
+  };
+
+  // Helper to open base64 documents
+  const openDocument = (base64Data: string | null) => {
+    if (!base64Data) return;
+    // Assuming base64Data includes prefix e.g. "data:application/pdf;base64,..."
+    const win = window.open();
+    if (win) {
+      win.document.write('<iframe src="' + base64Data + '" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>');
+    }
   };
 
   const toggleVerification = (key: keyof typeof verificationChecks) => {
@@ -831,7 +850,40 @@ function App() {
                  )}
                </div>
 
-               {/* 2. Preview Section */}
+               {/* 2. Uploaded Documents Verification (New Section) */}
+               <div className="bg-white border rounded-lg p-5 mb-8">
+                 <h3 className="font-bold text-gray-800 mb-3 flex items-center">
+                   <FileText className="w-5 h-5 mr-2 text-blue-600"/>
+                   Uploaded Documents Verification
+                 </h3>
+                 <p className="text-sm text-gray-500 mb-4">Click to view and verify each document before final submission.</p>
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {[
+                      { label: "Academic Records", file: data.fileAcademic },
+                      { label: "Teaching Experience", file: data.fileTeaching },
+                      { label: "Admin Skills", file: data.fileAdminSkill },
+                      { label: "Responsibilities/Committees", file: data.fileAdmin },
+                      { label: "Research Score", file: data.fileResearch },
+                      { label: "NOC Document", file: data.hasNOC === 'yes' ? data.fileNOC : null },
+                    ].map((doc, idx) => (
+                      <div key={idx} className="flex items-center justify-between p-3 bg-gray-50 border rounded text-sm">
+                        <span className="font-medium text-gray-700">{doc.label}</span>
+                        {doc.file ? (
+                          <button 
+                            onClick={() => openDocument(doc.file)}
+                            className="flex items-center text-blue-600 hover:text-blue-800 text-xs font-semibold"
+                          >
+                            <ExternalLink className="w-3 h-3 mr-1"/> View
+                          </button>
+                        ) : (
+                          <span className="text-gray-400 italic text-xs">{doc.label === "NOC Document" && data.hasNOC !== 'yes' ? 'Not Applicable' : 'Missing'}</span>
+                        )}
+                      </div>
+                    ))}
+                 </div>
+               </div>
+
+               {/* 3. Preview Application Form */}
                <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-5 mb-8 flex flex-col md:flex-row items-center justify-between">
                  <div>
                    <h3 className="font-semibold text-indigo-900">Preview Application Form</h3>
@@ -846,7 +898,7 @@ function App() {
                  </button>
                </div>
 
-               {/* 3. Mandatory Checklist */}
+               {/* 4. Mandatory Checklist */}
                <div className="mb-8">
                   <h3 className="font-bold text-gray-800 mb-3 flex items-center">
                     <CheckSquare className="w-5 h-5 mr-2 text-blue-600"/> 
@@ -859,7 +911,7 @@ function App() {
                       { key: 'name', label: `Name: ${data.name}` },
                       { key: 'fatherName', label: `Father's Name: ${data.fatherName}` },
                       { key: 'post', label: `Post: ${data.postAppliedFor}` },
-                      { key: 'dob', label: `DOB: ${data.dob}` },
+                      { key: 'dob', label: `DOB: ${formatDate(data.dob)}` },
                       { key: 'category', label: `Category: ${data.category}` },
                       { key: 'photo', label: 'Photograph is visible' },
                       { key: 'signature', label: 'Signature is uploaded' },
