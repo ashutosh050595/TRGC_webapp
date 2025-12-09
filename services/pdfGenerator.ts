@@ -347,16 +347,29 @@ export const generatePDF = (data: ApplicationData, shouldDownload: boolean = tru
 
   // --- ANNEXURE NOTE ---
   // Added right after the table finalY
-  yPos = (doc as any).lastAutoTable.finalY + 8;
+  yPos = (doc as any).lastAutoTable.finalY + 10;
+  
   doc.setFontSize(8);
   doc.setFont('helvetica', 'bold');
   const attachNote = "** Attach copies as proof of documents for your calculated APl score according to Annexure attached with this form - Table 2, Appendix II (as supplied by DGHE)";
   const splitAttachNote = doc.splitTextToSize(attachNote, pageWidth - 28);
+  
+  // Check page break for Note
+  if (yPos + (splitAttachNote.length * 4) > pageHeight - 20) {
+     doc.addPage();
+     yPos = 20;
+  }
+  
   doc.text(splitAttachNote, 14, yPos);
   yPos += (splitAttachNote.length * 4) + 5;
 
 
   if (data.googleDriveLink) {
+    // Check page break for Drive Link
+    if (yPos + 10 > pageHeight - 20) {
+       doc.addPage();
+       yPos = 20;
+    }
     doc.setFontSize(9);
     doc.setFont('helvetica', 'italic');
     doc.text(`Large Research Files Link: ${data.googleDriveLink}`, 14, yPos);

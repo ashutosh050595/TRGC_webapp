@@ -1,17 +1,18 @@
 
 // --- INSTRUCTIONS ---
 // 1. Paste this code into your Google Apps Script editor connected to your Sheet.
-// 2. Click 'Deploy' > 'New Deployment'.
-// 3. Select type: 'Web app'.
-// 4. Description: 'TRGC Backend Payment Update'.
-// 5. Execute as: 'Me'.
-// 6. Who has access: 'Anyone'.
-// 7. Click Deploy.
+// 2. Click 'Save'.
+// 3. IMPORTANT: Click 'Deploy' > 'Manage deployments' > Edit (Pencil) > Version: 'New version' > 'Deploy'. 
+//    (If you do not create a 'New version', the changes will NOT take effect).
 
 function doPost(e) {
   var lock = LockService.getScriptLock();
   // Wait for up to 30 seconds for other processes to finish.
   lock.tryLock(30000);
+
+  // --- CONFIGURATION ---
+  var RECRUITMENT_EMAIL = "trgcrecruitment2025@gmail.com";
+  // ---------------------
 
   try {
     var rawData = e.postData.contents;
@@ -123,36 +124,43 @@ function doPost(e) {
 
     // --- 4. SEND EMAILS ---
     if (pdfBlob) { 
-       // Send to Principal
+       // Send to Recruitment Email (College)
        try {
-         GmailApp.sendEmail("trgcrecruitment2025@gmail.com", "New Application: " + data.name, 
+         GmailApp.sendEmail(RECRUITMENT_EMAIL, "New Application: " + data.name, 
           "A new application has been submitted by " + data.name + ".\n\n" +
           "Post: " + data.postAppliedFor + "\n" +
           "Category: " + data.category + "\n" +
           "Google Drive Link to PDF: " + fileUrl + "\n\n" +
           "Please find the full application PDF attached.", 
-          { attachments: [pdfBlob], name: 'TRGC Portal' }
+          { attachments: [pdfBlob], name: 'TRGC Recruitment Portal' }
          );
        } catch (e) {
-         // If attachment is too large (25MB+), send without attachment
-         GmailApp.sendEmail("trgcrecruitment2025@gmail.com", "New Application (Large File): " + data.name, 
+         // If attachment is too large, send without attachment
+         GmailApp.sendEmail(RECRUITMENT_EMAIL, "New Application (Large File): " + data.name, 
           "A new application has been submitted by " + data.name + ".\n\nThe PDF was too large to attach. Please view it here: " + fileUrl,
-          { name: 'TRGC Portal' }
+          { name: 'TRGC Recruitment Portal' }
          );
        }
 
-       // Send to User
+       // Send to Applicant
        if (data.email) {
          try {
             GmailApp.sendEmail(data.email, "Application Received: TRGC Sonepat", 
               "Dear " + data.name + ",\n\nWe have received your application for the post of " + data.postAppliedFor + ".\n\nA copy of your application is attached for your records.\n\nRegards,\nPrincipal\nTika Ram Girls College, Sonepat", 
-              { attachments: [pdfBlob], name: 'TRGC Portal' }
+              { 
+                attachments: [pdfBlob], 
+                name: 'TRGC Recruitment Portal',
+                replyTo: RECRUITMENT_EMAIL // User replies go to the recruitment email
+              }
             );
          } catch (e) {
              // Retry without attachment if too large
              GmailApp.sendEmail(data.email, "Application Received: TRGC Sonepat", 
               "Dear " + data.name + ",\n\nWe have received your application. The PDF copy is too large to email, but it has been successfully recorded in our system.\n\nRegards,\nPrincipal\nTRGC Sonepat",
-              { name: 'TRGC Portal' }
+              { 
+                name: 'TRGC Recruitment Portal',
+                replyTo: RECRUITMENT_EMAIL
+              }
             );
          }
        }
