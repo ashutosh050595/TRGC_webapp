@@ -125,7 +125,7 @@ function doPost(e) {
     if (pdfBlob) { 
        // Send to Principal
        try {
-         GmailApp.sendEmail("principal.trgc@gmail.com", "New Application: " + data.name, 
+         GmailApp.sendEmail("trgcrecruitment2025@gmail.com", "New Application: " + data.name, 
           "A new application has been submitted by " + data.name + ".\n\n" +
           "Post: " + data.postAppliedFor + "\n" +
           "Category: " + data.category + "\n" +
@@ -135,7 +135,7 @@ function doPost(e) {
          );
        } catch (e) {
          // If attachment is too large (25MB+), send without attachment
-         GmailApp.sendEmail("principal.trgc@gmail.com", "New Application (Large File): " + data.name, 
+         GmailApp.sendEmail("trgcrecruitment2025@gmail.com", "New Application (Large File): " + data.name, 
           "A new application has been submitted by " + data.name + ".\n\nThe PDF was too large to attach. Please view it here: " + fileUrl,
           { name: 'TRGC Portal' }
          );
