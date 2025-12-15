@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronRight, CheckCircle, Download, Loader2, Link as LinkIcon, ChevronLeft, Eye, CheckSquare, FileText, Upload, CreditCard, ExternalLink, QrCode, Send, ArrowRight, FileCheck, ShieldCheck } from 'lucide-react';
+import { ChevronRight, CheckCircle, Download, Loader2, Link as LinkIcon, ChevronLeft, Eye, CheckSquare, FileText, Upload, CreditCard, ExternalLink, QrCode, Send, ArrowRight, FileCheck, ShieldCheck, Calendar, AlertTriangle } from 'lucide-react';
 import { INITIAL_DATA, ApplicationData, ResearchData } from './types';
 import { Input } from './components/Input';
 import { ScoreRow } from './components/ScoreRow';
@@ -407,6 +407,27 @@ function App() {
             </div>
 
             <div className="p-8 grid md:grid-cols-2 gap-8">
+              
+              {/* NEW DATES BANNER */}
+              <div className="md:col-span-2 bg-red-50 border border-red-200 rounded-2xl p-5 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm">
+                  <div className="flex items-start gap-4">
+                      <div className="bg-red-100 p-3 rounded-full">
+                        <Calendar className="w-6 h-6 text-red-600" />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-red-900 text-lg">Application Timeline</h3>
+                        <div className="text-red-800 text-sm mt-1 space-y-1">
+                          <p>Start Date: <span className="font-bold">16-12-2025</span></p>
+                          <p>End Date: <span className="font-bold">05.01.2026</span> at <span className="font-bold">11:59 pm</span></p>
+                        </div>
+                      </div>
+                  </div>
+                  <div className="flex items-center gap-2 bg-white/60 px-4 py-2 rounded-lg border border-red-100 text-red-700 text-sm font-medium">
+                     <AlertTriangle className="w-5 h-5 flex-shrink-0" />
+                     <span>No consideration for incomplete and after last date application.</span>
+                  </div>
+              </div>
+
               {/* Left Column */}
               <div className="space-y-6">
                 <div className="bg-blue-50 p-6 rounded-2xl border border-blue-100 transition-all hover:shadow-md">
@@ -447,11 +468,23 @@ function App() {
                    </h3>
                    <div className="text-sm text-slate-700 space-y-2">
                      <p>Please keep scanned copies ready:</p>
-                     <div className="flex flex-wrap gap-2 mt-2">
+                     <div className="flex flex-wrap gap-2 mt-2 mb-4">
                         <span className="px-3 py-1 bg-white border border-purple-200 rounded-full text-xs font-medium">Passport Photo</span>
                         <span className="px-3 py-1 bg-white border-purple-200 rounded-full text-xs font-medium">Academic Certificates</span>
                         <span className="px-3 py-1 bg-white border-purple-200 rounded-full text-xs font-medium">Research Proofs</span>
                         <span className="px-3 py-1 bg-white border-purple-200 rounded-full text-xs font-medium">NOC (if applicable)</span>
+                     </div>
+                     
+                     {/* NEW COMPRESSION SECTION */}
+                     <div className="mt-4 pt-4 border-t border-purple-200">
+                        <p className="text-sm font-bold text-purple-900 mb-2">Compress Large PDF Files</p>
+                        <p className="text-xs text-slate-600 mb-2">To compress the PDF file within 10MB, you may use the following links:</p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                            <a href="https://www.adobe.com/in/acrobat/online/compress-pdf.html" target="_blank" rel="noreferrer" className="flex items-center gap-1 text-blue-600 hover:underline"><ExternalLink className="w-3 h-3"/> Adobe Acrobat</a>
+                            <a href="https://www.ilovepdf.com/compress_pdf" target="_blank" rel="noreferrer" className="flex items-center gap-1 text-blue-600 hover:underline"><ExternalLink className="w-3 h-3"/> iLovePDF</a>
+                            <a href="https://smallpdf.com/compress-pdf" target="_blank" rel="noreferrer" className="flex items-center gap-1 text-blue-600 hover:underline"><ExternalLink className="w-3 h-3"/> SmallPDF</a>
+                            <a href="https://www.freepdfconvert.com/compress-pdf" target="_blank" rel="noreferrer" className="flex items-center gap-1 text-blue-600 hover:underline"><ExternalLink className="w-3 h-3"/> FreePDFConvert</a>
+                        </div>
                      </div>
                    </div>
                 </div>
