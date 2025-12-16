@@ -1,9 +1,11 @@
 
+
 import { ApplicationData } from '../types';
 
 export const generateCSV = (data: ApplicationData) => {
   // Define columns in a specific order for the Excel Database
   const columns: { header: string; key: keyof ApplicationData }[] = [
+    { header: 'Application No', key: 'applicationNo' }, // Added
     { header: 'Post Applied For', key: 'postAppliedFor' },
     { header: 'Category', key: 'category' },
     { header: 'Name', key: 'name' },

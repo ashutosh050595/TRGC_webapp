@@ -1,4 +1,5 @@
 
+
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { ApplicationData } from '../types';
@@ -37,6 +38,13 @@ export const generatePDF = (data: ApplicationData, shouldDownload: boolean = tru
   doc.text("email : trgcrecruitment2025@gmail.com", pageWidth - 14, 28, { align: 'right' });
   doc.setLineWidth(0.5);
   doc.line(10, 30, pageWidth - 10, 30);
+  
+  // Application Number in Header (First Page)
+  if (data.applicationNo) {
+     doc.setFont('helvetica', 'bold');
+     doc.setFontSize(10);
+     doc.text(`App. No: ${data.applicationNo}`, pageWidth - 40, 20);
+  }
 
   // --- PHOTO ---
   if (data.photo) {
@@ -450,6 +458,18 @@ export const generatePDF = (data: ApplicationData, shouldDownload: boolean = tru
   }
   doc.text("(Signature of Applicant)", pageWidth - 60, yPos + 15);
 
+
+  // --- ADD FOOTER TO ALL PAGES ---
+  const totalPages = doc.getNumberOfPages();
+  for (let i = 1; i <= totalPages; i++) {
+    doc.setPage(i);
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(100);
+    doc.text(`Application No: ${data.applicationNo || 'N/A'}`, 14, pageHeight - 10);
+    doc.text(`Page ${i} of ${totalPages}`, pageWidth - 25, pageHeight - 10);
+  }
+
   const output: PDFOutput = {
     dataUri: doc.output('datauristring'),
     blob: doc.output('blob'),
@@ -457,7 +477,7 @@ export const generatePDF = (data: ApplicationData, shouldDownload: boolean = tru
   };
 
   if (shouldDownload) {
-    doc.save(`TRGC_Application_${data.name}.pdf`);
+    doc.save(`${data.applicationNo || 'TRGC_Application'}_${data.name}.pdf`);
   }
 
   return output;

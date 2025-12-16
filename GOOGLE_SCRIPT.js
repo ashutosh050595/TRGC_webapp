@@ -1,4 +1,5 @@
 
+
 // --- INSTRUCTIONS ---
 // 1. Paste this code into your Google Apps Script editor connected to your Sheet.
 // 2. Click 'Save'.
@@ -21,9 +22,9 @@ function doPost(e) {
     // --- 1. PREPARE SHEET ---
     var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
     
-    // Define All Headers (Approx 95 Columns)
+    // Define All Headers (Approx 95 Columns) - UPDATED with Application No
     var headers = [
-      "Timestamp", "PDF Drive Link", 
+      "Timestamp", "Application No", "PDF Drive Link", 
       // Personal
       "Post Applied For", "Category", "Adv Ref", "Name", "Father Name", "Parent Name", "DOB", 
       "Email", "Mobile 1", "Mobile 2", "Perm Address", "Corr Address", "Present Employer",
@@ -88,10 +89,11 @@ function doPost(e) {
 
     // --- 3. PREPARE ROW DATA ---
     var r = data.research || {};
+    var appNo = data.applicationNo || "N/A";
     
     // Map data strictly to headers order
     var row = [
-      new Date(), fileUrl,
+      new Date(), appNo, fileUrl,
       // Personal
       data.postAppliedFor, data.category, data.advertisementRef, data.name, data.fatherName, data.parentName, data.dob,
       data.email, data.contactNo1, data.contactNo2, data.permanentAddress, data.correspondenceAddress, data.presentEmployer,
@@ -126,8 +128,9 @@ function doPost(e) {
     if (pdfBlob) { 
        // Send to Recruitment Email (College)
        try {
-         GmailApp.sendEmail(RECRUITMENT_EMAIL, "New Application: " + data.name, 
+         GmailApp.sendEmail(RECRUITMENT_EMAIL, "New Application [" + appNo + "]: " + data.name, 
           "A new application has been submitted by " + data.name + ".\n\n" +
+          "Application Number: " + appNo + "\n" +
           "Post: " + data.postAppliedFor + "\n" +
           "Category: " + data.category + "\n" +
           "Google Drive Link to PDF: " + fileUrl + "\n\n" +
@@ -136,8 +139,10 @@ function doPost(e) {
          );
        } catch (e) {
          // If attachment is too large, send without attachment
-         GmailApp.sendEmail(RECRUITMENT_EMAIL, "New Application (Large File): " + data.name, 
-          "A new application has been submitted by " + data.name + ".\n\nThe PDF was too large to attach. Please view it here: " + fileUrl,
+         GmailApp.sendEmail(RECRUITMENT_EMAIL, "New Application [" + appNo + "] (Large File): " + data.name, 
+          "A new application has been submitted by " + data.name + ".\n\n" +
+          "Application Number: " + appNo + "\n" +
+          "The PDF was too large to attach. Please view it here: " + fileUrl,
           { name: 'TRGC Recruitment Portal' }
          );
        }
@@ -145,8 +150,10 @@ function doPost(e) {
        // Send to Applicant
        if (data.email) {
          try {
-            GmailApp.sendEmail(data.email, "Application Received: TRGC Sonepat", 
-              "Dear " + data.name + ",\n\nWe have received your application for the post of " + data.postAppliedFor + ".\n\nA copy of your application is attached for your records.\n\nRegards,\nPrincipal\nTika Ram Girls College, Sonepat", 
+            GmailApp.sendEmail(data.email, "Application Received [" + appNo + "]: TRGC Sonepat", 
+              "Dear " + data.name + ",\n\nWe have received your application for the post of " + data.postAppliedFor + ".\n\n" +
+              "Your Application Number is: " + appNo + "\n\n" +
+              "A copy of your application is attached for your records.\n\nRegards,\nPrincipal\nTika Ram Girls College, Sonepat", 
               { 
                 attachments: [pdfBlob], 
                 name: 'TRGC Recruitment Portal',
@@ -155,8 +162,10 @@ function doPost(e) {
             );
          } catch (e) {
              // Retry without attachment if too large
-             GmailApp.sendEmail(data.email, "Application Received: TRGC Sonepat", 
-              "Dear " + data.name + ",\n\nWe have received your application. The PDF copy is too large to email, but it has been successfully recorded in our system.\n\nRegards,\nPrincipal\nTRGC Sonepat",
+             GmailApp.sendEmail(data.email, "Application Received [" + appNo + "]: TRGC Sonepat", 
+              "Dear " + data.name + ",\n\nWe have received your application.\n\n" + 
+              "Your Application Number is: " + appNo + "\n\n" +
+              "The PDF copy is too large to email, but it has been successfully recorded in our system.\n\nRegards,\nPrincipal\nTRGC Sonepat",
               { 
                 name: 'TRGC Recruitment Portal',
                 replyTo: RECRUITMENT_EMAIL

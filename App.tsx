@@ -287,6 +287,20 @@ function App() {
     window.open(url, '_blank');
   };
 
+  // Generate Unique Application ID with Timestamp + Random to prevent duplication
+  const generateApplicationId = () => {
+     const now = Date.now();
+     const date = new Date(now);
+     const year = date.getFullYear();
+     // Base36 of current timestamp (ms) ensures chronological uniqueness
+     // Slice last 6 chars to keep it relatively short but unique over a 20+ day period window repeating
+     const timestampPart = now.toString(36).toUpperCase().slice(-6); 
+     // Add 3 random characters to handle collisions at exact same millisecond
+     const randomPart = Math.random().toString(36).substring(2, 5).toUpperCase();
+     
+     return `TRGC-${year}-${timestampPart}-${randomPart}`;
+  };
+
   const handleSubmit = async () => {
     if (!validateStep(step)) return;
     
@@ -294,34 +308,39 @@ function App() {
     setSubmissionStatus('generating');
 
     try {
-      // 1. Generate Application Form PDF
-      const { blob: formBlob } = generatePDF(data, false);
+      // 0. Generate Application ID and update data
+      const appId = generateApplicationId();
+      const updatedData = { ...data, applicationNo: appId };
+      setData(updatedData); // Update state for UI
+
+      // 1. Generate Application Form PDF with ID
+      const { blob: formBlob } = generatePDF(updatedData, false);
 
       // 2. Prepare Attachments for Merging
       setSubmissionStatus('merging');
       const attachments = [
-        { base64: data.fileAcademic, title: "APPENDIX I: ACADEMIC RECORDS" },
-        { base64: data.fileTeaching, title: "APPENDIX II: TEACHING EXPERIENCE" },
-        { base64: data.fileAdminSkill, title: "APPENDIX III: ADMIN SKILLS" },
-        { base64: data.fileResponsibilities, title: "APPENDIX IV-A: RESPONSIBILITIES" },
-        { base64: data.fileAdmin, title: "APPENDIX IV-B: COMMITTEES" },
-        { base64: data.fileResearch, title: "APPENDIX V: RESEARCH DOCUMENTS" },
-        { base64: data.fileNOC, title: "EMPLOYER NOC" },
-        { base64: data.filePaymentScreenshot, title: "PAYMENT PROOF" }
+        { base64: updatedData.fileAcademic, title: "APPENDIX I: ACADEMIC RECORDS" },
+        { base64: updatedData.fileTeaching, title: "APPENDIX II: TEACHING EXPERIENCE" },
+        { base64: updatedData.fileAdminSkill, title: "APPENDIX III: ADMIN SKILLS" },
+        { base64: updatedData.fileResponsibilities, title: "APPENDIX IV-A: RESPONSIBILITIES" },
+        { base64: updatedData.fileAdmin, title: "APPENDIX IV-B: COMMITTEES" },
+        { base64: updatedData.fileResearch, title: "APPENDIX V: RESEARCH DOCUMENTS" },
+        { base64: updatedData.fileNOC, title: "EMPLOYER NOC" },
+        { base64: updatedData.filePaymentScreenshot, title: "PAYMENT PROOF" }
       ].filter(a => a.base64 !== null);
 
       // 3. Merge PDFs
       const { base64: mergedBase64, blob: mergedBlob } = await mergePDFs(formBlob, attachments);
 
-      // 4. Send Email & Save to Sheet
+      // 4. Send Email & Save to Sheet with ID
       setSubmissionStatus('sending');
-      const result = await sendApplicationEmail(data, mergedBase64);
+      const result = await sendApplicationEmail(updatedData, mergedBase64);
 
       if (result.success) {
         setSubmissionStatus('success');
         const link = document.createElement('a');
         link.href = URL.createObjectURL(mergedBlob);
-        link.download = `TRGC_Application_${data.name.replace(/\s+/g, '_')}.pdf`;
+        link.download = `${appId}_${updatedData.name.replace(/\s+/g, '_')}.pdf`;
         link.click();
       } else {
         setSubmissionStatus('error');
@@ -343,6 +362,9 @@ function App() {
         <div className="bg-white p-8 rounded-lg shadow-xl max-w-md w-full text-center">
           <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-gray-800 mb-2">Application Submitted!</h2>
+          <div className="bg-green-100 text-green-800 p-3 rounded-md mb-4 font-mono font-bold text-lg border border-green-200">
+             APP NO: {data.applicationNo}
+          </div>
           <p className="text-gray-600 mb-6">
             Thank you, {data.name}. Your application has been successfully submitted to TRGC.
             <br/><br/>

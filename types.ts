@@ -48,6 +48,8 @@ export interface ResearchData {
 }
 
 export interface ApplicationData {
+  applicationNo?: string; // Unique Application Number generated at submission
+
   // Personal Info
   postAppliedFor: string;
   category: string;
@@ -181,6 +183,7 @@ export const INITIAL_RESEARCH: ResearchData = {
 };
 
 export const INITIAL_DATA: ApplicationData = {
+  applicationNo: '',
   postAppliedFor: '',
   category: '',
   advertisementRef: '',
