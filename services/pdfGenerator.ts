@@ -43,7 +43,8 @@ export const generatePDF = (data: ApplicationData, shouldDownload: boolean = tru
   if (data.applicationNo) {
      doc.setFont('helvetica', 'bold');
      doc.setFontSize(10);
-     doc.text(`App. No: ${data.applicationNo}`, pageWidth - 40, 20);
+     // Align right to match the margin and ensure it fits within page bounds
+     doc.text(`App. No: ${data.applicationNo}`, pageWidth - 14, 20, { align: 'right' });
   }
 
   // --- PHOTO ---
