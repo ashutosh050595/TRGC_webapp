@@ -414,18 +414,28 @@ function App() {
           {/* Main Card */}
           <div className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl text-slate-800 overflow-hidden border border-white/40">
             <div className="bg-gradient-to-r from-slate-100 to-white p-8 border-b border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4">
-              <div>
+              <div className="flex-1">
                 <h2 className="text-3xl font-bold text-slate-800">Recruitment Portal</h2>
                 <p className="text-slate-500 mt-1">Teaching & Administrative Positions</p>
               </div>
-              <a 
-                href="instructions.pdf" 
-                download 
-                className="flex items-center gap-3 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl transition-all shadow-lg hover:shadow-blue-200 transform hover:-translate-y-1 font-semibold"
-              >
-                <Download className="w-5 h-5" />
-                <span>Download Official Notification</span>
-              </a>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <a 
+                  href="dummy.pdf" 
+                  download 
+                  className="flex items-center gap-3 bg-slate-100 hover:bg-slate-200 text-slate-700 px-6 py-3 rounded-xl transition-all border border-slate-300 shadow-sm font-semibold"
+                >
+                  <FileText className="w-5 h-5" />
+                  <span>Dummy Application form</span>
+                </a>
+                <a 
+                  href="instructions.pdf" 
+                  download 
+                  className="flex items-center gap-3 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl transition-all shadow-lg hover:shadow-blue-200 transform hover:-translate-y-1 font-semibold"
+                >
+                  <Download className="w-5 h-5" />
+                  <span>Download Official Notification</span>
+                </a>
+              </div>
             </div>
 
             <div className="p-8 grid md:grid-cols-2 gap-8">
