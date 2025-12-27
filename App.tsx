@@ -41,6 +41,17 @@ const Table2Row = ({
     );
   }
 
+  // Calculate max for validation (taking the higher of the two if both exist)
+  // For ranges like "10 / 05", we parse the first number. 
+  // If it contains text like "per curricula", we extract the number.
+  const parseMax = (val: string) => {
+    if (!val) return 0;
+    const num = parseFloat(val);
+    return isNaN(num) ? 0 : num;
+  };
+
+  const maxVal = Math.max(parseMax(capScience), parseMax(capArts));
+
   return (
     <tr className={`border-b ${isSubHeader ? 'bg-slate-50' : 'hover:bg-slate-50'}`}>
       <td className="border border-slate-300 p-2 text-xs md:text-sm align-top">{sn}</td>
@@ -62,12 +73,14 @@ const Table2Row = ({
               value={value}
               onChange={(e) => {
                 const val = parseFloat(e.target.value);
-                // Allow any positive number (removed max validation)
+                // Allow user to enter up to the max specified. 
                 if (val < 0) return;
+                // Use maxVal to restrict input if a limit exists
+                if (maxVal > 0 && val > maxVal) return;
                 onChange(e.target.value);
               }}
             />
-            {/* Removed max validation display */}
+            {maxVal > 0 && <span className="text-[10px] text-gray-400 text-right">Max: {maxVal}</span>}
           </div>
         )}
       </td>
@@ -77,11 +90,6 @@ const Table2Row = ({
 
 const formatDate = (dateString: string): string => {
   if (!dateString) return "";
-  // Handle DD-MM-YYYY format
-  if (dateString.includes('-') && dateString.split('-')[0].length === 2) {
-    return dateString;
-  }
-  // Convert from YYYY-MM-DD to DD-MM-YYYY
   const [year, month, day] = dateString.split('-');
   return `${day}-${month}-${year}`;
 };
@@ -133,28 +141,11 @@ function App() {
   };
 
   const handleFileUpload = (field: keyof ApplicationData, file: File) => {
-    // Updated file size limits as per requirements
-    const limits: Record<string, number> = {
-      'photo': 50 * 1024, // 50 KB
-      'signature': 30 * 1024, // 30 KB
-      'fileTeaching': 500 * 1024, // 500 KB
-      'fileAdminSkill': 500 * 1024, // 500 KB
-      'fileAcademic': 1024 * 1024, // 1 MB
-      'fileResponsibilities': 2 * 1024 * 1024, // 2 MB
-      'fileAdmin': 2 * 1024 * 1024, // 2 MB
-      'fileResearch': 15 * 1024 * 1024, // 15 MB
-      'filePaymentScreenshot': 500 * 1024, // 500 KB
-      'fileNOC': 200 * 1024, // 200 KB
-    };
-    
-    const limit = limits[field] || 2 * 1024 * 1024; // Default 2MB
+    // Limits: Research doc 10MB, others 2MB
+    const limit = field === 'fileResearch' ? 10 * 1024 * 1024 : 2 * 1024 * 1024;
     
     if (file.size > limit) {
-      const sizeInKB = Math.round(limit / 1024);
-      const sizeInMB = Math.round(limit / (1024 * 1024));
-      const displaySize = limit >= 1024 * 1024 ? `${sizeInMB}MB` : `${sizeInKB}KB`;
-      
-      alert(`File too large. Max size is ${displaySize}`);
+      alert(`File too large. Max size is ${field === 'fileResearch' ? '10MB' : '2MB'}`);
       return;
     }
 
@@ -490,7 +481,7 @@ function App() {
                              General Supporting Documents - File size is 2 MB maximum
                            </li>
                            <li className="flex items-center gap-1.5 before:content-['•'] before:text-blue-500">
-                             Table 2 Report - Maximum file size is 15 MB
+                             Table 2 Report - Maximum file size is 10 MB
                            </li>
                          </ul>
                        </div>
@@ -519,7 +510,7 @@ function App() {
                      {/* NEW COMPRESSION SECTION */}
                      <div className="mt-4 pt-4 border-t border-purple-200">
                         <p className="text-sm font-bold text-purple-900 mb-2">Compress Large PDF Files</p>
-                        <p className="text-xs text-slate-600 mb-2">To compress the PDF file within 15MB, you may use the following links:</p>
+                        <p className="text-xs text-slate-600 mb-2">To compress the PDF file within 10MB, you may use the following links:</p>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                             <a href="https://www.adobe.com/in/acrobat/online/compress-pdf.html" target="_blank" rel="noreferrer" className="flex items-center gap-1 text-blue-600 hover:underline"><ExternalLink className="w-3 h-3"/> Adobe Acrobat</a>
                             <a href="https://www.ilovepdf.com/compress_pdf" target="_blank" rel="noreferrer" className="flex items-center gap-1 text-blue-600 hover:underline"><ExternalLink className="w-3 h-3"/> iLovePDF</a>
@@ -672,7 +663,7 @@ function App() {
                   <Input label="Correspondence Address" value={data.correspondenceAddress} onChange={e => handleInputChange('correspondenceAddress', e.target.value)} />
                 </div>
                 <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Upload Passport Photo (Max 50KB)</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Upload Passport Photo (Max 2MB)</label>
                   <div className="flex items-center gap-4">
                     <input type="file" accept="image/*" onChange={e => e.target.files?.[0] && handleFileUpload('photo', e.target.files[0])} className="text-sm" />
                     {data.photo && <img src={data.photo} alt="Preview" className="h-20 w-20 object-cover rounded-full border-2 border-white shadow" />}
@@ -711,7 +702,7 @@ function App() {
                   </table>
                 </div>
                 <div className="bg-slate-50 p-4 rounded border">
-                  <label className="font-semibold text-sm">Upload Academic Documents (Merged PDF) <span className="text-xs text-gray-500 font-normal">(Max 1MB)</span></label>
+                  <label className="font-semibold text-sm">Upload Academic Documents (Merged PDF) <span className="text-xs text-gray-500 font-normal">(Max 2MB)</span></label>
                   <input type="file" accept="application/pdf" onChange={e => e.target.files?.[0] && handleFileUpload('fileAcademic', e.target.files[0])} className="block w-full text-sm mt-2" />
                   {errors.fileAcademic && <p className="text-red-500 text-xs mt-1">{errors.fileAcademic}</p>}
                 </div>
@@ -730,7 +721,7 @@ function App() {
                     </tbody>
                   </table>
                   <div className="bg-slate-50 p-4 rounded border mb-6">
-                     <label className="font-semibold text-sm">Upload Teaching Experience Documents <span className="text-xs text-gray-500 font-normal">(Max 500KB)</span></label>
+                     <label className="font-semibold text-sm">Upload Teaching Experience Documents <span className="text-xs text-gray-500 font-normal">(Max 2MB)</span></label>
                      <input type="file" accept="application/pdf" onChange={e => e.target.files?.[0] && handleFileUpload('fileTeaching', e.target.files[0])} className="block w-full text-sm mt-2" />
                      {errors.fileTeaching && <p className="text-red-500 text-xs mt-1">{errors.fileTeaching}</p>}
                   </div>
@@ -749,7 +740,7 @@ function App() {
                      </tbody>
                   </table>
                   <div className="bg-slate-50 p-4 rounded border mt-4">
-                     <label className="font-semibold text-sm">Upload Administrative Experience Documents <span className="text-xs text-gray-500 font-normal">(Max 500KB)</span></label>
+                     <label className="font-semibold text-sm">Upload Administrative Experience Documents <span className="text-xs text-gray-500 font-normal">(Max 2MB)</span></label>
                      <input type="file" accept="application/pdf" onChange={e => e.target.files?.[0] && handleFileUpload('fileAdminSkill', e.target.files[0])} className="block w-full text-sm mt-2" />
                      {errors.fileAdminSkill && <p className="text-red-500 text-xs mt-1">{errors.fileAdminSkill}</p>}
                   </div>
@@ -919,16 +910,6 @@ function App() {
                       <Table2Row sn="" activity="International (within country)" capScience="05" capArts="0" value={data.research.resInvitedIntWithin} onChange={v => handleResearchChange('resInvitedIntWithin', v)} />
                       <Table2Row sn="" activity="National" capScience="03" capArts="0" value={data.research.resInvitedNat} onChange={v => handleResearchChange('resInvitedNat', v)} />
                       <Table2Row sn="" activity="State/University" capScience="02" capArts="0" value={data.research.resInvitedState} onChange={v => handleResearchChange('resInvitedState', v)} />
-                      
-                      {/* NEW: Total Academic Research Score Row */}
-                      <Table2Row 
-                        sn="7." 
-                        activity="Total Academic Research Score as per Table 2" 
-                        capScience="" 
-                        capArts="" 
-                        value={data.research.resTotal} 
-                        onChange={v => handleResearchChange('resTotal', v)} 
-                      />
                     </tbody>
                   </table>
                 </div>
@@ -944,7 +925,7 @@ function App() {
                   </h4>
                   
                   <div className="mb-4">
-                    <label className="block text-sm font-semibold mb-2">Upload Merged PDF (Max 15MB)</label>
+                    <label className="block text-sm font-semibold mb-2">Upload Merged PDF (Max 10MB)</label>
                     <input type="file" accept="application/pdf" onChange={e => e.target.files?.[0] && handleFileUpload('fileResearch', e.target.files[0])} className="block w-full text-sm" />
                     {errors.fileResearch && <p className="text-red-500 text-xs mt-1">{errors.fileResearch}</p>}
                   </div>
@@ -955,6 +936,18 @@ function App() {
                     <div className="flex-grow border-t border-gray-300"></div>
                   </div>
 
+                  <div>
+                     <label className="block text-sm font-semibold mb-2 flex items-center gap-2">
+                       <LinkIcon className="w-4 h-4" />
+                       Paste Google Drive Link (Ensure 'Anyone with link can view' is on)
+                     </label>
+                     <Input 
+                        label="" 
+                        placeholder="https://drive.google.com/file/d/..." 
+                        value={data.googleDriveLink} 
+                        onChange={e => handleInputChange('googleDriveLink', e.target.value)}
+                     />
+                  </div>
                 </div>
               </div>
             )}
@@ -972,14 +965,14 @@ function App() {
                   </h3>
 
                   <div className="flex flex-col md:flex-row gap-8 items-center mb-8">
-                    <div className="bg-white p-4 rounded-lg shadow-md border flex flex-col items-center">
-                      {/* Enhanced QR Code size for better scanning */}
+                    <div className="bg-white p-3 rounded-lg shadow-md border">
+                      {/* Placeholder for user to place image in public folder */}
                       <img 
                         src="payment-qr.png" 
                         alt="Payment QR Code" 
-                        className="w-72 h-72 object-contain"
+                        className="w-48 h-48 object-contain"
                         onError={(e) => {
-                           e.currentTarget.src = "https://placehold.co/300x300?text=QR+Code+Missing";
+                           e.currentTarget.src = "https://placehold.co/200x200?text=QR+Code+Missing";
                            e.currentTarget.className += " opacity-50";
                         }}
                       />
@@ -994,6 +987,15 @@ function App() {
                       <div>
                         <p className="text-sm text-gray-500 font-semibold uppercase tracking-wider">UPI ID</p>
                         <p className="text-lg font-mono bg-slate-100 inline-block px-3 py-1 rounded">9466463838m@pnb</p>
+                      </div>
+                      <div>
+                        <a 
+                          href="upi://pay?pa=9466463838m@pnb&pn=TIKA%20RAM%20GIRLS%20COLLEGE&cu=INR"
+                          className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition shadow-lg hover:shadow-blue-200"
+                        >
+                          <ExternalLink className="w-4 h-4" />
+                          Click here to Pay via UPI App
+                        </a>
                       </div>
                     </div>
                   </div>
@@ -1033,7 +1035,7 @@ function App() {
                     </div>
 
                     <div className="mt-6">
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">Upload Payment Screenshot (UTR Visible) <span className="text-red-500">*</span> <span className="text-xs text-gray-500 font-normal">(Max 500KB)</span></label>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Upload Payment Screenshot (UTR Visible) <span className="text-red-500">*</span> <span className="text-xs text-gray-500 font-normal">(Max 2MB)</span></label>
                       <input 
                         type="file" 
                         accept="image/*" 
@@ -1070,10 +1072,10 @@ function App() {
                          <Input label="Employer Name" value={data.empName} onChange={e => handleInputChange('empName', e.target.value)} error={errors.empName} />
                          <Input label="Designation" value={data.empDesignation} onChange={e => handleInputChange('empDesignation', e.target.value)} />
                          <Input label="Department" value={data.empDept} onChange={e => handleInputChange('empDept', e.target.value)} />
-                         {/* Removed Notice Period field */}
+                         <Input label="Notice Period" value={data.empNoticePeriod} onChange={e => handleInputChange('empNoticePeriod', e.target.value)} />
                        </div>
                        <div>
-                         <label className="block text-sm font-semibold mb-1">Upload NOC <span className="text-xs text-gray-500 font-normal">(Max 200KB)</span></label>
+                         <label className="block text-sm font-semibold mb-1">Upload NOC <span className="text-xs text-gray-500 font-normal">(Max 2MB)</span></label>
                          <input type="file" accept="application/pdf" onChange={e => e.target.files?.[0] && handleFileUpload('fileNOC', e.target.files[0])} className="text-sm" />
                          {errors.fileNOC && <p className="text-red-500 text-xs mt-1">{errors.fileNOC}</p>}
                        </div>
@@ -1092,12 +1094,11 @@ function App() {
 
                   <div className="grid md:grid-cols-2 gap-6">
                     <Input label="Place" value={data.place} onChange={e => handleInputChange('place', e.target.value)} error={errors.place} />
-                    {/* Updated date format to DD-MM-YYYY */}
-                    <Input label="Date (DD-MM-YYYY)" type="text" placeholder="DD-MM-YYYY" value={data.date} onChange={e => handleInputChange('date', e.target.value)} />
+                    <Input label="Date" type="date" value={data.date} onChange={e => handleInputChange('date', e.target.value)} />
                   </div>
                   
                   <div>
-                     <label className="block text-sm font-semibold mb-2">Upload Signature (Max 30KB)</label>
+                     <label className="block text-sm font-semibold mb-2">Upload Signature (Max 2MB)</label>
                      <input type="file" accept="image/*" onChange={e => e.target.files?.[0] && handleFileUpload('signature', e.target.files[0])} className="text-sm" />
                      {data.signature && <img src={data.signature} alt="Sign" className="mt-2 h-16 object-contain border" />}
                      {errors.signature && <p className="text-red-500 text-xs mt-1">{errors.signature}</p>}
