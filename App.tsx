@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronRight, CheckCircle, Download, Loader2, Link as ChevronLeft, Eye, CheckSquare, FileText, Upload, CreditCard, ExternalLink, QrCode, Send, ArrowRight, FileCheck, ShieldCheck, Calendar, AlertTriangle } from 'lucide-react';
+import { ChevronRight, CheckCircle, Download, Loader2, ChevronLeft, Eye, CheckSquare, FileText, Upload, CreditCard, ExternalLink, QrCode, Send, ArrowRight, FileCheck, ShieldCheck, Calendar, AlertTriangle } from 'lucide-react';
 import { INITIAL_DATA, ApplicationData, ResearchData } from './types';
 import { Input } from './components/Input';
 import { ScoreRow } from './components/ScoreRow';
@@ -926,8 +926,8 @@ function App() {
                         activity="Total Academic Research Score as per Table 2" 
                         capScience="" 
                         capArts="" 
-                        value={data.research.resTotal} 
-                        onChange={v => handleResearchChange('resTotal', v)} 
+                        value={(data.research as any).resTotal || ''} 
+                        onChange={v => handleResearchChange('resTotal' as keyof ResearchData, v)} 
                       />
                     </tbody>
                   </table>
