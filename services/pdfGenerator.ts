@@ -353,7 +353,11 @@ export const generatePDF = (data: ApplicationData, shouldDownload: boolean = tru
       4: { cellWidth: 20, halign: 'center' }
     }
   });
-
+    // NEW: Total Academic Research Score Row
+  // Type-safe way: use optional chaining or fallback to empty string
+  ['7.', 'Total Academic Research Score as per Table 2', '', '', (data.research as any).resTotal || ''],
+],
+  
   // --- ANNEXURE NOTE ---
   // Added right after the table finalY
   yPos = (doc as any).lastAutoTable.finalY + 10;
