@@ -1,5 +1,3 @@
-
-
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { ApplicationData } from '../types';
@@ -12,6 +10,11 @@ interface PDFOutput {
 
 const formatDate = (dateString: string): string => {
   if (!dateString) return "";
+  // Handle DD-MM-YYYY format (already in correct format)
+  if (dateString.includes('-') && dateString.split('-')[0].length === 2) {
+    return dateString;
+  }
+  // Convert from YYYY-MM-DD to DD-MM-YYYY
   const [year, month, day] = dateString.split('-');
   return `${day}-${month}-${year}`;
 };
@@ -341,6 +344,9 @@ export const generatePDF = (data: ApplicationData, shouldDownload: boolean = tru
       ['', 'International (within country)', '05', '0', data.research.resInvitedIntWithin],
       ['', 'National', '03', '0', data.research.resInvitedNat],
       ['', 'State/University', '02', '0', data.research.resInvitedState],
+      
+      // NEW: Total Academic Research Score Row - FIXED TypeScript error
+      ['7.', 'Total Academic Research Score as per Table 2', '', '', (data.research as any).resTotal || ''],
     ],
     theme: 'grid',
     headStyles: { fillColor: [255, 255, 255], textColor: 0, lineWidth: 0.1, lineColor: 0 },
@@ -353,11 +359,7 @@ export const generatePDF = (data: ApplicationData, shouldDownload: boolean = tru
       4: { cellWidth: 20, halign: 'center' }
     }
   });
-    // NEW: Total Academic Research Score Row
-  // Type-safe way: use optional chaining or fallback to empty string
-  ['7.', 'Total Academic Research Score as per Table 2', '', '', (data.research as any).resTotal || ''],
-],
-  
+
   // --- ANNEXURE NOTE ---
   // Added right after the table finalY
   yPos = (doc as any).lastAutoTable.finalY + 10;
@@ -456,6 +458,7 @@ export const generatePDF = (data: ApplicationData, shouldDownload: boolean = tru
   yPos += 30;
   doc.text(`Place: ${data.place}`, 14, yPos);
   yPos += 7;
+  // Use formatDate for consistent DD-MM-YYYY format
   doc.text(`Date: ${formatDate(data.date)}`, 14, yPos);
 
   if (data.signature) {
