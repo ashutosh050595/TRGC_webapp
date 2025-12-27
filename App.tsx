@@ -142,7 +142,7 @@ function App() {
 
   const handleFileUpload = (field: keyof ApplicationData, file: File) => {
     // Limits: Research doc 10MB, others 2MB
-    const limit = field === 'fileResearch' ? 10 * 1024 * 1024 : 2 * 1024 * 1024;
+    const limit = field === 'fileResearch' ? 15 * 1024 * 1024 : 2 * 1024 * 1024;
     
     if (file.size > limit) {
       alert(`File too large. Max size is ${field === 'fileResearch' ? '10MB' : '2MB'}`);
