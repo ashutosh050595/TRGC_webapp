@@ -100,7 +100,7 @@ export const generatePDF = (data: ApplicationData, shouldDownload: boolean = tru
   doc.addPage();
   yPos = 15;
   centerText("SCORE SHEETS", 15, 11, 'helvetica', 'bold');
-  centerText("(As supplied from DGHE vide dated 18.04.2023-Attached with this form in last)", 20, 9);
+  centerText("(As supplied from DGHE vide dated 18.04.2023)", 20, 9);
   
   yPos = 30;
   doc.setFontSize(10);
