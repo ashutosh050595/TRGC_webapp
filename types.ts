@@ -181,7 +181,7 @@ export const INITIAL_RESEARCH: ResearchData = {
   resInvitedIntWithin: '',
   resInvitedNat: '',
   resInvitedState: '',
-  resTotal: string;
+  resTotal: '',
 };
 
 export const INITIAL_DATA: ApplicationData = {
