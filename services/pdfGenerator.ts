@@ -1,3 +1,5 @@
+
+
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { ApplicationData } from '../types';
@@ -10,11 +12,6 @@ interface PDFOutput {
 
 const formatDate = (dateString: string): string => {
   if (!dateString) return "";
-  // Handle DD-MM-YYYY format (already in correct format)
-  if (dateString.includes('-') && dateString.split('-')[0].length === 2) {
-    return dateString;
-  }
-  // Convert from YYYY-MM-DD to DD-MM-YYYY
   const [year, month, day] = dateString.split('-');
   return `${day}-${month}-${year}`;
 };
@@ -344,9 +341,6 @@ export const generatePDF = (data: ApplicationData, shouldDownload: boolean = tru
       ['', 'International (within country)', '05', '0', data.research.resInvitedIntWithin],
       ['', 'National', '03', '0', data.research.resInvitedNat],
       ['', 'State/University', '02', '0', data.research.resInvitedState],
-      
-      // NEW: Total Academic Research Score Row
-      ['7.', 'Total Academic Research Score as per Table 2', '', '', data.research.resTotal],
     ],
     theme: 'grid',
     headStyles: { fillColor: [255, 255, 255], textColor: 0, lineWidth: 0.1, lineColor: 0 },
@@ -458,7 +452,6 @@ export const generatePDF = (data: ApplicationData, shouldDownload: boolean = tru
   yPos += 30;
   doc.text(`Place: ${data.place}`, 14, yPos);
   yPos += 7;
-  // Use formatDate for consistent DD-MM-YYYY format
   doc.text(`Date: ${formatDate(data.date)}`, 14, yPos);
 
   if (data.signature) {
