@@ -925,7 +925,7 @@ function App() {
                   </h4>
                   
                   <div className="mb-4">
-                    <label className="block text-sm font-semibold mb-2">Upload Merged PDF (Max 10MB)</label>
+                    <label className="block text-sm font-semibold mb-2">Upload Merged PDF (Max 15MB)</label>
                     <input type="file" accept="application/pdf" onChange={e => e.target.files?.[0] && handleFileUpload('fileResearch', e.target.files[0])} className="block w-full text-sm" />
                     {errors.fileResearch && <p className="text-red-500 text-xs mt-1">{errors.fileResearch}</p>}
                   </div>
@@ -936,18 +936,6 @@ function App() {
                     <div className="flex-grow border-t border-gray-300"></div>
                   </div>
 
-                  <div>
-                     <label className="block text-sm font-semibold mb-2 flex items-center gap-2">
-                       <LinkIcon className="w-4 h-4" />
-                       Paste Google Drive Link (Ensure 'Anyone with link can view' is on)
-                     </label>
-                     <Input 
-                        label="" 
-                        placeholder="https://drive.google.com/file/d/..." 
-                        value={data.googleDriveLink} 
-                        onChange={e => handleInputChange('googleDriveLink', e.target.value)}
-                     />
-                  </div>
                 </div>
               </div>
             )}
@@ -987,15 +975,6 @@ function App() {
                       <div>
                         <p className="text-sm text-gray-500 font-semibold uppercase tracking-wider">UPI ID</p>
                         <p className="text-lg font-mono bg-slate-100 inline-block px-3 py-1 rounded">9466463838m@pnb</p>
-                      </div>
-                      <div>
-                        <a 
-                          href="upi://pay?pa=9466463838m@pnb&pn=TIKA%20RAM%20GIRLS%20COLLEGE&cu=INR"
-                          className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition shadow-lg hover:shadow-blue-200"
-                        >
-                          <ExternalLink className="w-4 h-4" />
-                          Click here to Pay via UPI App
-                        </a>
                       </div>
                     </div>
                   </div>
@@ -1094,11 +1073,12 @@ function App() {
 
                   <div className="grid md:grid-cols-2 gap-6">
                     <Input label="Place" value={data.place} onChange={e => handleInputChange('place', e.target.value)} error={errors.place} />
-                    <Input label="Date" type="date" value={data.date} onChange={e => handleInputChange('date', e.target.value)} />
+                    {/* <Input label="Date" type="date" value={data.date} onChange={e => handleInputChange('date', e.target.value)} /> */}
+                    <Input label="Date (DD/MM/YYYY)" type="text" placeholder="DD/MM/YYYY" value={data.date} onChange={e => handleInputChange('date', e.target.value)} />
                   </div>
                   
                   <div>
-                     <label className="block text-sm font-semibold mb-2">Upload Signature (Max 2MB)</label>
+                     <label className="block text-sm font-semibold mb-2">Upload Signature (Max 30 KB)</label>
                      <input type="file" accept="image/*" onChange={e => e.target.files?.[0] && handleFileUpload('signature', e.target.files[0])} className="text-sm" />
                      {data.signature && <img src={data.signature} alt="Sign" className="mt-2 h-16 object-contain border" />}
                      {errors.signature && <p className="text-red-500 text-xs mt-1">{errors.signature}</p>}
