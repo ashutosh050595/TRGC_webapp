@@ -45,6 +45,7 @@ export interface ResearchData {
   resInvitedIntWithin: string;
   resInvitedNat: string;
   resInvitedState: string;
+  resTotal: string;
 }
 
 export interface ApplicationData {
