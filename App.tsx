@@ -490,7 +490,7 @@ function App() {
                              General Supporting Documents - File size is 2 MB maximum
                            </li>
                            <li className="flex items-center gap-1.5 before:content-['•'] before:text-blue-500">
-                             Table 2 Report - Maximum file size is 15 MB
+                             Table 2 Report - Maximum file size is 25 MB
                            </li>
                          </ul>
                        </div>
