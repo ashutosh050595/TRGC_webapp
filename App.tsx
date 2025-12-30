@@ -142,7 +142,7 @@ function App() {
       'fileAcademic': 1024 * 1024, // 1 MB
       'fileResponsibilities': 2 * 1024 * 1024, // 2 MB
       'fileAdmin': 2 * 1024 * 1024, // 2 MB
-      'fileResearch': 25 * 1024 * 1024, // 25 MB
+      'fileResearch': 90 * 1024 * 1024, // 90 MB
       'filePaymentScreenshot': 500 * 1024, // 500 KB
       'fileNOC': 200 * 1024, // 200 KB
     };
@@ -944,7 +944,7 @@ function App() {
                   </h4>
                   
                   <div className="mb-4">
-                    <label className="block text-sm font-semibold mb-2">Upload Merged PDF (Max 25MB)</label>
+                    <label className="block text-sm font-semibold mb-2">Upload Merged PDF (Max 90MB)</label>
                     <input type="file" accept="application/pdf" onChange={e => e.target.files?.[0] && handleFileUpload('fileResearch', e.target.files[0])} className="block w-full text-sm" />
                     {errors.fileResearch && <p className="text-red-500 text-xs mt-1">{errors.fileResearch}</p>}
                   </div>
