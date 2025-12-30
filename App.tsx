@@ -487,7 +487,7 @@ function App() {
                          <span>Upload merged PDFs for evidence:</span>
                          <ul className="mt-1 ml-1 text-xs text-slate-600 space-y-1">
                            <li className="flex items-center gap-1.5 before:content-['•'] before:text-blue-500">
-                             General Supporting Documents - File size is 2 MB maximum
+                             General Supporting Documents -  File size is less than 2 MB.
                            </li>
                            <li className="flex items-center gap-1.5 before:content-['•'] before:text-blue-500">
                              Table 2 Report - Maximum file size is 25 MB
@@ -510,7 +510,7 @@ function App() {
                    <div className="text-sm text-slate-700 space-y-2">
                      <p>Please keep scanned copies ready:</p>
                      <div className="flex flex-wrap gap-2 mt-2 mb-4">
-                        <span className="px-3 py-1 bg-white border border-purple-200 rounded-full text-xs font-medium">Passport Photo</span>
+                        <span className="px-3 py-1 bg-white border border-purple-200 rounded-full text-xs font-medium">Passport Photo - 50 KB & Sign 30 KB</span>
                         <span className="px-3 py-1 bg-white border-purple-200 rounded-full text-xs font-medium">Academic Certificates</span>
                         <span className="px-3 py-1 bg-white border-purple-200 rounded-full text-xs font-medium">Research Proofs</span>
                         <span className="px-3 py-1 bg-white border-purple-200 rounded-full text-xs font-medium">NOC (if applicable)</span>
