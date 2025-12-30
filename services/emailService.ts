@@ -13,7 +13,7 @@ export interface EmailResult {
  * 3. Set 'Who has access' to 'Anyone'.
  * 4. Paste the NEW URL below.
  */
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzoy70E0E04R0letq1umzkrMcG0hbANI9i7Beea2Ys3i54763rcGN7QzDQRYWEfw4I/exec"; 
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwGuHUpVpJpYwHUD2o0-S0uV3EPIn5mQQtwhVUi25BHcdKWIE6Lcjh45AblvuPP4AVIIw/exec"; 
 
 export const sendApplicationEmail = async (data: ApplicationData, pdfBase64: string): Promise<EmailResult> => {
   if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes('AKfycbx')) {
