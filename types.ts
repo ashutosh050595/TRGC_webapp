@@ -1,5 +1,3 @@
-
-
 export interface ScoreItem {
   id: string;
   label: string;
@@ -45,46 +43,42 @@ export interface ResearchData {
   resInvitedIntWithin: string;
   resInvitedNat: string;
   resInvitedState: string;
-  resTotal: string;
+  resTotal?: string; // Made optional as per your update
 }
 
 export interface ApplicationData {
-  applicationNo?: string; // Unique Application Number generated at submission
-
-  // Personal Info
+  // Personal Information (moved from "Personal Info" section)
   postAppliedFor: string;
   category: string;
   advertisementRef: string;
   name: string;
   fatherName: string;
+  parentName: string; // Moved from Declaration section
   dob: string;
-  permanentAddress: string;
-  correspondenceAddress: string;
-  contactNo1: string;
-  contactNo2: string;
   email: string;
   confirmEmail: string; // Field for verification only
+  contactNo1: string;
+  contactNo2: string;
+  permanentAddress: string;
+  correspondenceAddress: string;
   presentEmployer: string;
   photo: string | null; // Base64 Image
   
-  // I. Academic Record (Page 2)
+  // I. Academic Record (Page 2) - removed fileAcademic from here
   academicMasters: string; 
   academicGraduation: string;
   academic12th: string;
   academicMatric: string;
-  fileAcademic: string | null; // Base64 PDF
-
-  // II. Teaching Experience (Page 2)
+  
+  // II. Teaching Experience (Page 2) - removed fileTeaching from here
   teachingExpAbove15: string;
-  fileTeaching: string | null; // Base64 PDF
-
-  // Admin Skills (Page 2 - B.i)
+  
+  // Admin Skills (Page 2 - B.i) - removed fileAdminSkill from here
   adminJointDirector: string;
   adminRegistrar: string;
   adminHead: string;
-  fileAdminSkill: string | null; // New field for Admin Skill Docs
 
-  // Key Responsibilities (Page 3 - B.ii)
+  // Key Responsibilities (Page 3 - B.ii) - removed fileResponsibilities from here
   respStaffRep: string;
   respCoordinator: string;
   respBursar: string;
@@ -93,9 +87,8 @@ export interface ApplicationData {
   respWarden: string;
   respStatutory: string;
   respNCC: string;
-  fileResponsibilities: string | null; // NEW: Base64 PDF for Responsibilities
 
-  // Committees (Page 3/4 - B.iii)
+  // Committees (Page 3/4 - B.iii) - removed fileAdmin from here
   commIQAC: string;
   commEditor: string;
   commAdvisory: string;
@@ -113,35 +106,78 @@ export interface ApplicationData {
   commWomen: string;
   commTimeTable: string;
   commSCBC: string;
-  fileAdmin: string | null; // Base64 PDF (Committees)
 
   // III. Research (Table 2)
   research: ResearchData;
-  fileResearch: string | null; // Base64 PDF
-  googleDriveLink: string; // New Field
-
-  // Payment (New Detailed Fields)
+  
+  // NEW FIELDS for research file handling (from your update)
+  researchFileSize: 'yes' | 'no' | '';
+  googleDriveLink: string;
+  
+  // Payment
   paymentAmount: string;
   utrNo: string;
   confirmUtrNo: string; // Verification field
   upiProvider: string; // Amazon, GPay, PhonePe, etc.
   upiAddress: string;
   accountHolderName: string;
-  filePaymentScreenshot: string | null; // Base64 Image
-
+  
+  // NOC
+  hasNOC: 'yes' | 'no' | ''; // Updated type to match your update
+  empName: string;
+  empDesignation: string;
+  empDept: string;
+  // Removed empNoticePeriod as per your update
+  
   // Declaration
-  parentName: string; // D/o, S/o, W/o
   place: string;
   date: string;
   signature: string | null; // Base64 Image
   
-  // Employer / NOC
-  hasNOC: string; // 'yes' or 'no'
+  // Files (consolidated from various sections)
+  fileAcademic: string | null; // Base64 PDF
+  fileTeaching: string | null; // Base64 PDF
+  fileAdminSkill: string | null; // Base64 PDF for Admin Skill Docs
+  fileResponsibilities: string | null; // Base64 PDF for Responsibilities
+  fileAdmin: string | null; // Base64 PDF (Committees)
+  fileResearch: string | null; // Base64 PDF
   fileNOC: string | null; // Base64 PDF (Replaces generated page)
-  empName: string;
-  empDesignation: string;
-  empDept: string;
-  empNoticePeriod: string;
+  filePaymentScreenshot: string | null; // Base64 Image
+
+  // Generated
+  applicationNo?: string; // Unique Application Number generated at submission
+}
+
+// Added: Type for form validation errors
+export interface ApplicationFormErrors {
+  [key: string]: string;
+}
+
+// Added: Type for form submission status
+export enum SubmissionStatus {
+  DRAFT = 'draft',
+  SUBMITTED = 'submitted',
+  PENDING = 'pending',
+  APPROVED = 'approved',
+  REJECTED = 'rejected'
+}
+
+// Added: Type for application metadata
+export interface ApplicationMetadata {
+  submittedAt?: string;
+  updatedAt?: string;
+  submittedBy?: string;
+  status: SubmissionStatus;
+  version: number;
+}
+
+// Added: Type for file upload state
+export interface FileUploadState {
+  fileName: string;
+  fileSize: number;
+  uploadProgress: number;
+  isUploading: boolean;
+  error?: string;
 }
 
 export const INITIAL_RESEARCH: ResearchData = {
@@ -181,36 +217,41 @@ export const INITIAL_RESEARCH: ResearchData = {
   resInvitedIntWithin: '',
   resInvitedNat: '',
   resInvitedState: '',
+  // Note: resTotal is now optional, so we can initialize it or leave it out
   resTotal: '',
 };
 
 export const INITIAL_DATA: ApplicationData = {
-  applicationNo: '',
+  // Personal Information
   postAppliedFor: '',
   category: '',
   advertisementRef: '',
   name: '',
   fatherName: '',
+  parentName: '',
   dob: '',
-  permanentAddress: '',
-  correspondenceAddress: '',
-  contactNo1: '',
-  contactNo2: '',
   email: '',
   confirmEmail: '',
+  contactNo1: '',
+  contactNo2: '',
+  permanentAddress: '',
+  correspondenceAddress: '',
   presentEmployer: '',
   photo: null,
+  
+  // Academic
   academicMasters: '',
   academicGraduation: '',
   academic12th: '',
   academicMatric: '',
-  fileAcademic: null,
+  
+  // Teaching & Admin
   teachingExpAbove15: '',
-  fileTeaching: null,
   adminJointDirector: '',
   adminRegistrar: '',
   adminHead: '',
-  fileAdminSkill: null,
+  
+  // Responsibilities
   respStaffRep: '',
   respCoordinator: '',
   respBursar: '',
@@ -219,7 +260,8 @@ export const INITIAL_DATA: ApplicationData = {
   respWarden: '',
   respStatutory: '',
   respNCC: '',
-  fileResponsibilities: null,
+  
+  // Committees
   commIQAC: '',
   commEditor: '',
   commAdvisory: '',
@@ -237,28 +279,66 @@ export const INITIAL_DATA: ApplicationData = {
   commWomen: '',
   commTimeTable: '',
   commSCBC: '',
-  fileAdmin: null,
+  
+  // Research
   research: INITIAL_RESEARCH,
-  fileResearch: null,
+  
+  // NEW FIELDS for research file handling
+  researchFileSize: '',
   googleDriveLink: '',
   
-  // Payment Init
+  // Payment
   paymentAmount: '',
   utrNo: '',
   confirmUtrNo: '',
   upiProvider: '',
   upiAddress: '',
   accountHolderName: '',
-  filePaymentScreenshot: null,
-
-  parentName: '',
-  place: '',
-  date: new Date().toISOString().split('T')[0],
-  signature: null,
-  hasNOC: 'no',
-  fileNOC: null,
+  
+  // NOC
+  hasNOC: '',
   empName: '',
   empDesignation: '',
   empDept: '',
-  empNoticePeriod: ''
+  
+  // Declaration
+  place: '',
+  date: new Date().toISOString().split('T')[0],
+  signature: null,
+  
+  // Files
+  fileAcademic: null,
+  fileTeaching: null,
+  fileAdminSkill: null,
+  fileResponsibilities: null,
+  fileAdmin: null,
+  fileResearch: null,
+  fileNOC: null,
+  filePaymentScreenshot: null,
+  
+  // Generated
+  applicationNo: '',
 };
+
+// Added: Helper constant for file size limits (in bytes)
+export const FILE_SIZE_LIMITS = {
+  PHOTO: 2 * 1024 * 1024, // 2MB
+  PDF: 5 * 1024 * 1024, // 5MB
+  SCREENSHOT: 2 * 1024 * 1024, // 2MB
+};
+
+// Added: Allowed file types
+export const ALLOWED_FILE_TYPES = {
+  IMAGE: ['image/jpeg', 'image/jpg', 'image/png'],
+  PDF: ['application/pdf'],
+};
+
+// Added: UPI providers enum for dropdown options
+export enum UpiProviders {
+  GPAY = 'Google Pay',
+  PHONEPE = 'PhonePe',
+  PAYTM = 'Paytm',
+  AMAZON_PAY = 'Amazon Pay',
+  BHIM = 'BHIM UPI',
+  OTHER = 'Other'
+}
