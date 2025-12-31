@@ -378,16 +378,30 @@ export const generatePDF = (data: ApplicationData, shouldDownload: boolean = tru
   doc.text(splitAttachNote, 14, yPos);
   yPos += (splitAttachNote.length * 4) + 5;
 
-
-  if (data.googleDriveLink) {
+  // --- NEW: Google Drive Link Section ---
+  if (data.researchFileSize === 'yes' && data.googleDriveLink) {
     // Check page break for Drive Link
-    if (yPos + 10 > pageHeight - 20) {
+    if (yPos + 20 > pageHeight - 20) {
        doc.addPage();
        yPos = 20;
     }
+    
     doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+    doc.text("Research Documents (Large Files)", 14, yPos);
+    yPos += 7;
+    
     doc.setFont('helvetica', 'italic');
-    doc.text(`Large Research Files Link: ${data.googleDriveLink}`, 14, yPos);
+    doc.setFontSize(8);
+    const linkText = `Google Drive Link: ${data.googleDriveLink}`;
+    const splitLink = doc.splitTextToSize(linkText, pageWidth - 28);
+    doc.text(splitLink, 14, yPos);
+    yPos += (splitLink.length * 4) + 5;
+    
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7);
+    const noteText = "Note: Research documents are provided via Google Drive link as they exceed 10MB file size limit.";
+    doc.text(noteText, 14, yPos);
     yPos += 10;
   }
 
