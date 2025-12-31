@@ -142,7 +142,7 @@ function App() {
       'fileAcademic': 1024 * 1024, // 1 MB
       'fileResponsibilities': 2 * 1024 * 1024, // 2 MB
       'fileAdmin': 2 * 1024 * 1024, // 2 MB
-      'fileResearch': 38 * 1024 * 1024, // 38 MB
+      'fileResearch': 10 * 1024 * 1024, // 10 MB (reduced from 38MB)
       'filePaymentScreenshot': 500 * 1024, // 500 KB
       'fileNOC': 200 * 1024, // 200 KB
     };
@@ -155,6 +155,12 @@ function App() {
       const displaySize = limit >= 1024 * 1024 ? `${sizeInMB}MB` : `${sizeInKB}KB`;
       
       alert(`File too large. Max size is ${displaySize}`);
+      return;
+    }
+
+    // Special handling for research file when user selected "No" but file > 10MB
+    if (field === 'fileResearch' && data.researchFileSize === 'no' && file.size > 10 * 1024 * 1024) {
+      alert(`Your research file is more than 10MB. Please select "Yes" for the question about file size and provide a Google Drive link instead.`);
       return;
     }
 
@@ -236,7 +242,23 @@ function App() {
     }
 
     if (currentStep === 5) {
-       requireField('fileResearch', 'Research documents are required');
+      // Validate research file size option
+      if (!data.researchFileSize) {
+        newErrors['researchFileSize'] = 'Please select if your research file is more than 10MB';
+        isValid = false;
+      } else if (data.researchFileSize === 'no') {
+        // If user says file is <= 10MB, require upload
+        requireField('fileResearch', 'Research documents are required');
+      } else if (data.researchFileSize === 'yes') {
+        // If user says file is > 10MB, require Google Drive link
+        if (!data.googleDriveLink) {
+          newErrors['googleDriveLink'] = 'Google Drive link is required for files larger than 10MB';
+          isValid = false;
+        } else if (!data.googleDriveLink.includes('drive.google.com')) {
+          newErrors['googleDriveLink'] = 'Please provide a valid Google Drive link';
+          isValid = false;
+        }
+      }
     }
 
     if (currentStep === 6) {
@@ -327,13 +349,16 @@ function App() {
 
       // 2. Prepare Attachments for Merging
       setSubmissionStatus('merging');
+      
+      // Prepare attachments - exclude research file if Google Drive link is provided
       const attachments = [
         { base64: updatedData.fileAcademic, title: "APPENDIX I: ACADEMIC RECORDS" },
         { base64: updatedData.fileTeaching, title: "APPENDIX II: TEACHING EXPERIENCE" },
         { base64: updatedData.fileAdminSkill, title: "APPENDIX III: ADMIN SKILLS" },
         { base64: updatedData.fileResponsibilities, title: "APPENDIX IV-A: RESPONSIBILITIES" },
         { base64: updatedData.fileAdmin, title: "APPENDIX IV-B: COMMITTEES" },
-        { base64: updatedData.fileResearch, title: "APPENDIX V: RESEARCH DOCUMENTS" },
+        // Only include research file if no Google Drive link is provided
+        ...(updatedData.researchFileSize === 'no' ? [{ base64: updatedData.fileResearch, title: "APPENDIX V: RESEARCH DOCUMENTS" }] : []),
         { base64: updatedData.fileNOC, title: "EMPLOYER NOC" },
         { base64: updatedData.filePaymentScreenshot, title: "PAYMENT PROOF" }
       ].filter(a => a.base64 !== null);
@@ -490,7 +515,10 @@ function App() {
                              General Supporting Documents -  File size is less than 2 MB.
                            </li>
                            <li className="flex items-center gap-1.5 before:content-['•'] before:text-blue-500">
-                             Table 2 Report - Maximum file size is 25 MB
+                             Table 2 Report - Maximum file size is 10 MB
+                           </li>
+                           <li className="flex items-center gap-1.5 before:content-['•'] before:text-blue-500">
+                             For files larger than 10 MB, provide Google Drive link
                            </li>
                          </ul>
                        </div>
@@ -519,7 +547,7 @@ function App() {
                      {/* NEW COMPRESSION SECTION */}
                      <div className="mt-4 pt-4 border-t border-purple-200">
                         <p className="text-sm font-bold text-purple-900 mb-2">Compress Large PDF Files</p>
-                        <p className="text-xs text-slate-600 mb-2">To compress the PDF file within 15MB, you may use the following links:</p>
+                        <p className="text-xs text-slate-600 mb-2">To compress the PDF file within 10MB, you may use the following links:</p>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                             <a href="https://www.adobe.com/in/acrobat/online/compress-pdf.html" target="_blank" rel="noreferrer" className="flex items-center gap-1 text-blue-600 hover:underline"><ExternalLink className="w-3 h-3"/> Adobe Acrobat</a>
                             <a href="https://www.ilovepdf.com/compress_pdf" target="_blank" rel="noreferrer" className="flex items-center gap-1 text-blue-600 hover:underline"><ExternalLink className="w-3 h-3"/> iLovePDF</a>
@@ -943,18 +971,72 @@ function App() {
                     Upload Research Documents
                   </h4>
                   
-                  <div className="mb-4">
-                    <label className="block text-sm font-semibold mb-2">Upload Merged PDF (Max 38MB)</label>
-                    <input type="file" accept="application/pdf" onChange={e => e.target.files?.[0] && handleFileUpload('fileResearch', e.target.files[0])} className="block w-full text-sm" />
-                    {errors.fileResearch && <p className="text-red-500 text-xs mt-1">{errors.fileResearch}</p>}
+                  {/* NEW: Research File Size Question */}
+                  <div className="mb-6">
+                    <label className="block text-sm font-semibold mb-2">
+                      Is your Research File more than 10MB? <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none"
+                      value={data.researchFileSize || ''}
+                      onChange={(e) => handleInputChange('researchFileSize', e.target.value)}
+                    >
+                      <option value="">-- Select --</option>
+                      <option value="yes">Yes</option>
+                      <option value="no">No</option>
+                    </select>
+                    {errors.researchFileSize && (
+                      <p className="text-red-500 text-xs mt-1">{errors.researchFileSize}</p>
+                    )}
                   </div>
 
-                  {/* <div className="relative flex items-center gap-4 py-4">
-                    <div className="flex-grow border-t border-gray-300"></div>
-                    <span className="flex-shrink-0 text-gray-400 text-sm">OR IF FILE IS TOO LARGE</span>
-                    <div className="flex-grow border-t border-gray-300"></div>
-                  </div> */}
+                  {/* Conditionally show upload or Google Drive link */}
+                  {data.researchFileSize === 'no' && (
+                    <div className="mb-4">
+                      <label className="block text-sm font-semibold mb-2">
+                        Upload Merged PDF (Max 10MB) <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="file"
+                        accept="application/pdf"
+                        onChange={e => e.target.files?.[0] && handleFileUpload('fileResearch', e.target.files[0])}
+                        className="block w-full text-sm"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        Maximum file size is 10MB. If your file is larger, please select "Yes" above and provide a Google Drive link.
+                      </p>
+                      {errors.fileResearch && (
+                        <p className="text-red-500 text-xs mt-1">{errors.fileResearch}</p>
+                      )}
+                    </div>
+                  )}
 
+                  {data.researchFileSize === 'yes' && (
+                    <div className="mb-4">
+                      <label className="block text-sm font-semibold mb-2">
+                        Google Drive Link (with viewing rights set to "Anyone with the link can view") <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="url"
+                        className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none"
+                        value={data.googleDriveLink || ''}
+                        onChange={(e) => handleInputChange('googleDriveLink', e.target.value)}
+                        placeholder="https://drive.google.com/..."
+                      />
+                      <div className="mt-2 p-3 bg-blue-50 rounded border border-blue-200">
+                        <p className="text-xs text-blue-700 font-medium mb-1">Instructions for Google Drive:</p>
+                        <ol className="text-xs text-blue-600 list-decimal pl-4 space-y-1">
+                          <li>Upload your research documents to Google Drive</li>
+                          <li>Right-click the file/folder → "Share" → "General access"</li>
+                          <li>Set to "Anyone with the link" and "Viewer"</li>
+                          <li>Copy the link and paste it above</li>
+                        </ol>
+                      </div>
+                      {errors.googleDriveLink && (
+                        <p className="text-red-500 text-xs mt-1">{errors.googleDriveLink}</p>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -1116,7 +1198,7 @@ function App() {
                       { label: 'Admin Docs', file: data.fileAdminSkill },
                       { label: 'Responsibility Docs', file: data.fileResponsibilities },
                       { label: 'Committee Docs', file: data.fileAdmin },
-                      { label: 'Research Docs', file: data.fileResearch },
+                      { label: 'Research Docs', file: data.researchFileSize === 'no' ? data.fileResearch : null },
                       { label: 'NOC', file: data.fileNOC },
                       { label: 'Payment Proof', file: data.filePaymentScreenshot },
                     ].map((doc, idx) => (
@@ -1133,6 +1215,19 @@ function App() {
                       </button>
                     ))}
                   </div>
+                  {data.researchFileSize === 'yes' && data.googleDriveLink && (
+                    <div className="p-4 bg-blue-50 border-t">
+                      <p className="text-sm font-semibold text-blue-800 mb-1">Research Documents (Google Drive Link):</p>
+                      <a 
+                        href={data.googleDriveLink} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-xs text-blue-600 break-all hover:underline"
+                      >
+                        {data.googleDriveLink}
+                      </a>
+                    </div>
+                  )}
                 </div>
 
                 {/* Preview Button */}
