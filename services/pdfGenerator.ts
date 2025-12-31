@@ -10,13 +10,103 @@ interface PDFOutput {
 
 const formatDate = (dateString: string): string => {
   if (!dateString) return "";
+  
   // Handle DD-MM-YYYY format (already in correct format)
   if (dateString.includes('-') && dateString.split('-')[0].length === 2) {
     return dateString;
   }
-  // Convert from YYYY-MM-DD to DD-MM-YYYY
-  const [year, month, day] = dateString.split('-');
-  return `${day}-${month}-${year}`;
+  
+  // Handle MM/DD/YYYY format
+  if (dateString.includes('/')) {
+    const parts = dateString.split('/');
+    if (parts[0].length === 2 && parts[1].length === 2 && parts[2].length === 4) {
+      // MM/DD/YYYY to DD-MM-YYYY
+      return `${parts[1]}-${parts[0]}-${parts[2]}`;
+    }
+  }
+  
+  // Convert from YYYY-MM-DD (input type="date") to DD-MM-YYYY
+  if (dateString.includes('-') && dateString.split('-')[0].length === 4) {
+    const [year, month, day] = dateString.split('-');
+    return `${day}-${month}-${year}`;
+  }
+  
+  // Return as-is if no recognized format
+  return dateString;
+};
+
+const formatDateNumeric = (dateString: string): string => {
+  const formatted = formatDate(dateString);
+  // Convert DD-MM-YYYY to DD/MM/YYYY
+  return formatted.replace(/-/g, '/');
+};
+
+const formatDateWritten = (dateString: string): string => {
+  if (!dateString) return "";
+  
+  let day = "", month = "", year = "";
+  
+  // Parse the date string based on format
+  if (dateString.includes('-')) {
+    const parts = dateString.split('-');
+    if (parts[0].length === 4) {
+      // YYYY-MM-DD
+      [year, month, day] = parts;
+    } else if (parts[0].length === 2) {
+      // DD-MM-YYYY
+      [day, month, year] = parts;
+    }
+  } else if (dateString.includes('/')) {
+    const parts = dateString.split('/');
+    if (parts[0].length === 2 && parts[1].length === 2) {
+      // Could be MM/DD/YYYY or DD/MM/YYYY
+      if (parseInt(parts[0]) > 12) {
+        // DD/MM/YYYY (day > 12)
+        [day, month, year] = parts;
+      } else if (parseInt(parts[1]) > 12) {
+        // MM/DD/YYYY (month > 12)
+        day = parts[1];
+        month = parts[0];
+        year = parts[2];
+      } else {
+        // Ambiguous, assume DD/MM/YYYY
+        [day, month, year] = parts;
+      }
+    }
+  }
+  
+  // If still not parsed, try to create Date object
+  if (!day || !month || !year) {
+    const date = new Date(dateString);
+    if (!isNaN(date.getTime())) {
+      day = date.getDate().toString().padStart(2, '0');
+      month = (date.getMonth() + 1).toString().padStart(2, '0');
+      year = date.getFullYear().toString();
+    } else {
+      return "";
+    }
+  }
+  
+  const monthNames = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
+  
+  const monthIndex = parseInt(month) - 1;
+  const monthName = monthIndex >= 0 && monthIndex < 12 ? monthNames[monthIndex] : month;
+  
+  // Return in "DD Month YYYY" format
+  return `${day.padStart(2, '0')} ${monthName} ${year}`;
+};
+
+const formatDOBForPDF = (dateString: string): string => {
+  const numeric = formatDateNumeric(dateString);
+  const written = formatDateWritten(dateString);
+  
+  if (!numeric) return "";
+  if (!written) return numeric;
+  
+  return `${numeric} (${written})`;
 };
 
 export const generatePDF = (data: ApplicationData, shouldDownload: boolean = true): PDFOutput => {
@@ -82,7 +172,8 @@ export const generatePDF = (data: ApplicationData, shouldDownload: boolean = tru
   const labels = [
     { label: "Name", val: data.name },
     { label: "Father's Name", val: data.fatherName },
-    { label: "Date of Birth", val: formatDate(data.dob) },
+    // UPDATED: Use formatDOBForPDF for Date of Birth
+    { label: "Date of Birth", val: formatDOBForPDF(data.dob) },
     { label: "Category", val: data.category },
     { label: "Permanent Address", val: data.permanentAddress },
     { label: "Correspondence Address", val: data.correspondenceAddress },
@@ -434,7 +525,8 @@ export const generatePDF = (data: ApplicationData, shouldDownload: boolean = tru
     body: [
       ['Amount Paid', `Rs. ${data.paymentAmount}`],
       ['UTR No.', data.utrNo],
-      ['Date', formatDate(data.date)],
+      // UPDATED: Use formatDateNumeric for date
+      ['Date', formatDateNumeric(data.date)],
       ['UPI Provider', data.upiProvider],
       ['UPI Address', data.upiAddress],
       ['Account Holder Name', data.accountHolderName],
@@ -472,8 +564,8 @@ export const generatePDF = (data: ApplicationData, shouldDownload: boolean = tru
   yPos += 30;
   doc.text(`Place: ${data.place}`, 14, yPos);
   yPos += 7;
-  // Use formatDate for consistent DD-MM-YYYY format
-  doc.text(`Date: ${formatDate(data.date)}`, 14, yPos);
+  // UPDATED: Use formatDateNumeric for date
+  doc.text(`Date: ${formatDateNumeric(data.date)}`, 14, yPos);
 
   if (data.signature) {
     doc.addImage(data.signature, 'JPEG', pageWidth - 70, yPos - 10, 50, 20);
