@@ -1,4 +1,3 @@
-
 import type { ApplicationData } from '../types';
 
 export interface EmailResult {
@@ -9,7 +8,7 @@ export interface EmailResult {
 /**
  * MANDATORY: YOU MUST REPLACE THIS URL WITH YOUR ACTUAL DEPLOYED WEB APP URL
  */
-const GOOGLE_SCRIPT_URL: string = "https://script.google.com/macros/s/AKfycbwGuHUpVpJpYwHUD2o0-S0uV3EPIn5mQQtwhVUi25BHcdKWIE6Lcjh45AblvuPP4AVIIw/exec"; 
+const GOOGLE_SCRIPT_URL: string = "https://script.google.com/macros/s/AKfycbxfuRlE9-cwJia0YJEgafbdlHEkdyDFkhW_oehHCnJXmSuqvPisMS2BI4y_J64RjbQ4/exec"; 
 
 export const sendApplicationEmail = async (data: ApplicationData, pdfBase64: string): Promise<EmailResult> => {
   if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL === "" || GOOGLE_SCRIPT_URL.includes("AKfycbx_YOUR_URL")) {
