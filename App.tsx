@@ -139,7 +139,7 @@ function App() {
       'signature': 30 * 1024, // 30 KB
       'fileTeaching': 500 * 1024, // 500 KB
       'fileAdminSkill': 500 * 1024, // 500 KB
-      'fileAcademic': 1024 * 1024, // 1 MB
+      'fileAcademic': 5 * 1024 * 1024, // 5 MB
       'fileResponsibilities': 2 * 1024 * 1024, // 2 MB
       'fileAdmin': 2 * 1024 * 1024, // 2 MB
       'fileResearch': 10 * 1024 * 1024, // 10 MB (reduced from 38MB)
@@ -484,7 +484,7 @@ function App() {
                         <h3 className="font-bold text-red-900 text-lg">Application Timeline</h3>
                         <div className="text-red-800 text-sm mt-1 space-y-1">
                           <p>Start Date: <span className="font-bold">16-12-2025</span></p>
-                          <p>End Date: <span className="font-bold">05.01.2026</span> at <span className="font-bold">11:59 pm</span></p>
+                          <p>End Date: <span className="font-bold">05-01-2026</span> at <span className="font-bold">11:59 pm</span></p>
                         </div>
                       </div>
                   </div>
@@ -512,7 +512,7 @@ function App() {
                          <span>Upload merged PDFs for evidence:</span>
                          <ul className="mt-1 ml-1 text-xs text-slate-600 space-y-1">
                            <li className="flex items-center gap-1.5 before:content-['•'] before:text-blue-500">
-                             General Supporting Documents -  File size is less than 2 MB.
+                             General Supporting Documents -  File size is less than 2 MB & Academic Documents - 5 MB
                            </li>
                            <li className="flex items-center gap-1.5 before:content-['•'] before:text-blue-500">
                              Table 2 Report - Maximum file size is 10 MB
@@ -739,7 +739,7 @@ function App() {
                   </table>
                 </div>
                 <div className="bg-slate-50 p-4 rounded border">
-                  <label className="font-semibold text-sm">Upload Academic Documents (Merged PDF) <span className="text-xs text-gray-500 font-normal">(Max 1MB)</span></label>
+                  <label className="font-semibold text-sm">Upload Academic Documents (Merged PDF) <span className="text-xs text-gray-500 font-normal">(Max 5MB)</span></label>
                   <input type="file" accept="application/pdf" onChange={e => e.target.files?.[0] && handleFileUpload('fileAcademic', e.target.files[0])} className="block w-full text-sm mt-2" />
                   {errors.fileAcademic && <p className="text-red-500 text-xs mt-1">{errors.fileAcademic}</p>}
                 </div>
