@@ -14,7 +14,7 @@ const ADMIN_SHEET_URL = "https://docs.google.com/spreadsheets/d/1yA_v8D9zKk-WpZk
 
 // Deadline Configuration
 const DEADLINE_CONFIG = {
-  deadlineDate: '2026-01-04', // January 4, 2026
+  deadlineDate: '2026-01-05', // January 5, 2026
   deadlineTime: '23:59:59', // 11:59 PM
   timezone: 'IST',
   expiredMessage: 'Deadline to submit the application has ended. You cannot submit it now.',
@@ -68,13 +68,13 @@ const useDeadline = () => {
     checkDeadline();
     
     // Update countdown every second if showCountdown is enabled
-    let intervalId: NodeJS.Timeout;
+    let intervalId: number;
     if (DEADLINE_CONFIG.showCountdown && !isDeadlinePassed && !DEADLINE_CONFIG.allowForTesting) {
-      intervalId = setInterval(checkDeadline, 1000);
+      intervalId = window.setInterval(checkDeadline, 1000);
     }
     
     return () => {
-      if (intervalId) clearInterval(intervalId);
+      if (intervalId) window.clearInterval(intervalId);
     };
   }, [checkDeadline, isDeadlinePassed]);
 
